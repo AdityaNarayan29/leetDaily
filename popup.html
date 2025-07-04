@@ -1,19 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="dark">
 
 <head>
-  <link rel="stylesheet" href="styles/popup.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeetDaily</title>
+  <link rel="stylesheet" href="styles/output.css" />
 </head>
 
-<body class="bg-white p-4 w-[250px] text-black">
-  <h1 class="text-lg font-semibold mb-2">LeetDaily</h1>
-  <div id="question" class="mb-3 text-sm text-gray-800">Loading...</div>
+<body class="bg-white dark:bg-neutral-900 text-black dark:text-white w-[250px] rounded-xl shadow-lg p-4">
 
-  <!-- Button (from ShadCN) -->
-  <button id="open"
-    class="inline-flex items-center justify-center rounded-md bg-black text-white text-sm font-medium px-4 py-2 transition-colors hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring">
-    Open Today's Problem
-  </button>
+  <header>
+    <h1 class="text-lg font-semibold mb-2">LeetDaily</h1>
+  </header>
+  <main>
+    <!-- ✅ Only one question container -->
+    <div id="question" class="mb-3 text-sm text-gray-800 dark:text-gray-200">
+      Loading...
+    </div>
+    <button id="open"
+      class="inline-flex items-center justify-center w-full rounded-md bg-black text-white text-sm font-medium px-4 py-2 transition-colors hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring dark:bg-white dark:text-black dark:hover:bg-gray-300">
+      Open Today's Problem
+    </button>
+  </main>
 
   <script src="popup.js"></script>
 </body>

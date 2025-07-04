@@ -25,7 +25,17 @@ async function getDailyQuestionSlug() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const question = await getDailyQuestionSlug();
-  document.getElementById("question").innerText = `${question.title} (${question.difficulty})`;
+
+  const difficultyColors = {
+    Easy: "bg-green-100 text-green-800",
+    Medium: "bg-orange-100 text-orange-800",
+    Hard: "bg-red-100 text-red-800"
+  };
+
+  const chipClass = difficultyColors[question.difficulty] || "";
+  const chipHTML = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${chipClass} ml-2">${question.difficulty}</span>`;
+
+  document.getElementById("question").innerHTML = `${question.title}${chipHTML}`;
 
   document.getElementById("open").addEventListener("click", () => {
     chrome.tabs.create({

@@ -1,8 +1,8 @@
 module.exports = {
-  darkMode: 'media', // important!
-  content: ["./*.html", "./*.js"],
+  darkMode: 'class', // important!
+  content: ["./**/*.html", "./**/*.js"],
   theme: {
     extend: {},
   },
   plugins: [],
-};
+}
