@@ -7,6 +7,7 @@ async function getDailyQuestionSlug() {
             titleSlug
             title
             difficulty
+            questionFrontendId
           }
         }
       }
@@ -35,10 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const chipClass = difficultyColors[question.difficulty] || "";
   const chipHTML = `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${chipClass} ml-2">${question.difficulty}</span>`;
 
-  document.getElementById("question").innerHTML = `${question.title}${chipHTML}`;
+  document.getElementById("question").innerHTML = `<strong>${question.questionFrontendId}.</strong><span>${question.title}</span>${chipHTML}`;
+
 
   document.getElementById("open").addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "visitedToday" }, (response) => {
+    chrome.runtime.sendMessage({ action: "visitedToday" }, () => {
       chrome.tabs.create({
         url: `https://leetcode.com/problems/${question.titleSlug}`
       });
