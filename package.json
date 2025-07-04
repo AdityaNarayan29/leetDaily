@@ -1,0 +1,17 @@
+{
+  "name": "leetdaily",
+  "version": "1.0.0",
+  "description": "Chrome Extension using TailwindCSS",
+  "main": "popup.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --minify",
+    "dev:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "tailwindcss": "^4.1.11"
+  }
+}
