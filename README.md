@@ -2,7 +2,7 @@
 
 LeetDaily is a lightweight Chrome extension that brings the LeetCode Daily Challenge directly to your browser — helping you stay consistent with your coding practice, effortlessly.
 
-![LeetDaily Banner](./assets/leetdaily-banner.png) <!-- optional if you want to add a banner or logo -->
+![LeetDaily Banner](./icon.png) <!-- optional if you want to add a banner or logo -->
 
 ---
 
