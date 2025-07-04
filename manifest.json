@@ -5,8 +5,16 @@
   "description": "One-click access to LeetCode's daily question.",
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon.png"
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "permissions": ["tabs", "storage"],
-  "host_permissions": ["https://leetcode.com/*"]
+  "host_permissions": ["https://leetcode.com/*"],
+    "background": {
+    "service_worker": "background.js"
+  }
 }

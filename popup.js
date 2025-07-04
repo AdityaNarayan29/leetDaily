@@ -38,8 +38,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("question").innerHTML = `${question.title}${chipHTML}`;
 
   document.getElementById("open").addEventListener("click", () => {
-    chrome.tabs.create({
-      url: `https://leetcode.com/problems/${question.titleSlug}`
+    chrome.runtime.sendMessage({ action: "visitedToday" }, (response) => {
+      chrome.tabs.create({
+        url: `https://leetcode.com/problems/${question.titleSlug}`
+      });
     });
   });
 });
