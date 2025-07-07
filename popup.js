@@ -12,7 +12,7 @@ function updateTimerDisplay() {
   const hours = Math.floor(diff / 3600000);
   const minutes = Math.floor((diff % 3600000) / 60000);
 
-  document.getElementById("timer").textContent = `New problem in: ${hours}h ${minutes}m`;
+  document.getElementById("timer").textContent = `New in: ${hours}h ${minutes}m`;
 }
 
 async function getDailyQuestionSlug() {
@@ -80,12 +80,14 @@ function renderQuestion(question) {
       ${chipHTML}
     </div>
     <div class="text-sm mt-3 space-y-1">
-      <div><strong>Acceptance:</strong> ${acceptanceRate}%</div>
       <div>
-        <button id="toggle-topics" class="underline underline-offset-2 text-sm font-medium cursor-pointer text-inherit focus:outline-none">
+        <div class="flex items-center justify-between w-full">
+          <button id="toggle-topics" class="underline underline-offset-2 text-sm font-medium cursor-pointer text-inherit focus:outline-none">
           Show Topics
         </button>
-        <div id="topics-list" class="mt-1 flex-wrap hidden">
+        <div><strong>Acceptance:</strong> ${acceptanceRate}%</div>
+        </div>
+        <div id="topics-list" class="mt-2 flex-wrap hidden">
           ${topicsHTML}
         </div>
       </div>
@@ -105,9 +107,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   chrome.storage.local.get(["streak", "lastVisitedDate"], (result) => {
     const streak = result.streak || 0;
     if (result.lastVisitedDate === today) {
-      document.getElementById("streakDisplay").textContent = `🔥 Streak: ${streak}`;
+      document.getElementById("streakDisplay").textContent = `🔥 ${streak}`;
     } else {
-      document.getElementById("streakDisplay").textContent = `🔥 Streak: 0`;
+      document.getElementById("streakDisplay").textContent = `🔥 0`;
     }
   });
 

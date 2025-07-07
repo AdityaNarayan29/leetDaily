@@ -14,8 +14,19 @@ module.exports = {
     "dark:border-neutral-600", "dark:bg-neutral-800", "dark:text-white",
     "underline", "underline-offset-2", "decoration-current", "decoration-2",
     "cursor-pointer", "text-inherit", "focus:outline-none",
-    "hidden", "flex", "flex-wrap", "space-y-1", "text-blue-600", "dark:text-blue-400", "hover:underline"
+    "hidden", "flex", "flex-wrap", "space-y-1", "text-blue-600", "dark:text-blue-400", "hover:underline",
+    "bg-white", "dark:bg-neutral-900", "text-black", "dark:text-white",
+    "w-[400px]", "rounded-xl", "shadow-lg", "p-4",
+    "flex", "items-center", "justify-between", "w-full", "mb-4",
+    "text-lg", "font-semibold", "m-0", "p-0",
+    "text-xs", "text-neutral-500", "dark:text-neutral-400",
+    "mb-3", "text-sm", "text-gray-800", "dark:text-gray-200",
+    "justify-center", "rounded-md", "bg-black", "text-white", "font-medium",
+    "px-4", "py-2", "transition-colors", "hover:bg-neutral-800",
+    "focus:outline-none", "focus:ring-2", "focus:ring-ring",
+    "dark:bg-white", "dark:text-black", "dark:hover:bg-gray-300"
   ],
+
   theme: {
     extend: {},
   },
