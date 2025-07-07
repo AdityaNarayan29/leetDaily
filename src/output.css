@@ -18,6 +18,7 @@
     --color-orange-900: oklch(40.8% 0.123 38.172);
     --color-green-100: oklch(96.2% 0.044 156.743);
     --color-green-300: oklch(87.1% 0.15 154.449);
+    --color-green-500: oklch(72.3% 0.219 149.579);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-green-900: oklch(39.3% 0.095 152.535);
     --color-blue-100: oklch(93.2% 0.032 255.585);
@@ -39,6 +40,8 @@
     --color-neutral-100: oklch(97% 0 0);
     --color-neutral-200: oklch(92.2% 0 0);
     --color-neutral-300: oklch(87% 0 0);
+    --color-neutral-400: oklch(70.8% 0 0);
+    --color-neutral-500: oklch(55.6% 0 0);
     --color-neutral-600: oklch(43.9% 0 0);
     --color-neutral-700: oklch(37.1% 0 0);
     --color-neutral-800: oklch(26.9% 0 0);
@@ -502,6 +505,9 @@
   .text-gray-800 {
     color: var(--color-gray-800);
   }
+  .text-green-500 {
+    color: var(--color-green-500);
+  }
   .text-green-800 {
     color: var(--color-green-800);
   }
@@ -511,11 +517,17 @@
   .text-neutral-300 {
     color: var(--color-neutral-300);
   }
+  .text-neutral-500 {
+    color: var(--color-neutral-500);
+  }
   .text-neutral-800 {
     color: var(--color-neutral-800);
   }
   .text-orange-800 {
     color: var(--color-orange-800);
+  }
+  .text-red-500 {
+    color: var(--color-red-500);
   }
   .text-red-800 {
     color: var(--color-red-800);
@@ -722,6 +734,11 @@
   .dark\:text-green-300 {
     @media (prefers-color-scheme: dark) {
       color: var(--color-green-300);
+    }
+  }
+  .dark\:text-neutral-400 {
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
     }
   }
   .dark\:text-orange-300 {
