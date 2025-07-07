@@ -12,7 +12,7 @@
       "128": "icon.png"
     }
   },
-  "permissions": ["tabs", "storage"],
+  "permissions": ["storage"],
   "host_permissions": ["https://leetcode.com/*"],
     "background": {
     "service_worker": "background.js"
