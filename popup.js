@@ -66,9 +66,15 @@ function renderQuestion(question) {
 
   const topicsArray = question.topicTags || [];
   const topicsHTML = topicsArray.length
-    ? topicsArray.map(tag =>
-      `<span class="${topicChipClass} mr-1 mb-1" onclick="window.open('https://leetcode.com/tag/${tag.name.toLowerCase().replace(/ /g, '-')}/')">${tag.name}</span>`
-    ).join("")
+    ? topicsArray.map(tag => {
+      const tagSlug = encodeURIComponent(
+        tag.name.toLowerCase()
+          .replace(/[ ()]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+      );
+      return `<span class="${topicChipClass} mr-1 mb-1" data-tag="${tagSlug}">${tag.name}</span>`;
+    }).join("")
     : '<span class="text-gray-500 dark:text-gray-400">N/A</span>';
 
   document.getElementById("question").innerHTML = `
@@ -83,9 +89,9 @@ function renderQuestion(question) {
       <div>
         <div class="flex items-center justify-between w-full">
           <button id="toggle-topics" class="underline underline-offset-2 text-sm font-medium cursor-pointer text-inherit focus:outline-none">
-          Show Topics
-        </button>
-        <div><strong>Acceptance:</strong> ${acceptanceRate}%</div>
+            Show Topics
+          </button>
+          <div><strong>Acceptance:</strong> ${acceptanceRate}%</div>
         </div>
         <div id="topics-list" class="mt-2 flex-wrap hidden">
           ${topicsHTML}
@@ -93,6 +99,18 @@ function renderQuestion(question) {
       </div>
     </div>
   `;
+
+  // Attach topic chip click listener (event delegation)
+  const topicsListEl = document.getElementById("topics-list");
+  if (topicsListEl) {
+    topicsListEl.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target && target.dataset && target.dataset.tag) {
+        const tagSlug = target.dataset.tag;
+        window.open(`https://leetcode.com/tag/${tagSlug}/`, "_blank");
+      }
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
