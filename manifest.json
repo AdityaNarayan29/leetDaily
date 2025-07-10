@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LeetDaily",
+  "name": "LeetDaily — Daily LeetCode Challenge & Streak Tracker",
   "version": "1.0",
-  "description": "One-click access to LeetCode's daily question.",
+  "description": "Stay consistent with your coding practice. Get LeetCode’s Daily Challenge, track your streak, and never miss a problem.",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -14,7 +14,7 @@
   },
   "permissions": ["storage"],
   "host_permissions": ["https://leetcode.com/*"],
-    "background": {
+  "background": {
     "service_worker": "background.js"
   }
 }
