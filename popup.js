@@ -122,14 +122,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const today = getTodayDate();
 
-  chrome.storage.local.get(["streak", "lastVisitedDate"], (result) => {
-    const streak = result.streak || 0;
-    if (result.lastVisitedDate === today) {
-      document.getElementById("streakDisplay").textContent = `🔥 ${streak}`;
-    } else {
-      document.getElementById("streakDisplay").textContent = `🔥 0`;
-    }
-  });
+  function updateStreakDisplay() {
+    chrome.storage.local.get(["streak", "lastVisitedDate"], (result) => {
+      const streak = result.streak || 0;
+      const today = getTodayDate();
+
+      if (result.lastVisitedDate === today) {
+        document.getElementById("streakDisplay").textContent = `🔥 ${streak}`;
+      } else {
+        document.getElementById("streakDisplay").textContent = `🔥 ${streak}`;
+      }
+    });
+  }
+
+  updateStreakDisplay();
 
   document.getElementById("toggle-topics").addEventListener("click", () => {
     const topicsList = document.getElementById("topics-list");
@@ -141,10 +147,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.getElementById("open").addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "visitedToday" }, () => {
+    chrome.runtime.sendMessage({ action: "visitedToday" }, (response) => {
       chrome.tabs.create({
         url: `https://leetcode.com/problems/${question.titleSlug}`,
       });
+      // Update the streak display immediately after visiting
+      if (response && response.success) {
+        updateStreakDisplay();
+      }
     });
   });
 
