@@ -2,6 +2,60 @@ function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+async function fetchLeetCodeUserData() {
+  try {
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        query: `
+          query globalData {
+            userStatus {
+              username
+              isSignedIn
+              checkedInToday
+            }
+            streakCounter {
+              streakCount
+              daysSkipped
+              currentDayCompleted
+            }
+            activeDailyCodingChallengeQuestion {
+              userStatus
+            }
+          }
+        `
+      })
+    });
+
+    const data = await response.json();
+    console.log("LeetCode API response:", data);
+
+    const userStatus = data?.data?.userStatus;
+    if (!userStatus?.isSignedIn) {
+      return null;
+    }
+
+    const streakData = data?.data?.streakCounter;
+    const dailyStatus = data?.data?.activeDailyCodingChallengeQuestion?.userStatus;
+
+    // Check if today's daily challenge is completed
+    const completedToday = dailyStatus === "Finish" ||
+                           streakData?.currentDayCompleted === true ||
+                           userStatus?.checkedInToday === true;
+
+    return {
+      username: userStatus.username,
+      streak: streakData?.streakCount || 0,
+      completedToday
+    };
+  } catch (error) {
+    console.error("Failed to fetch LeetCode user data:", error);
+    return null;
+  }
+}
+
 function updateTimerDisplay() {
   const now = new Date();
   const nextUTC = new Date(now);
@@ -120,21 +174,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateTimerDisplay();
   setInterval(updateTimerDisplay, 60 * 1000);
 
-  const today = getTodayDate();
-
   function updateStreakDisplay() {
-    chrome.storage.local.get(["streak", "lastVisitedDate"], (result) => {
+    chrome.storage.local.get(["streak", "lastVisitedDate", "leetCodeUsername"], (result) => {
       const streak = result.streak || 0;
       const today = getTodayDate();
+      const streakDisplay = document.getElementById("streakDisplay");
+      const username = result.leetCodeUsername;
 
       if (result.lastVisitedDate === today) {
-        document.getElementById("streakDisplay").textContent = `🔥 ${streak}`;
+        // Visited today - show active streak with checkmark
+        streakDisplay.textContent = `🔥 ${streak} ✓`;
+        streakDisplay.title = username
+          ? `Streak active! Synced with LeetCode (${username})`
+          : "Streak active! You've completed today's problem.";
       } else {
-        document.getElementById("streakDisplay").textContent = `🔥 ${streak}`;
+        // Not visited today - show pending streak
+        streakDisplay.textContent = `🔥 ${streak}`;
+        streakDisplay.title = streak > 0
+          ? `Streak at risk! Complete today's problem to continue your ${streak}-day streak.`
+          : "Start your streak by solving today's problem!";
       }
     });
   }
 
+  // Sync streak from LeetCode on popup open (fetch from popup since it has cookie access)
+  async function syncFromLeetCode() {
+    const userData = await fetchLeetCodeUserData();
+    if (userData) {
+      const today = getTodayDate();
+      chrome.storage.local.set({
+        streak: userData.streak,
+        leetCodeUsername: userData.username,
+        lastVisitedDate: userData.completedToday ? today : null,
+        lastSyncedAt: Date.now()
+      }, () => {
+        updateStreakDisplay();
+        // Notify background to update badge
+        chrome.runtime.sendMessage({ action: "updateBadge" });
+      });
+    }
+  }
+
+  syncFromLeetCode();
   updateStreakDisplay();
 
   document.getElementById("toggle-topics").addEventListener("click", () => {
