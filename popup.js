@@ -15,6 +15,7 @@ async function fetchLeetCodeUserData() {
               username
               isSignedIn
               checkedInToday
+              avatar
             }
             streakCounter {
               streakCount
@@ -45,6 +46,7 @@ async function fetchLeetCodeUserData() {
 
     return {
       username: userStatus.username,
+      avatar: userStatus.avatar,
       streak: streakData?.streakCount || 0,
       completedToday
     };
@@ -319,7 +321,7 @@ function renderQuestion(question) {
       </button>
       <div class="flex items-center gap-2 text-[12px]">
         ${chipHTML}
-        <span class="text-[#eff1f699]">${acceptanceRate}% acc</span>
+        <span class="text-[#eff1f699]">${acceptanceRate}% acceptance</span>
       </div>
     </div>
     <div id="topics-list" class="mt-2 flex-wrap gap-1.5 hidden">
@@ -382,9 +384,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const milestone = getStreakMilestone(streak);
 
       if (result.lastVisitedDate === today) {
-        // Visited today - show active streak with checkmark
+        // Visited today - show active streak
         const milestoneEmoji = milestone ? ` ${milestone.emoji}` : "";
-        streakDisplay.textContent = `🔥 ${streak}${milestoneEmoji} ✓`;
+        streakDisplay.textContent = `🔥 ${streak}${milestoneEmoji}`;
         streakDisplay.title = milestone
           ? `${milestone.message} ${username ? `(${username})` : ""}`
           : (username ? `Streak active! Synced with LeetCode (${username})` : "Streak active! You've completed today's problem.");
@@ -422,16 +424,40 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Show/hide login prompt and stats panel based on login state
-  function updateLoginState(isLoggedIn) {
+  function updateLoginState(isLoggedIn, userData = null) {
     const loginPrompt = document.getElementById("login-prompt");
     const statsPanel = document.getElementById("stats-panel");
+    const avatar = document.getElementById("user-avatar");
+    const logo = document.getElementById("lc-logo");
+    const headerTitle = document.getElementById("header-title");
+    const headerSubtitle = document.getElementById("header-subtitle");
 
-    if (isLoggedIn) {
+    if (isLoggedIn && userData) {
       loginPrompt.classList.add("hidden");
       statsPanel.classList.remove("hidden");
+
+      // Show avatar, hide logo
+      if (userData.avatar) {
+        avatar.src = userData.avatar;
+        avatar.alt = userData.username;
+        avatar.classList.remove("hidden");
+        logo.classList.add("hidden");
+      }
+
+      // Update header text
+      headerTitle.textContent = userData.username;
+      headerSubtitle.textContent = "LeetCode Daily";
     } else {
       loginPrompt.classList.remove("hidden");
       statsPanel.classList.add("hidden");
+
+      // Show logo, hide avatar
+      avatar.classList.add("hidden");
+      logo.classList.remove("hidden");
+
+      // Reset header text
+      headerTitle.textContent = "LeetCode Daily";
+      headerSubtitle.textContent = "Daily Challenge Tracker";
     }
   }
 
@@ -441,12 +467,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (userData) {
       const today = getTodayDate();
-      updateLoginState(true);
+      updateLoginState(true, userData);
       updateButtonState(userData.completedToday);
 
       chrome.storage.local.set({
         streak: userData.streak,
         leetCodeUsername: userData.username,
+        leetCodeAvatar: userData.avatar,
         lastVisitedDate: userData.completedToday ? today : null,
         lastSyncedAt: Date.now()
       }, () => {
@@ -583,8 +610,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateStreakDisplay();
 
   // Load stats and heatmap from storage initially (will be updated by syncFromLeetCode)
-  chrome.storage.local.get(["leetCodeUsername"], (result) => {
+  chrome.storage.local.get(["leetCodeUsername", "leetCodeAvatar"], (result) => {
     if (result.leetCodeUsername) {
+      // Show cached user info immediately
+      updateLoginState(true, {
+        username: result.leetCodeUsername,
+        avatar: result.leetCodeAvatar
+      });
       renderStatsPanel(result.leetCodeUsername);
       render30DayHeatmap(result.leetCodeUsername);
     } else {
