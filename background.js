@@ -45,6 +45,8 @@ function stopBlinking() {
 
 function updateBadge() {
   chrome.storage.local.get(["lastVisitedDate"], (result) => {
+    if (!result) return;
+
     const today = getTodayDate();
     const timeLeft = getTimeUntilMidnightUTC();
     const twoHoursInMs = 2 * 60 * 60 * 1000;

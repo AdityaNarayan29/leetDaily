@@ -508,6 +508,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const heatmapEl = document.getElementById("heatmap");
     const countEl = document.getElementById("heatmap-count");
     const datesEl = document.getElementById("heatmap-dates");
+
+    // Guard against null elements
+    if (!heatmapEl || !countEl || !datesEl) return;
+
     const { dailyChallengeMap, submissionMap } = await fetchLast30DaysHistory(username);
 
     const today = new Date();
