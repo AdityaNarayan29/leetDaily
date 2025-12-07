@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LeetCode Daily Challenge & Streak Tracker",
   "version": "1.0.3",
-  "description": "Never miss a LeetCode daily challenge! Track your streak, get reminders, and sync with your LeetCode account. Perfect for coding interview prep.",
+  "description": "Never miss a LeetCode daily challenge! Track your streak, get reminders, and sync with your LeetCode account.",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
