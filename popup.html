@@ -8,42 +8,88 @@
   <link rel="stylesheet" href="styles/output.css" />
 </head>
 
-<body class="bg-white dark:bg-neutral-900 text-black dark:text-white w-[400px] rounded-xl shadow-lg p-4 font-sans">
+<body class="bg-[#1a1a1a] text-[#eff1f6] w-[400px] p-5 font-sans">
   <!-- Milestone Banner -->
-  <div id="milestone-banner" class="hidden text-center text-xs font-semibold py-2 px-3 mb-4 rounded-md bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border border-yellow-500/30"></div>
+  <div id="milestone-banner" class="hidden text-center text-[13px] font-medium py-2.5 px-4 mb-4 rounded-lg bg-[#ffa1161a] text-[#ffa116] border border-[#ffa11633]"></div>
 
   <!-- Header -->
-  <header class="flex items-center justify-between w-full mb-4">
-    <h1 class="text-base font-bold tracking-tight text-white">LeetDaily</h1>
-    <div class="flex items-center gap-3">
-      <span id="timer" class="text-xs font-medium text-neutral-400"></span>
-      <span id="streakDisplay" class="text-sm font-semibold"></span>
+  <header class="flex items-center justify-between w-full mb-5">
+    <div class="flex items-center gap-2.5">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 00-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.535-1.387-.552-1.902-.038l-10.1 10.101c-.981.982-1.494 2.337-1.494 3.835 0 1.498.513 2.895 1.494 3.875l4.347 4.361c.981.979 2.337 1.452 3.834 1.452s2.853-.512 3.835-1.494l2.609-2.637c.514-.514.496-1.365-.039-1.9s-1.386-.553-1.899-.039zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z" fill="#FFA116"/>
+      </svg>
+      <div>
+        <h1 class="text-[15px] font-semibold text-[#eff1f6] leading-tight">LeetCode Daily</h1>
+        <p class="text-[11px] text-[#eff1f699] leading-tight">Daily Challenge Tracker</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <span id="timer" class="text-[12px] text-[#eff1f699] tabular-nums"></span>
+      <span id="streakDisplay" class="text-[14px] font-semibold text-[#ffa116]"></span>
     </div>
   </header>
 
-  <!-- Weekly Calendar -->
-  <section id="weekly-calendar" class="flex justify-between mb-4 px-2 py-3">
-    <!-- Days will be injected by JS -->
+  <!-- Stats Panel -->
+  <section id="stats-panel" class="mb-4 px-4 py-3 rounded-xl bg-[#282828]">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <span class="text-[12px] text-[#eff1f699]">Solved</span>
+        <span id="total-count" class="text-[14px] font-semibold text-[#eff1f6]">-</span>
+      </div>
+      <div class="flex items-center gap-4 text-[12px]">
+        <span><span id="easy-count" class="font-semibold text-[#00b8a3]">-</span> <span class="text-[#eff1f699]">Easy</span></span>
+        <span><span id="medium-count" class="font-semibold text-[#ffc01e]">-</span> <span class="text-[#eff1f699]">Med</span></span>
+        <span><span id="hard-count" class="font-semibold text-[#ff375f]">-</span> <span class="text-[#eff1f699]">Hard</span></span>
+      </div>
+    </div>
   </section>
 
-  <!-- Stats Row -->
-  <div id="stats-row" class="items-center justify-between text-xs font-medium text-neutral-400 mb-4 hidden">
-    <span id="total-solved"></span>
-  </div>
+  <!-- 30-Day Activity -->
+  <section class="mb-4 p-4 rounded-xl bg-[#282828]">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-[12px] font-medium text-[#eff1f6]">30-Day Activity</span>
+        <span id="heatmap-count" class="text-[11px] text-[#2cbb5d] font-medium"></span>
+      </div>
+      <div class="flex items-center gap-2 text-[10px] text-[#eff1f699]">
+        <div class="flex items-center gap-1">
+          <svg class="w-2 h-2" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>
+          <span>Daily</span>
+        </div>
+        <span class="text-[#ffffff33]">|</span>
+        <div class="flex items-center gap-1">
+          <span>Less</span>
+          <div class="flex gap-0.5">
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#ffffff0d]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d40]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d80]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d]"></div>
+          </div>
+          <span>More</span>
+        </div>
+      </div>
+    </div>
+    <div id="heatmap" class="grid grid-cols-15 gap-[3px]">
+      <!-- Heatmap cells will be injected by JS -->
+    </div>
+    <div id="heatmap-dates" class="flex justify-between mt-2 text-[10px] text-[#eff1f666]">
+      <!-- Date labels will be injected by JS -->
+    </div>
+  </section>
 
   <!-- Question Section -->
-  <section class="border-t border-neutral-700/50 pt-4">
-    <div id="question" class="mb-4 text-neutral-200">Loading...</div>
+  <section class="p-4 rounded-xl bg-[#282828]">
+    <div id="question" class="mb-4 text-[#eff1f6]">Loading...</div>
     <button id="open"
-      class="inline-flex items-center justify-center w-full rounded-md bg-white text-neutral-900 text-sm font-semibold px-4 py-2.5 transition-all hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-white/50">
-      Open Problem
+      class="inline-flex items-center justify-center w-full rounded-lg bg-[#ffa116] text-[#1a1a1a] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#ffb84d] active:scale-[0.98] focus:outline-none">
+      Solve Challenge
     </button>
   </section>
 
   <!-- Yesterday's Problem -->
-  <section id="yesterday-section" class="mt-4 pt-4 border-t border-neutral-700/50 hidden">
-    <p class="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Missed yesterday?</p>
-    <a id="yesterday-link" href="#" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline block truncate"></a>
+  <section id="yesterday-section" class="mt-4 p-4 rounded-xl bg-[#282828] hidden">
+    <span class="text-[12px] text-[#eff1f699] block mb-1.5">Missed yesterday?</span>
+    <a id="yesterday-link" href="#" target="_blank" class="text-[13px] font-medium text-[#ffa116] hover:underline block truncate"></a>
   </section>
 
   <script src="popup.js"></script>

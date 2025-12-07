@@ -214,7 +214,7 @@ async function getYesterdayQuestion() {
   }
 }
 
-async function getTotalSolvedCount() {
+async function fetchUserSolvedStats(username) {
   try {
     const response = await fetch("https://leetcode.com/graphql", {
       method: "POST",
@@ -222,8 +222,8 @@ async function getTotalSolvedCount() {
       credentials: "include",
       body: JSON.stringify({
         query: `
-          query userProblemsSolved {
-            matchedUser(username: "") {
+          query userProblemsSolved($username: String!) {
+            matchedUser(username: $username) {
               submitStatsGlobal {
                 acSubmissionNum {
                   difficulty
@@ -232,29 +232,121 @@ async function getTotalSolvedCount() {
               }
             }
           }
-        `
+        `,
+        variables: { username }
       })
     });
 
     const data = await response.json();
     const stats = data?.data?.matchedUser?.submitStatsGlobal?.acSubmissionNum || [];
-    const total = stats.find(s => s.difficulty === "All");
-    return total?.count || null;
+
+    return {
+      easy: stats.find(s => s.difficulty === "Easy")?.count || 0,
+      medium: stats.find(s => s.difficulty === "Medium")?.count || 0,
+      hard: stats.find(s => s.difficulty === "Hard")?.count || 0,
+      total: stats.find(s => s.difficulty === "All")?.count || 0
+    };
   } catch (error) {
-    console.error("Failed to fetch solved count:", error);
+    console.error("Failed to fetch solved stats:", error);
     return null;
   }
 }
 
+async function fetchLast30DaysHistory(username) {
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    // Fetch daily challenge status for current and last month
+    const fetchDailyChallenges = async (y, m) => {
+      const response = await fetch("https://leetcode.com/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          query: `
+            query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
+              dailyCodingChallengeV2(year: $year, month: $month) {
+                challenges {
+                  date
+                  userStatus
+                }
+              }
+            }
+          `,
+          variables: { year: y, month: m }
+        })
+      });
+      const data = await response.json();
+      return data?.data?.dailyCodingChallengeV2?.challenges || [];
+    };
+
+    // Fetch submission calendar (problems solved per day)
+    const fetchSubmissionCalendar = async () => {
+      if (!username) return {};
+      const response = await fetch("https://leetcode.com/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          query: `
+            query userProfileCalendar($username: String!) {
+              matchedUser(username: $username) {
+                userCalendar {
+                  submissionCalendar
+                }
+              }
+            }
+          `,
+          variables: { username }
+        })
+      });
+      const data = await response.json();
+      const calendarStr = data?.data?.matchedUser?.userCalendar?.submissionCalendar;
+      return calendarStr ? JSON.parse(calendarStr) : {};
+    };
+
+    // Fetch all data in parallel
+    const [currentMonth, lastMonthData, submissionCalendar] = await Promise.all([
+      fetchDailyChallenges(year, month),
+      fetchDailyChallenges(month === 1 ? year - 1 : year, month === 1 ? 12 : month - 1),
+      fetchSubmissionCalendar()
+    ]);
+
+    const allChallenges = [...currentMonth, ...lastMonthData];
+
+    // Build daily challenge map
+    const dailyChallengeMap = new Map();
+    allChallenges.forEach(c => {
+      dailyChallengeMap.set(c.date, c.userStatus === "Finish");
+    });
+
+    // Convert submission calendar (unix timestamps) to date -> count map
+    const submissionMap = new Map();
+    for (const [timestamp, count] of Object.entries(submissionCalendar)) {
+      const date = new Date(parseInt(timestamp) * 1000);
+      const dateStr = date.toISOString().slice(0, 10);
+      submissionMap.set(dateStr, count);
+    }
+
+    return { dailyChallengeMap, submissionMap };
+  } catch (error) {
+    console.error("Failed to fetch 30-day history:", error);
+    return { dailyChallengeMap: new Map(), submissionMap: new Map() };
+  }
+}
+
 function renderQuestion(question) {
+  // LeetCode's exact difficulty colors
   const difficultyColors = {
-    Easy: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    Medium: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-    Hard: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    Easy: "text-[#00b8a3]",
+    Medium: "text-[#ffc01e]",
+    Hard: "text-[#ff375f]",
   };
 
-  const chipClass = difficultyColors[question.difficulty] || "";
-  const chipHTML = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wide ${chipClass} ml-2">${question.difficulty}</span>`;
+  const difficultyColor = difficultyColors[question.difficulty] || "text-[#eff1f699]";
+  const chipHTML = `<span class="text-[12px] font-medium ${difficultyColor}">${question.difficulty}</span>`;
 
   let acceptanceRate = "N/A";
   try {
@@ -265,7 +357,7 @@ function renderQuestion(question) {
   }
 
   const topicChipClass =
-    "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium border border-neutral-600 bg-neutral-800 text-neutral-300 cursor-pointer hover:bg-neutral-700 hover:text-white transition-colors";
+    "inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-[#ffffff0d] text-[#eff1f699] cursor-pointer hover:bg-[#ffffff1a] hover:text-[#eff1f6] transition-colors";
 
   const topicsArray = question.topicTags || [];
   const topicsHTML = topicsArray.length
@@ -278,45 +370,47 @@ function renderQuestion(question) {
       );
       return `<span class="${topicChipClass} mr-1 mb-1" data-tag="${tagSlug}">${tag.name}</span>`;
     }).join("")
-    : '<span class="text-gray-500 dark:text-gray-400">N/A</span>';
+    : '<span class="text-[#eff1f666]">N/A</span>';
 
   const problemUrl = `https://leetcode.com/problems/${question.titleSlug}`;
 
   document.getElementById("question").innerHTML = `
-    <div class="flex items-center justify-between mb-1">
-      <span class="text-xs font-medium text-neutral-500 uppercase tracking-wide">Problem #${question.questionFrontendId}</span>
-      <button id="copy-link" class="text-xs font-medium text-neutral-500 hover:text-white cursor-pointer flex items-center gap-1.5 transition-colors" title="Copy problem link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="flex items-start gap-2 mb-2">
+      <div class="flex-1 min-w-0">
+        <h2 class="text-[14px] font-medium text-[#eff1f6] leading-snug">
+          <span class="text-[#eff1f699]">${question.questionFrontendId}.</span> ${question.title}
+        </h2>
+      </div>
+      <button id="copy-link" class="flex-shrink-0 text-[#eff1f666] hover:text-[#ffa116] cursor-pointer transition-colors p-1 -m-1" title="Copy problem link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
         </svg>
-        <span id="copy-text">Copy</span>
       </button>
     </div>
-    <h2 class="text-base font-semibold text-white leading-snug">
-      ${question.title}${chipHTML}
-    </h2>
-    <div class="flex items-center justify-between mt-3 text-xs">
-      <button id="toggle-topics" class="font-medium text-neutral-400 hover:text-white cursor-pointer transition-colors focus:outline-none">
-        Show Topics
+    <div class="flex items-center justify-between">
+      <button id="toggle-topics" class="text-[12px] text-[#eff1f699] hover:text-[#ffa116] cursor-pointer transition-colors focus:outline-none flex items-center gap-1">
+        <svg id="toggle-icon" class="w-3 h-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <span id="toggle-text">Topics</span>
       </button>
-      <span class="text-neutral-400">
-        <span class="font-semibold text-neutral-300">${acceptanceRate}%</span> acceptance
-      </span>
+      <div class="flex items-center gap-2 text-[12px]">
+        ${chipHTML}
+        <span class="text-[#eff1f699]">${acceptanceRate}% acc</span>
+      </div>
     </div>
-    <div id="topics-list" class="mt-3 flex-wrap gap-1.5 hidden">
+    <div id="topics-list" class="mt-2 flex-wrap gap-1.5 hidden">
       ${topicsHTML}
     </div>
   `;
 
   // Copy link button
-  document.getElementById("copy-link").addEventListener("click", async () => {
+  const copyBtn = document.getElementById("copy-link");
+  copyBtn.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(problemUrl);
-      const copyText = document.getElementById("copy-text");
-      copyText.textContent = "Copied!";
+      copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2cbb5d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
       setTimeout(() => {
-        copyText.textContent = "Copy";
+        copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
       }, 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
@@ -401,56 +495,113 @@ document.addEventListener("DOMContentLoaded", async () => {
         lastSyncedAt: Date.now()
       }, () => {
         updateStreakDisplay();
-        renderWeeklyCalendar();
+        renderStatsPanel(userData.username);
+        render30DayHeatmap(userData.username);
         // Notify background to update badge
         chrome.runtime.sendMessage({ action: "updateBadge" });
       });
     }
   }
 
-  syncFromLeetCode();
-  updateStreakDisplay();
+  // Render stats panel
+  async function renderStatsPanel(username) {
+    if (!username) return;
 
-  // Render weekly calendar from LeetCode API
-  async function renderWeeklyCalendar() {
-    const calendarEl = document.getElementById("weekly-calendar");
+    const stats = await fetchUserSolvedStats(username);
+    if (stats) {
+      document.getElementById("easy-count").textContent = stats.easy;
+      document.getElementById("medium-count").textContent = stats.medium;
+      document.getElementById("hard-count").textContent = stats.hard;
+      document.getElementById("total-count").textContent = stats.total;
+    }
+  }
+
+  // Render 30-day heatmap with color intensity based on problems solved
+  async function render30DayHeatmap(username) {
+    const heatmapEl = document.getElementById("heatmap");
+    const countEl = document.getElementById("heatmap-count");
+    const datesEl = document.getElementById("heatmap-dates");
+    const { dailyChallengeMap, submissionMap } = await fetchLast30DaysHistory(username);
+
     const today = new Date();
+    let dailyChallengeCount = 0;
+    let totalSubmissions = 0;
 
-    // Fetch completed dates from LeetCode API
-    const completedDatesArray = await fetchDailyChallengeHistory();
-    const completedDates = new Set(completedDatesArray);
+    // Get color class based on submission count
+    function getIntensityClass(count) {
+      if (count === 0) return "bg-[#ffffff0d]";
+      if (count <= 2) return "bg-[#2cbb5d40]";
+      if (count <= 5) return "bg-[#2cbb5d80]";
+      return "bg-[#2cbb5d]";
+    }
 
+    // Build grid: 30 cells for last 30 days
     const days = [];
-
-    // Get last 7 days
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 29; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().slice(0, 10);
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
-      const isCompleted = completedDates.has(dateStr);
+
+      const dailyCompleted = dailyChallengeMap.get(dateStr) === true;
+      const submissionCount = submissionMap.get(dateStr) || 0;
       const isToday = i === 0;
 
+      if (dailyCompleted) dailyChallengeCount++;
+      totalSubmissions += submissionCount;
+
+      // Color intensity based on submission count
+      let cellClass = getIntensityClass(submissionCount);
+
+      // Add today's ring indicator
+      if (isToday && submissionCount === 0) {
+        cellClass = "bg-[#ffa11640] ring-1 ring-[#ffa116]";
+      } else if (isToday) {
+        cellClass += " ring-1 ring-[#ffa116]";
+      }
+
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const problemsText = submissionCount === 1 ? "1 problem" : `${submissionCount} problems`;
+      const dailyText = dailyCompleted ? " ✓ Daily" : "";
+      const tooltip = `${dayName}, ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${problemsText}${dailyText}`;
+
+      // Show checkmark for daily challenge completion
+      const checkmark = dailyCompleted
+        ? `<svg class="w-2 h-2 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>`
+        : '';
+
       days.push(`
-        <div class="flex flex-col items-center gap-1.5">
-          <span class="text-[10px] font-semibold uppercase tracking-wide ${isToday ? 'text-white' : 'text-neutral-500'}">${dayName}</span>
-          <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-            isCompleted
-              ? 'bg-green-500/20 text-green-400 ring-2 ring-green-500/40'
-              : isToday
-                ? 'bg-neutral-700 text-white ring-2 ring-neutral-500'
-                : 'bg-neutral-800 text-neutral-500'
-          }">
-            ${isCompleted ? '✓' : date.getDate()}
-          </div>
-        </div>
+        <div class="w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" title="${tooltip}">${checkmark}</div>
       `);
     }
 
-    calendarEl.innerHTML = days.join('');
+    heatmapEl.innerHTML = days.join('');
+
+    // Update count display
+    countEl.textContent = `${dailyChallengeCount}/30 daily`;
+
+    // Add date labels
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - 29);
+    datesEl.innerHTML = `
+      <span>${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+      <span>Today</span>
+    `;
   }
 
-  renderWeeklyCalendar();
+  // Initialize all data
+  syncFromLeetCode();
+  updateStreakDisplay();
+
+  // Load stats and heatmap from storage initially (will be updated by syncFromLeetCode)
+  chrome.storage.local.get(["leetCodeUsername"], (result) => {
+    if (result.leetCodeUsername) {
+      renderStatsPanel(result.leetCodeUsername);
+      render30DayHeatmap(result.leetCodeUsername);
+    } else {
+      // Still render heatmap without username (will only show daily challenges)
+      render30DayHeatmap(null);
+    }
+  });
 
   // Load yesterday's problem
   async function loadYesterdayProblem() {
@@ -469,17 +620,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("toggle-topics").addEventListener("click", () => {
     const topicsList = document.getElementById("topics-list");
-    const button = document.getElementById("toggle-topics");
+    const toggleIcon = document.getElementById("toggle-icon");
+    const toggleText = document.getElementById("toggle-text");
     const isHidden = topicsList.classList.contains("hidden");
 
     if (isHidden) {
       topicsList.classList.remove("hidden");
       topicsList.classList.add("flex");
+      toggleIcon.classList.add("rotate-180");
+      toggleText.textContent = "Hide Topics";
     } else {
       topicsList.classList.add("hidden");
       topicsList.classList.remove("flex");
+      toggleIcon.classList.remove("rotate-180");
+      toggleText.textContent = "Show Topics";
     }
-    button.textContent = isHidden ? "Hide Topics" : "Show Topics";
   });
 
   document.getElementById("open").addEventListener("click", () => {
