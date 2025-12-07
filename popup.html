@@ -8,24 +8,43 @@
   <link rel="stylesheet" href="styles/output.css" />
 </head>
 
-<body class="bg-white dark:bg-neutral-900 text-black dark:text-white w-[400px] rounded-xl shadow-lg p-4">
-  <div class="flex items-center justify-between w-full mb-3">
-    <h1 class="text-lg font-semibold">LeetDaily 🔥</h1>
-    <div class="flex items-center">
-      <div id="timer" class="text-xs text-neutral-500 dark:text-neutral-400">
-      </div> 
-      <div class="flex items-center justify-between ml-2">
-        <span id="streakDisplay" class="text-sm">🔥</span>
-      </div>
+<body class="bg-white dark:bg-neutral-900 text-black dark:text-white w-[400px] rounded-xl shadow-lg p-4 font-sans">
+  <!-- Milestone Banner -->
+  <div id="milestone-banner" class="hidden text-center text-xs font-semibold py-2 px-3 mb-4 rounded-md bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 border border-yellow-500/30"></div>
+
+  <!-- Header -->
+  <header class="flex items-center justify-between w-full mb-4">
+    <h1 class="text-base font-bold tracking-tight text-white">LeetDaily</h1>
+    <div class="flex items-center gap-3">
+      <span id="timer" class="text-xs font-medium text-neutral-400"></span>
+      <span id="streakDisplay" class="text-sm font-semibold"></span>
     </div>
+  </header>
+
+  <!-- Weekly Calendar -->
+  <section id="weekly-calendar" class="flex justify-between mb-4 px-2 py-3">
+    <!-- Days will be injected by JS -->
+  </section>
+
+  <!-- Stats Row -->
+  <div id="stats-row" class="items-center justify-between text-xs font-medium text-neutral-400 mb-4 hidden">
+    <span id="total-solved"></span>
   </div>
-  <div>
-    <div id="question" class="mb-3 text-sm text-gray-800 dark:text-gray-200">Loading...</div>
+
+  <!-- Question Section -->
+  <section class="border-t border-neutral-700/50 pt-4">
+    <div id="question" class="mb-4 text-neutral-200">Loading...</div>
     <button id="open"
-      class="inline-flex items-center justify-center w-full rounded-md bg-black text-white text-sm font-medium px-4 py-2 transition-colors hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring dark:bg-white dark:text-black dark:hover:bg-gray-300">
-      Open Leetcode Problem
+      class="inline-flex items-center justify-center w-full rounded-md bg-white text-neutral-900 text-sm font-semibold px-4 py-2.5 transition-all hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-white/50">
+      Open Problem
     </button>
-  </div>
+  </section>
+
+  <!-- Yesterday's Problem -->
+  <section id="yesterday-section" class="mt-4 pt-4 border-t border-neutral-700/50 hidden">
+    <p class="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Missed yesterday?</p>
+    <a id="yesterday-link" href="#" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline block truncate"></a>
+  </section>
 
   <script src="popup.js"></script>
 </body>

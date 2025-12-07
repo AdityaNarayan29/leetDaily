@@ -70,6 +70,88 @@ function updateBadge() {
 updateBadge();
 setInterval(updateBadge, 60 * 1000); // Check every minute instead of every hour
 
+// Notification system
+function setupDailyReminder() {
+  // Clear existing alarms
+  chrome.alarms.clear("dailyReminder");
+  chrome.alarms.clear("urgentReminder");
+
+  // Set up daily reminder at 9 AM local time
+  const now = new Date();
+  const nineAM = new Date(now);
+  nineAM.setHours(9, 0, 0, 0);
+
+  // If it's past 9 AM, schedule for tomorrow
+  if (now > nineAM) {
+    nineAM.setDate(nineAM.getDate() + 1);
+  }
+
+  const delayInMinutes = (nineAM - now) / (1000 * 60);
+  chrome.alarms.create("dailyReminder", {
+    delayInMinutes,
+    periodInMinutes: 24 * 60 // Repeat daily
+  });
+
+  // Set up urgent reminder (2 hours before midnight UTC)
+  checkUrgentReminder();
+}
+
+function checkUrgentReminder() {
+  const timeLeft = getTimeUntilMidnightUTC();
+  const twoHoursInMs = 2 * 60 * 60 * 1000;
+
+  if (timeLeft <= twoHoursInMs && timeLeft > 0) {
+    chrome.storage.local.get(["lastVisitedDate", "lastUrgentNotification"], (result) => {
+      const today = getTodayDate();
+      // Only show if not visited today and haven't shown urgent notification today
+      if (result.lastVisitedDate !== today && result.lastUrgentNotification !== today) {
+        showNotification(
+          "Streak at risk!",
+          "Less than 2 hours left to complete today's LeetCode challenge!",
+          "urgent"
+        );
+        chrome.storage.local.set({ lastUrgentNotification: today });
+      }
+    });
+  }
+}
+
+function showNotification(title, message, type = "reminder") {
+  chrome.storage.local.get(["notificationsEnabled"], (result) => {
+    // Default to enabled if not set
+    if (result.notificationsEnabled === false) return;
+
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: "icon.png",
+      title,
+      message,
+      priority: type === "urgent" ? 2 : 1
+    });
+  });
+}
+
+// Handle alarm triggers
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "dailyReminder") {
+    chrome.storage.local.get(["lastVisitedDate"], (result) => {
+      const today = getTodayDate();
+      if (result.lastVisitedDate !== today) {
+        showNotification(
+          "Daily LeetCode Challenge",
+          "Don't forget to solve today's problem and keep your streak going!"
+        );
+      }
+    });
+  }
+});
+
+// Check urgent reminder every 30 minutes
+setInterval(checkUrgentReminder, 30 * 60 * 1000);
+
+// Setup reminders on extension load
+setupDailyReminder();
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const today = getTodayDate();
   const yesterday = getYesterdayDate();
