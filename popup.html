@@ -29,6 +29,14 @@
     </div>
   </header>
 
+  <!-- Login Prompt (shown when not logged in) -->
+  <section id="login-prompt" class="mb-4 px-4 py-3 rounded-xl bg-[#282828] hidden">
+    <div class="flex items-center justify-between">
+      <span class="text-[12px] text-[#eff1f699]">Sign in to LeetCode to see your stats</span>
+      <a href="https://leetcode.com/accounts/login/" target="_blank" class="text-[12px] font-medium text-[#ffa116] hover:underline">Sign in</a>
+    </div>
+  </section>
+
   <!-- Stats Panel -->
   <section id="stats-panel" class="mb-4 px-4 py-3 rounded-xl bg-[#282828]">
     <div class="flex items-center justify-between">
@@ -91,6 +99,19 @@
     <span class="text-[12px] text-[#eff1f699] block mb-1.5">Missed yesterday?</span>
     <a id="yesterday-link" href="#" target="_blank" class="text-[13px] font-medium text-[#ffa116] hover:underline block truncate"></a>
   </section>
+
+  <!-- Settings -->
+  <section class="mt-4 p-4 rounded-xl bg-[#282828]">
+    <div class="flex items-center justify-between">
+      <span class="text-[12px] text-[#eff1f699]">Daily reminders</span>
+      <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications">
+        <span id="notif-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform"></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Custom Tooltip -->
+  <div id="custom-tooltip" class="fixed z-50 px-2 py-1 text-[11px] bg-[#3a3a3a] text-[#eff1f6] rounded shadow-lg pointer-events-none opacity-0 transition-opacity whitespace-nowrap"></div>
 
   <script src="popup.js"></script>
 </body>

@@ -30,8 +30,6 @@ async function fetchLeetCodeUserData() {
     });
 
     const data = await response.json();
-    console.log("LeetCode API response:", data);
-
     const userStatus = data?.data?.userStatus;
     if (!userStatus?.isSignedIn) {
       return null;
@@ -53,80 +51,6 @@ async function fetchLeetCodeUserData() {
   } catch (error) {
     console.error("Failed to fetch LeetCode user data:", error);
     return null;
-  }
-}
-
-async function fetchDailyChallengeHistory() {
-  try {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        query: `
-          query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
-            dailyCodingChallengeV2(year: $year, month: $month) {
-              challenges {
-                date
-                userStatus
-              }
-            }
-          }
-        `,
-        variables: { year, month }
-      })
-    });
-
-    const data = await response.json();
-    const challenges = data?.data?.dailyCodingChallengeV2?.challenges || [];
-
-    // Return dates where userStatus is "Finish"
-    const completedDates = challenges
-      .filter(c => c.userStatus === "Finish")
-      .map(c => c.date);
-
-    // If we're in the first week of the month, also fetch last month's data
-    if (now.getDate() <= 7) {
-      const lastMonth = month === 1 ? 12 : month - 1;
-      const lastYear = month === 1 ? year - 1 : year;
-
-      const lastMonthResponse = await fetch("https://leetcode.com/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          query: `
-            query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
-              dailyCodingChallengeV2(year: $year, month: $month) {
-                challenges {
-                  date
-                  userStatus
-                }
-              }
-            }
-          `,
-          variables: { year: lastYear, month: lastMonth }
-        })
-      });
-
-      const lastMonthData = await lastMonthResponse.json();
-      const lastMonthChallenges = lastMonthData?.data?.dailyCodingChallengeV2?.challenges || [];
-
-      const lastMonthCompleted = lastMonthChallenges
-        .filter(c => c.userStatus === "Finish")
-        .map(c => c.date);
-
-      completedDates.push(...lastMonthCompleted);
-    }
-
-    return completedDates;
-  } catch (error) {
-    console.error("Failed to fetch daily challenge history:", error);
-    return [];
   }
 }
 
@@ -483,11 +407,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Update button state based on completion
+  function updateButtonState(completedToday) {
+    const btn = document.getElementById("open");
+    if (completedToday) {
+      btn.innerHTML = `<svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Solved`;
+      btn.classList.remove("bg-[#ffa116]", "hover:bg-[#ffb84d]");
+      btn.classList.add("bg-[#2cbb5d]", "hover:bg-[#34d668]");
+    } else {
+      btn.textContent = "Solve Challenge";
+      btn.classList.remove("bg-[#2cbb5d]", "hover:bg-[#34d668]");
+      btn.classList.add("bg-[#ffa116]", "hover:bg-[#ffb84d]");
+    }
+  }
+
+  // Show/hide login prompt and stats panel based on login state
+  function updateLoginState(isLoggedIn) {
+    const loginPrompt = document.getElementById("login-prompt");
+    const statsPanel = document.getElementById("stats-panel");
+
+    if (isLoggedIn) {
+      loginPrompt.classList.add("hidden");
+      statsPanel.classList.remove("hidden");
+    } else {
+      loginPrompt.classList.remove("hidden");
+      statsPanel.classList.add("hidden");
+    }
+  }
+
   // Sync streak from LeetCode on popup open (fetch from popup since it has cookie access)
   async function syncFromLeetCode() {
     const userData = await fetchLeetCodeUserData();
+
     if (userData) {
       const today = getTodayDate();
+      updateLoginState(true);
+      updateButtonState(userData.completedToday);
+
       chrome.storage.local.set({
         streak: userData.streak,
         leetCodeUsername: userData.username,
@@ -500,6 +456,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Notify background to update badge
         chrome.runtime.sendMessage({ action: "updateBadge" });
       });
+    } else {
+      // Not logged in
+      updateLoginState(false);
+      render30DayHeatmap(null);
     }
   }
 
@@ -525,7 +485,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const today = new Date();
     let dailyChallengeCount = 0;
-    let totalSubmissions = 0;
 
     // Get color class based on submission count
     function getIntensityClass(count) {
@@ -547,7 +506,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const isToday = i === 0;
 
       if (dailyCompleted) dailyChallengeCount++;
-      totalSubmissions += submissionCount;
 
       // Color intensity based on submission count
       let cellClass = getIntensityClass(submissionCount);
@@ -560,9 +518,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-      const problemsText = submissionCount === 1 ? "1 problem" : `${submissionCount} problems`;
-      const dailyText = dailyCompleted ? " ✓ Daily" : "";
-      const tooltip = `${dayName}, ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${problemsText}${dailyText}`;
+      const submissionsText = submissionCount === 1 ? "1 submission" : `${submissionCount} submissions`;
+      const tooltip = `${dayName}, ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${submissionsText}`;
 
       // Show checkmark for daily challenge completion
       const checkmark = dailyCompleted
@@ -570,11 +527,44 @@ document.addEventListener("DOMContentLoaded", async () => {
         : '';
 
       days.push(`
-        <div class="w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" title="${tooltip}">${checkmark}</div>
+        <div class="heatmap-cell w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" data-tooltip="${tooltip}">${checkmark}</div>
       `);
     }
 
     heatmapEl.innerHTML = days.join('');
+
+    // Setup custom tooltip for heatmap cells
+    const tooltipEl = document.getElementById("custom-tooltip");
+    const popupWidth = 400; // Extension popup width
+
+    heatmapEl.querySelectorAll(".heatmap-cell").forEach(cell => {
+      cell.addEventListener("mouseenter", () => {
+        const text = cell.dataset.tooltip;
+        if (text) {
+          tooltipEl.textContent = text;
+          tooltipEl.classList.remove("opacity-0");
+          tooltipEl.classList.add("opacity-100");
+
+          const rect = cell.getBoundingClientRect();
+          const tooltipWidth = tooltipEl.offsetWidth;
+
+          // Calculate centered position
+          let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+
+          // Clamp to prevent overflow on left/right edges
+          const padding = 8;
+          left = Math.max(padding, Math.min(left, popupWidth - tooltipWidth - padding));
+
+          tooltipEl.style.left = `${left}px`;
+          tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 6}px`;
+        }
+      });
+
+      cell.addEventListener("mouseleave", () => {
+        tooltipEl.classList.remove("opacity-100");
+        tooltipEl.classList.add("opacity-0");
+      });
+    });
 
     // Update count display
     countEl.textContent = `${dailyChallengeCount}/30 daily`;
@@ -646,6 +636,40 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (response && response.success) {
         updateStreakDisplay();
       }
+    });
+  });
+
+  // Notification toggle
+  const notifToggle = document.getElementById("toggle-notifications");
+  const notifDot = document.getElementById("notif-toggle-dot");
+
+  function updateNotificationToggleUI(enabled) {
+    if (enabled) {
+      notifToggle.classList.remove("bg-[#ffffff1a]");
+      notifToggle.classList.add("bg-[#2cbb5d]");
+      notifDot.classList.add("translate-x-4");
+    } else {
+      notifToggle.classList.add("bg-[#ffffff1a]");
+      notifToggle.classList.remove("bg-[#2cbb5d]");
+      notifDot.classList.remove("translate-x-4");
+    }
+  }
+
+  // Load initial notification state
+  chrome.storage.local.get(["notificationsEnabled"], (result) => {
+    // Default to enabled if not set
+    const enabled = result.notificationsEnabled !== false;
+    updateNotificationToggleUI(enabled);
+  });
+
+  notifToggle.addEventListener("click", () => {
+    chrome.storage.local.get(["notificationsEnabled"], (result) => {
+      const currentState = result.notificationsEnabled !== false;
+      const newState = !currentState;
+
+      chrome.storage.local.set({ notificationsEnabled: newState }, () => {
+        updateNotificationToggleUI(newState);
+      });
     });
   });
 
