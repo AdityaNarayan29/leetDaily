@@ -14,13 +14,10 @@ async function fetchLeetCodeUserData() {
             userStatus {
               username
               isSignedIn
-              checkedInToday
               avatar
             }
             streakCounter {
               streakCount
-              daysSkipped
-              currentDayCompleted
             }
             activeDailyCodingChallengeQuestion {
               userStatus
@@ -40,9 +37,8 @@ async function fetchLeetCodeUserData() {
     const dailyStatus = data?.data?.activeDailyCodingChallengeQuestion?.userStatus;
 
     // Check if today's daily challenge is completed
-    const completedToday = dailyStatus === "Finish" ||
-                           streakData?.currentDayCompleted === true ||
-                           userStatus?.checkedInToday === true;
+    // Only use dailyStatus === "Finish" as the definitive check
+    const completedToday = dailyStatus === "Finish";
 
     return {
       username: userStatus.username,
@@ -446,7 +442,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Update header text
       headerTitle.textContent = userData.username;
-      headerSubtitle.textContent = "LeetCode Daily";
+      headerSubtitle.textContent = "Daily LeetCode Kro";
     } else {
       loginPrompt.classList.remove("hidden");
       statsPanel.classList.add("hidden");
@@ -456,8 +452,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       logo.classList.remove("hidden");
 
       // Reset header text
-      headerTitle.textContent = "LeetCode Daily";
-      headerSubtitle.textContent = "Daily Challenge Tracker";
+      headerTitle.textContent = "LeetDaily";
+      headerSubtitle.textContent = "Daily LeetCode Kro";
     }
   }
 
@@ -664,39 +660,45 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.getElementById("open").addEventListener("click", () => {
-    chrome.runtime.sendMessage({ action: "visitedToday" }, (response) => {
-      chrome.tabs.create({
-        url: `https://leetcode.com/problems/${question.titleSlug}`,
-      });
-      // Update the streak display immediately after visiting
-      if (response && response.success) {
-        updateStreakDisplay();
-      }
+    chrome.tabs.create({
+      url: `https://leetcode.com/problems/${question.titleSlug}`,
     });
+  });
+
+  // Settings accordion
+  const settingsToggle = document.getElementById("settings-toggle");
+  const settingsContent = document.getElementById("settings-content");
+  const settingsIcon = document.getElementById("settings-icon");
+
+  settingsToggle.addEventListener("click", () => {
+    const isHidden = settingsContent.classList.contains("hidden");
+    if (isHidden) {
+      settingsContent.classList.remove("hidden");
+      settingsIcon.classList.add("rotate-180");
+    } else {
+      settingsContent.classList.add("hidden");
+      settingsIcon.classList.remove("rotate-180");
+    }
   });
 
   // Notification toggle
   const notifToggle = document.getElementById("toggle-notifications");
   const notifDot = document.getElementById("notif-toggle-dot");
+  const reminderTimeSection = document.getElementById("reminder-time-section");
 
   function updateNotificationToggleUI(enabled) {
     if (enabled) {
       notifToggle.classList.remove("bg-[#ffffff1a]");
       notifToggle.classList.add("bg-[#2cbb5d]");
       notifDot.classList.add("translate-x-4");
+      reminderTimeSection.classList.remove("opacity-50", "pointer-events-none");
     } else {
       notifToggle.classList.add("bg-[#ffffff1a]");
       notifToggle.classList.remove("bg-[#2cbb5d]");
       notifDot.classList.remove("translate-x-4");
+      reminderTimeSection.classList.add("opacity-50", "pointer-events-none");
     }
   }
-
-  // Load initial notification state
-  chrome.storage.local.get(["notificationsEnabled"], (result) => {
-    // Default to enabled if not set
-    const enabled = result.notificationsEnabled !== false;
-    updateNotificationToggleUI(enabled);
-  });
 
   notifToggle.addEventListener("click", () => {
     chrome.storage.local.get(["notificationsEnabled"], (result) => {
@@ -709,8 +711,81 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Uncomment to test undo
-  // document.getElementById("resetVisit").addEventListener("click", () => {
-  //   chrome.runtime.sendMessage({ action: "undoVisitToday" }, () => location.reload());
-  // });
+  // Custom Time Picker
+  const hourSelect = document.getElementById("hour-select");
+  const minuteSelect = document.getElementById("minute-select");
+  const ampmBtn = document.getElementById("ampm-btn");
+  const timeSavedCheck = document.getElementById("time-saved-check");
+  let saveTimeout = null;
+
+  let selectedAmPm = "AM";
+
+  function get24HourTime() {
+    const hour = parseInt(hourSelect.value);
+    const minute = parseInt(minuteSelect.value);
+    let hour24 = hour;
+    if (selectedAmPm === "PM" && hour !== 12) {
+      hour24 = hour + 12;
+    } else if (selectedAmPm === "AM" && hour === 12) {
+      hour24 = 0;
+    }
+    return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  }
+
+  function saveTime() {
+    const time = get24HourTime();
+    chrome.storage.local.set({ reminderTime: time }, () => {
+      chrome.runtime.sendMessage({ action: "updateReminderTime", time });
+
+      timeSavedCheck.classList.remove("opacity-0");
+      timeSavedCheck.classList.add("opacity-100");
+
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        timeSavedCheck.classList.remove("opacity-100");
+        timeSavedCheck.classList.add("opacity-0");
+      }, 1500);
+    });
+  }
+
+  // Event handlers
+  hourSelect.addEventListener('change', saveTime);
+  minuteSelect.addEventListener('change', saveTime);
+
+  ampmBtn.addEventListener('click', () => {
+    selectedAmPm = selectedAmPm === "AM" ? "PM" : "AM";
+    ampmBtn.textContent = selectedAmPm;
+    saveTime();
+  });
+
+  // Load initial settings state
+  chrome.storage.local.get(["notificationsEnabled", "reminderTime"], (result) => {
+    const enabled = result.notificationsEnabled !== false;
+    updateNotificationToggleUI(enabled);
+
+    // Parse stored time (24h format like "10:00" or "14:30")
+    const time = result.reminderTime || "10:00";
+    const [hour24, minute] = time.split(':').map(Number);
+
+    // Convert 24h to 12h format
+    let hour12;
+    if (hour24 === 0) {
+      hour12 = 12;
+      selectedAmPm = "AM";
+    } else if (hour24 === 12) {
+      hour12 = 12;
+      selectedAmPm = "PM";
+    } else if (hour24 > 12) {
+      hour12 = hour24 - 12;
+      selectedAmPm = "PM";
+    } else {
+      hour12 = hour24;
+      selectedAmPm = "AM";
+    }
+
+    // Set select values
+    hourSelect.value = hour12;
+    minuteSelect.value = minute;
+    ampmBtn.textContent = selectedAmPm;
+  });
 });

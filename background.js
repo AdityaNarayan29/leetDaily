@@ -2,12 +2,6 @@ function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getYesterdayDate() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
 let blinkInterval = null;
 let blinkVisible = true;
 
@@ -73,22 +67,25 @@ updateBadge();
 setInterval(updateBadge, 60 * 1000); // Check every minute instead of every hour
 
 // Notification system
-function setupDailyReminder() {
+function setupDailyReminder(time = "10:00") {
   // Clear existing alarms
   chrome.alarms.clear("dailyReminder");
   chrome.alarms.clear("urgentReminder");
 
-  // Set up daily reminder at 9 AM local time
-  const now = new Date();
-  const nineAM = new Date(now);
-  nineAM.setHours(9, 0, 0, 0);
+  // Parse time string (HH:MM)
+  const [hour, minute] = time.split(":").map(Number);
 
-  // If it's past 9 AM, schedule for tomorrow
-  if (now > nineAM) {
-    nineAM.setDate(nineAM.getDate() + 1);
+  // Set up daily reminder at specified time local time
+  const now = new Date();
+  const reminderTime = new Date(now);
+  reminderTime.setHours(hour, minute, 0, 0);
+
+  // If it's past the reminder time, schedule for tomorrow
+  if (now > reminderTime) {
+    reminderTime.setDate(reminderTime.getDate() + 1);
   }
 
-  const delayInMinutes = (nineAM - now) / (1000 * 60);
+  const delayInMinutes = (reminderTime - now) / (1000 * 60);
   chrome.alarms.create("dailyReminder", {
     delayInMinutes,
     periodInMinutes: 24 * 60 // Repeat daily
@@ -103,13 +100,20 @@ function checkUrgentReminder() {
   const twoHoursInMs = 2 * 60 * 60 * 1000;
 
   if (timeLeft <= twoHoursInMs && timeLeft > 0) {
-    chrome.storage.local.get(["lastVisitedDate", "lastUrgentNotification"], (result) => {
+    chrome.storage.local.get(["lastVisitedDate", "lastUrgentNotification", "leetCodeUsername", "streak"], (result) => {
       const today = getTodayDate();
       // Only show if not visited today and haven't shown urgent notification today
       if (result.lastVisitedDate !== today && result.lastUrgentNotification !== today) {
+        const firstName = result.leetCodeUsername
+          ? result.leetCodeUsername.split(/[^a-zA-Z]/)[0]
+          : null;
+        const streak = result.streak || 0;
+        const streakText = streak > 0 ? ` Don't lose your ${streak}-day streak!` : "";
+        const greeting = firstName ? `${firstName}, ` : "";
+
         showNotification(
-          "Streak at risk!",
-          "Less than 2 hours left to complete today's LeetCode challenge!",
+          "LeetDaily - Streak at Risk!",
+          `${greeting}Less than 2 hours left!${streakText}`,
           "urgent"
         );
         chrome.storage.local.set({ lastUrgentNotification: today });
@@ -123,7 +127,8 @@ function showNotification(title, message, type = "reminder") {
     // Default to enabled if not set
     if (result.notificationsEnabled === false) return;
 
-    chrome.notifications.create({
+    const notificationId = `leetdaily-${type}-${Date.now()}`;
+    chrome.notifications.create(notificationId, {
       type: "basic",
       iconUrl: "icon.png",
       title,
@@ -133,15 +138,54 @@ function showNotification(title, message, type = "reminder") {
   });
 }
 
+// Handle notification click - open today's problem
+chrome.notifications.onClicked.addListener((notificationId) => {
+  // Clear the notification immediately
+  chrome.notifications.clear(notificationId);
+  // Fetch today's problem and open it
+  fetch("https://leetcode.com/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: `
+        query questionOfToday {
+          activeDailyCodingChallengeQuestion {
+            question {
+              titleSlug
+            }
+          }
+        }
+      `
+    })
+  })
+    .then(response => response.json())
+    .then(data => {
+      const slug = data?.data?.activeDailyCodingChallengeQuestion?.question?.titleSlug;
+      if (slug) {
+        chrome.tabs.create({ url: `https://leetcode.com/problems/${slug}` });
+      } else {
+        chrome.tabs.create({ url: "https://leetcode.com/problemset/" });
+      }
+    })
+    .catch(() => {
+      chrome.tabs.create({ url: "https://leetcode.com/problemset/" });
+    });
+});
+
 // Handle alarm triggers
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "dailyReminder") {
-    chrome.storage.local.get(["lastVisitedDate"], (result) => {
+    chrome.storage.local.get(["lastVisitedDate", "leetCodeUsername"], (result) => {
       const today = getTodayDate();
       if (result.lastVisitedDate !== today) {
+        const firstName = result.leetCodeUsername
+          ? result.leetCodeUsername.split(/[^a-zA-Z]/)[0]
+          : null;
+        const greeting = firstName ? `Hey ${firstName}! ` : "";
+
         showNotification(
-          "Daily LeetCode Challenge",
-          "Don't forget to solve today's problem and keep your streak going!"
+          "LeetDaily - Daily Challenge",
+          `${greeting}Today's problem is waiting. Keep your streak alive!`
         );
       }
     });
@@ -151,95 +195,21 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 // Check urgent reminder every 30 minutes
 setInterval(checkUrgentReminder, 30 * 60 * 1000);
 
-// Setup reminders on extension load
-setupDailyReminder();
+// Setup reminders on extension load with stored time
+chrome.storage.local.get(["reminderTime"], (result) => {
+  const time = result.reminderTime || "10:00";
+  setupDailyReminder(time);
+});
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  const today = getTodayDate();
-  const yesterday = getYesterdayDate();
-
-  if (request.action === "visitedToday") {
-    chrome.storage.local.get(["lastVisitedDate", "streak", "previousLastVisitedDate"], (result) => {
-      let streak = result.streak || 0;
-      let previousLastVisitedDate = result.lastVisitedDate;
-
-      // If already visited today, keep the current streak (no change)
-      if (result.lastVisitedDate === today) {
-        streak = result.streak || 1;
-        previousLastVisitedDate = result.previousLastVisitedDate || null;
-      }
-      // If visited yesterday, increment the streak
-      else if (result.lastVisitedDate === yesterday) {
-        streak = streak + 1;
-      }
-      // If missed a day or first time, reset to 1
-      else {
-        streak = 1;
-      }
-
-      chrome.storage.local.set({
-        lastVisitedDate: today,
-        streak,
-        previousLastVisitedDate
-      }, () => {
-        stopBlinking();
-        chrome.action.setBadgeText({ text: "" });
-        sendResponse({ success: true, streak });
-      });
-    });
-
-    return true;
-  }
-
-  if (request.action === "undoVisitToday") {
-    chrome.storage.local.get(["lastVisitedDate", "streak", "previousLastVisitedDate"], (result) => {
-      if (result.lastVisitedDate !== today) {
-        sendResponse({ success: false, message: "No visit recorded for today" });
-        return;
-      }
-
-      let streak = result.streak || 0;
-      const previousDate = result.previousLastVisitedDate;
-
-      // Restore the previous state
-      // If previous visit was yesterday, we're undoing a continuation, so decrement streak
-      // If previous visit was not yesterday (or null), we're undoing a fresh start, so streak becomes what it was before
-      if (previousDate === yesterday) {
-        // User had a streak going, decrement it back
-        streak = Math.max(0, streak - 1);
-      } else {
-        // User started fresh today (streak was reset to 1), restore to 0 or previous value
-        streak = Math.max(0, streak - 1);
-      }
-
-      chrome.storage.local.set({
-        lastVisitedDate: previousDate,
-        streak,
-        previousLastVisitedDate: null
-      }, () => {
-        // Trigger badge update based on current state
-        updateBadge();
-        sendResponse({ success: true, streak });
-      });
-    });
-
-    return true;
-  }
-
-  if (request.action === "getStreakInfo") {
-    chrome.storage.local.get(["lastVisitedDate", "streak", "leetCodeUsername"], (result) => {
-      sendResponse({
-        streak: result.streak || 0,
-        lastVisitedDate: result.lastVisitedDate || null,
-        visitedToday: result.lastVisitedDate === today,
-        leetCodeUsername: result.leetCodeUsername || null
-      });
-    });
-    return true;
-  }
-
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "updateBadge") {
     updateBadge();
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === "updateReminderTime") {
+    setupDailyReminder(request.time);
     sendResponse({ success: true });
     return true;
   }

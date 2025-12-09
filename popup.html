@@ -6,6 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeetDaily</title>
   <link rel="stylesheet" href="styles/output.css" />
+  <style>
+    /* Hide default select arrow and style */
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      text-align: center;
+      text-align-last: center;
+    }
+    select option {
+      text-align: center;
+    }
+    #hour-select {
+      min-width: 28px;
+      padding: 4px 4px;
+    }
+    #minute-select {
+      min-width: 28px;
+      padding: 4px 0 4px 4px;
+    }
+    #ampm-btn {
+      margin-left: -4px;
+    }
+  </style>
 </head>
 
 <body class="bg-[#1a1a1a] text-[#eff1f6] w-[400px] p-5 font-sans">
@@ -22,8 +46,8 @@
         <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 00-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.535-1.387-.552-1.902-.038l-10.1 10.101c-.981.982-1.494 2.337-1.494 3.835 0 1.498.513 2.895 1.494 3.875l4.347 4.361c.981.979 2.337 1.452 3.834 1.452s2.853-.512 3.835-1.494l2.609-2.637c.514-.514.496-1.365-.039-1.9s-1.386-.553-1.899-.039zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z" fill="#FFA116"/>
       </svg>
       <div>
-        <h1 id="header-title" class="text-[15px] font-semibold text-[#eff1f6] leading-tight">LeetCode Daily</h1>
-        <p id="header-subtitle" class="text-[11px] text-[#eff1f699] leading-tight">Daily Challenge Tracker</p>
+        <h1 id="header-title" class="text-[15px] font-semibold text-[#eff1f6] leading-tight">LeetDaily</h1>
+        <p id="header-subtitle" class="text-[11px] text-[#eff1f699] leading-tight">Daily LeetCode Kro</p>
       </div>
     </div>
     <div class="flex items-center gap-4">
@@ -103,13 +127,65 @@
     <a id="yesterday-link" href="#" target="_blank" class="text-[13px] font-medium text-[#ffa116] hover:underline block truncate"></a>
   </section>
 
-  <!-- Settings -->
-  <section class="mt-4 p-4 rounded-xl bg-[#282828]">
-    <div class="flex items-center justify-between">
-      <span class="text-[12px] text-[#eff1f699]">Daily reminders</span>
-      <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications">
-        <span id="notif-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform"></span>
-      </button>
+  <!-- Settings Accordion -->
+  <section class="mt-4 rounded-xl bg-[#282828] overflow-hidden">
+    <button id="settings-toggle" class="w-full p-4 flex items-center justify-between text-[12px] text-[#eff1f699] hover:text-[#eff1f6] transition-colors">
+      <span class="flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Settings
+      </span>
+      <svg id="settings-icon" class="w-3 h-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <div id="settings-content" class="hidden px-4 pb-4 space-y-3">
+      <!-- Notifications Toggle -->
+      <div class="flex items-center justify-between">
+        <span class="text-[12px] text-[#eff1f699]">Daily reminders</span>
+        <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications">
+          <span id="notif-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform"></span>
+        </button>
+      </div>
+      <!-- Reminder Time -->
+      <div id="reminder-time-section" class="flex items-center justify-between">
+        <span class="text-[12px] text-[#eff1f699]">Reminder time</span>
+        <div class="flex items-center gap-2">
+          <svg id="time-saved-check" class="w-4 h-4 opacity-0 transition-opacity" style="color: #4ade80;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <!-- Custom Time Picker -->
+          <div class="flex items-center bg-[#1a1a1a] rounded border border-[#ffffff1a]">
+            <!-- Hour Select -->
+            <select id="hour-select" class="bg-transparent text-[#eff1f6] text-[12px] cursor-pointer focus:outline-none">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10" selected>10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+            </select>
+            <span class="text-[12px] text-[#eff1f699]">:</span>
+            <!-- Minute Select -->
+            <select id="minute-select" class="bg-transparent text-[#eff1f6] text-[12px] cursor-pointer focus:outline-none">
+              <option value="0" selected>00</option>
+              <option value="15">15</option>
+              <option value="30">30</option>
+              <option value="45">45</option>
+            </select>
+            <!-- AM/PM Toggle -->
+            <button id="ampm-btn" class="text-[12px] text-[#ffa116] font-medium px-2 py-1 cursor-pointer">AM</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
