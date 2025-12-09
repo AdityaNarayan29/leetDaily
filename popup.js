@@ -2,6 +2,47 @@ function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Cache for problem data from JSON file
+let problemDataCache = null;
+
+async function loadProblemData() {
+  if (problemDataCache) return problemDataCache;
+
+  try {
+    const url = chrome.runtime.getURL('data/leetcode-problems.json');
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // Create a map for quick lookup by titleSlug
+    problemDataCache = new Map();
+    data.problems.forEach(p => {
+      problemDataCache.set(p.titleSlug, p);
+    });
+
+    return problemDataCache;
+  } catch (error) {
+    console.error("Failed to load problem data:", error);
+    return null;
+  }
+}
+
+async function getProblemCompanyData(titleSlug) {
+  const cache = await loadProblemData();
+  if (!cache) return null;
+
+  const problem = cache.get(titleSlug);
+  if (!problem) return null;
+
+  return {
+    companies: problem.companies || [],
+    companyFrequency: problem.companyFrequency || {},
+    likes: problem.likes || 0,
+    dislikes: problem.dislikes || 0,
+    hints: problem.hints || [],
+    similarQuestions: problem.similarQuestions || []
+  };
+}
+
 async function fetchLeetCodeUserData() {
   try {
     const response = await fetch("https://leetcode.com/graphql", {
@@ -70,6 +111,7 @@ async function getDailyQuestionSlug() {
     query: `
       query questionOfToday {
         activeDailyCodingChallengeQuestion {
+          date
           question {
             titleSlug
             title
@@ -90,17 +132,20 @@ async function getDailyQuestionSlug() {
   });
 
   const data = await response.json();
-  return data.data.activeDailyCodingChallengeQuestion.question;
+  const challenge = data.data.activeDailyCodingChallengeQuestion;
+  return { ...challenge.question, date: challenge.date };
 }
 
-async function getYesterdayQuestion() {
-  // Get yesterday's date in YYYY-MM-DD format
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const year = yesterday.getFullYear();
-  const month = String(yesterday.getMonth() + 1).padStart(2, '0');
-  const day = String(yesterday.getDate()).padStart(2, '0');
-  const dateString = `${year}-${month}-${day}`;
+async function getYesterdayQuestion(todayDateString) {
+  // Calculate yesterday based on today's daily challenge date (UTC-based from LeetCode)
+  const todayDate = new Date(todayDateString + 'T00:00:00Z');
+  const yesterday = new Date(todayDate);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+
+  const year = yesterday.getUTCFullYear();
+  const month = yesterday.getUTCMonth() + 1;
+  const day = yesterday.getUTCDate();
+  const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   const query = {
     query: `
@@ -112,18 +157,20 @@ async function getYesterdayQuestion() {
             question {
               titleSlug
               title
+              questionFrontendId
             }
           }
         }
       }
     `,
-    variables: { year, month: yesterday.getMonth() + 1 }
+    variables: { year, month }
   };
 
   try {
     const response = await fetch("https://leetcode.com/graphql", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(query),
     });
 
@@ -259,7 +306,7 @@ async function fetchLast30DaysHistory(username) {
   }
 }
 
-function renderQuestion(question) {
+function renderQuestion(question, companyData = null) {
   // LeetCode's exact difficulty colors
   const difficultyColors = {
     Easy: "text-[#00b8a3]",
@@ -281,6 +328,9 @@ function renderQuestion(question) {
   const topicChipClass =
     "inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-[#ffffff0d] text-[#eff1f699] cursor-pointer hover:bg-[#ffffff1a] hover:text-[#eff1f6] transition-colors";
 
+  const companyChipClass =
+    "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#ffa1161a] text-[#ffa116] border border-[#ffa11633]";
+
   const topicsArray = question.topicTags || [];
   const topicsHTML = topicsArray.length
     ? topicsArray.map(tag => {
@@ -293,6 +343,74 @@ function renderQuestion(question) {
       return `<span class="${topicChipClass} mr-1 mb-1" data-tag="${tagSlug}">${tag.name}</span>`;
     }).join("")
     : '<span class="text-[#eff1f666]">N/A</span>';
+
+  // Build company tags HTML (show top 5 companies with frequency, expandable)
+  let companiesHTML = '';
+  if (companyData && companyData.companies && companyData.companies.length > 0) {
+    const allCompanies = companyData.companies;
+    const topCompanies = allCompanies.slice(0, 5);
+    const remainingCompanies = allCompanies.slice(5);
+
+    const makeChip = (company) => {
+      const freq = companyData.companyFrequency[company] || 0;
+      const freqLabel = freq > 0 ? ` (${freq})` : '';
+      return `<span class="${companyChipClass}">${company}${freqLabel}</span>`;
+    };
+
+    const topChips = topCompanies.map(makeChip).join('');
+    const remainingChips = remainingCompanies.map(makeChip).join('');
+    const moreCount = remainingCompanies.length;
+
+    const moreLabel = moreCount > 0
+      ? `<button id="toggle-companies" class="text-[10px] text-[#ffa116] hover:text-[#ffb84d] cursor-pointer transition-colors">+${moreCount} more</button>`
+      : '';
+    const showLessLabel = moreCount > 0
+      ? `<button id="show-less-companies" class="text-[10px] text-[#ffa116] hover:text-[#ffb84d] cursor-pointer transition-colors hidden">Show less</button>`
+      : '';
+
+    companiesHTML = `
+      <div id="companies-section" class="mt-2 pt-2 border-t border-[#ffffff0d]">
+        <div class="flex items-center gap-1.5 mb-1.5">
+          <svg class="w-3 h-3 text-[#ffa116]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"></path>
+            <path d="M9 8h1"></path>
+            <path d="M9 12h1"></path>
+            <path d="M9 16h1"></path>
+            <path d="M14 8h1"></path>
+            <path d="M14 12h1"></path>
+            <path d="M14 16h1"></path>
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
+          </svg>
+          <span class="text-[11px] text-[#eff1f699]">Asked by companies</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5 items-center">
+          ${topChips}
+          <span id="remaining-companies" class="hidden">${remainingChips}</span>
+          ${moreLabel}
+          ${showLessLabel}
+        </div>
+      </div>
+    `;
+  } else {
+    // No company data available - show placeholder
+    companiesHTML = `
+      <div id="companies-section" class="mt-2 pt-2 border-t border-[#ffffff0d]">
+        <div class="flex items-center gap-1.5 mb-1.5">
+          <svg class="w-3 h-3 text-[#eff1f666]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"></path>
+            <path d="M9 8h1"></path>
+            <path d="M9 12h1"></path>
+            <path d="M9 16h1"></path>
+            <path d="M14 8h1"></path>
+            <path d="M14 12h1"></path>
+            <path d="M14 16h1"></path>
+            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
+          </svg>
+          <span class="text-[11px] text-[#eff1f666]">No company data available</span>
+        </div>
+      </div>
+    `;
+  }
 
   const problemUrl = `https://leetcode.com/problems/${question.titleSlug}`;
 
@@ -323,6 +441,7 @@ function renderQuestion(question) {
     <div id="topics-list" class="mt-2 flex-wrap gap-1.5 hidden">
       ${topicsHTML}
     </div>
+    ${companiesHTML}
   `;
 
   // Copy link button
@@ -350,11 +469,35 @@ function renderQuestion(question) {
       }
     });
   }
+
+  // Toggle companies expand/collapse
+  const toggleCompaniesBtn = document.getElementById("toggle-companies");
+  const showLessBtn = document.getElementById("show-less-companies");
+  const remainingCompanies = document.getElementById("remaining-companies");
+
+  if (toggleCompaniesBtn && remainingCompanies) {
+    toggleCompaniesBtn.addEventListener("click", () => {
+      remainingCompanies.classList.remove("hidden");
+      toggleCompaniesBtn.classList.add("hidden");
+      if (showLessBtn) showLessBtn.classList.remove("hidden");
+    });
+  }
+
+  if (showLessBtn && remainingCompanies) {
+    showLessBtn.addEventListener("click", () => {
+      remainingCompanies.classList.add("hidden");
+      showLessBtn.classList.add("hidden");
+      if (toggleCompaniesBtn) toggleCompaniesBtn.classList.remove("hidden");
+    });
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   const question = await getDailyQuestionSlug();
-  renderQuestion(question);
+
+  // Fetch company data from local JSON and render question with it
+  const companyData = await getProblemCompanyData(question.titleSlug);
+  renderQuestion(question, companyData);
 
   updateTimerDisplay();
   setInterval(updateTimerDisplay, 60 * 1000);
@@ -627,12 +770,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Load yesterday's problem
   async function loadYesterdayProblem() {
-    const yesterdayData = await getYesterdayQuestion();
+    const yesterdayData = await getYesterdayQuestion(question.date);
     if (yesterdayData) {
       const section = document.getElementById("yesterday-section");
       const link = document.getElementById("yesterday-link");
+      const numSpan = document.getElementById("yesterday-num");
+      const titleSpan = document.getElementById("yesterday-title");
       link.href = `https://leetcode.com${yesterdayData.link}`;
-      link.textContent = yesterdayData.question.title;
+      numSpan.textContent = `${yesterdayData.question.questionFrontendId}. `;
+      titleSpan.textContent = yesterdayData.question.title;
       section.classList.remove("hidden");
     }
   }
