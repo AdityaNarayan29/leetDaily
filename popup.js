@@ -306,16 +306,124 @@ async function fetchLast30DaysHistory(username) {
   }
 }
 
+// Renders chips inline with "+X more" that expands on click
+function renderChipsWithOverflow(container, items, chipClass, moreClass, isTopics) {
+  container.innerHTML = '';
+  const containerWidth = container.offsetWidth;
+  let usedWidth = 0;
+  let visibleCount = 0;
+  const gap = 6; // gap-1.5 = 6px
+  const moreButtonWidth = 60; // approximate width for "+X more"
+
+  // Create all chips first to measure
+  const chips = items.map((item) => {
+    const chip = document.createElement('span');
+    chip.className = chipClass;
+
+    if (isTopics) {
+      // Topics: item is { name, slug } or has .name
+      const tagName = item.name || item;
+      const tagSlug = encodeURIComponent(
+        tagName.toLowerCase()
+          .replace(/[ ()]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+      );
+      chip.textContent = tagName;
+      chip.dataset.tag = tagSlug;
+      chip.style.cursor = 'pointer';
+    } else {
+      // Companies: item is { name, freq }
+      const freqLabel = item.freq > 0 ? ` (${item.freq})` : '';
+      chip.textContent = `${item.name}${freqLabel}`;
+    }
+
+    return chip;
+  });
+
+  // Measure and add visible chips
+  const tempContainer = document.createElement('div');
+  tempContainer.style.cssText = 'position:absolute;visibility:hidden;display:flex;gap:6px;';
+  document.body.appendChild(tempContainer);
+
+  for (let i = 0; i < chips.length; i++) {
+    tempContainer.appendChild(chips[i].cloneNode(true));
+    const chipWidth = tempContainer.lastChild.offsetWidth;
+
+    const remainingItems = chips.length - (i + 1);
+    const needsMore = remainingItems > 0;
+    const requiredWidth = usedWidth + chipWidth + (needsMore ? moreButtonWidth + gap : 0);
+
+    if (requiredWidth <= containerWidth || i === 0) {
+      usedWidth += chipWidth + gap;
+      visibleCount++;
+    } else {
+      break;
+    }
+  }
+
+  document.body.removeChild(tempContainer);
+
+  // Add visible chips
+  const visibleChips = chips.slice(0, visibleCount);
+  visibleChips.forEach(chip => container.appendChild(chip));
+
+  // Add "+X more" button if needed
+  const hiddenCount = chips.length - visibleCount;
+  if (hiddenCount > 0) {
+    const moreBtn = document.createElement('span');
+    moreBtn.className = moreClass;
+    moreBtn.textContent = `+${hiddenCount} more`;
+    moreBtn.style.cursor = 'pointer';
+    moreBtn.dataset.expanded = 'false';
+
+    moreBtn.addEventListener('click', () => {
+      const isExpanded = moreBtn.dataset.expanded === 'true';
+
+      if (isExpanded) {
+        // Collapse: remove hidden chips and reset button
+        container.querySelectorAll('[data-hidden="true"]').forEach(el => el.remove());
+        container.classList.remove('flex-wrap');
+        container.classList.add('overflow-hidden');
+        moreBtn.textContent = `+${hiddenCount} more`;
+        moreBtn.dataset.expanded = 'false';
+      } else {
+        // Expand: add hidden chips before the button and allow wrapping
+        container.classList.add('flex-wrap');
+        container.classList.remove('overflow-hidden');
+        const hiddenChips = chips.slice(visibleCount);
+        hiddenChips.forEach(chip => {
+          chip.dataset.hidden = 'true';
+          container.insertBefore(chip, moreBtn);
+        });
+        moreBtn.textContent = 'less';
+        moreBtn.dataset.expanded = 'true';
+      }
+    });
+
+    container.appendChild(moreBtn);
+  }
+
+  // Add click handler for topic chips
+  if (isTopics) {
+    container.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target.dataset.tag) {
+        window.open(`https://leetcode.com/tag/${target.dataset.tag}/`, '_blank');
+      }
+    });
+  }
+}
+
 function renderQuestion(question, companyData = null) {
   // LeetCode's exact difficulty colors
   const difficultyColors = {
     Easy: "text-[#00b8a3]",
-    Medium: "text-[#ffc01e]",
+    Medium: "text-[#ffa116]",
     Hard: "text-[#ff375f]",
   };
 
   const difficultyColor = difficultyColors[question.difficulty] || "text-[#eff1f699]";
-  const chipHTML = `<span class="text-[12px] font-medium ${difficultyColor}">${question.difficulty}</span>`;
 
   let acceptanceRate = "N/A";
   try {
@@ -325,124 +433,82 @@ function renderQuestion(question, companyData = null) {
     acceptanceRate = "N/A";
   }
 
-  const topicChipClass =
-    "inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-[#ffffff0d] text-[#eff1f699] cursor-pointer hover:bg-[#ffffff1a] hover:text-[#eff1f6] transition-colors";
-
-  const companyChipClass =
-    "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#ffa1161a] text-[#ffa116] border border-[#ffa11633]";
+  // Consistent chip styling - same size/padding, different colors
+  const baseChipClass = "inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium transition-colors whitespace-nowrap";
+  const topicChipClass = `${baseChipClass} bg-[#ffffff0d] text-[#eff1f699] hover:bg-[#ffffff1a] hover:text-[#eff1f6] cursor-pointer`;
+  const companyChipClass = `${baseChipClass} bg-[#ffa1161a] text-[#ffa116] hover:bg-[#ffa11633] cursor-default`;
+  const moreChipClass = `${baseChipClass} bg-[#ffffff0d] text-[#eff1f699] hover:bg-[#ffffff1a] hover:text-[#eff1f6] cursor-pointer`;
 
   const topicsArray = question.topicTags || [];
-  const topicsHTML = topicsArray.length
-    ? topicsArray.map(tag => {
-      const tagSlug = encodeURIComponent(
-        tag.name.toLowerCase()
-          .replace(/[ ()]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '')
-      );
-      return `<span class="${topicChipClass} mr-1 mb-1" data-tag="${tagSlug}">${tag.name}</span>`;
-    }).join("")
-    : '<span class="text-[#eff1f666]">N/A</span>';
-
-  // Build company tags HTML (show top 5 companies with frequency, expandable)
-  let companiesHTML = '';
-  if (companyData && companyData.companies && companyData.companies.length > 0) {
-    const allCompanies = companyData.companies;
-    const topCompanies = allCompanies.slice(0, 5);
-    const remainingCompanies = allCompanies.slice(5);
-
-    const makeChip = (company) => {
-      const freq = companyData.companyFrequency[company] || 0;
-      const freqLabel = freq > 0 ? ` (${freq})` : '';
-      return `<span class="${companyChipClass}">${company}${freqLabel}</span>`;
-    };
-
-    const topChips = topCompanies.map(makeChip).join('');
-    const remainingChips = remainingCompanies.map(makeChip).join('');
-    const moreCount = remainingCompanies.length;
-
-    const moreLabel = moreCount > 0
-      ? `<button id="toggle-companies" class="text-[10px] text-[#ffa116] hover:text-[#ffb84d] cursor-pointer transition-colors">+${moreCount} more</button>`
-      : '';
-    const showLessLabel = moreCount > 0
-      ? `<button id="show-less-companies" class="text-[10px] text-[#ffa116] hover:text-[#ffb84d] cursor-pointer transition-colors hidden">Show less</button>`
-      : '';
-
-    companiesHTML = `
-      <div id="companies-section" class="mt-2 pt-2 border-t border-[#ffffff0d]">
-        <div class="flex items-center gap-1.5 mb-1.5">
-          <svg class="w-3 h-3 text-[#ffa116]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 21h18"></path>
-            <path d="M9 8h1"></path>
-            <path d="M9 12h1"></path>
-            <path d="M9 16h1"></path>
-            <path d="M14 8h1"></path>
-            <path d="M14 12h1"></path>
-            <path d="M14 16h1"></path>
-            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
-          </svg>
-          <span class="text-[11px] text-[#eff1f699]">Asked by companies</span>
-        </div>
-        <div class="flex flex-wrap gap-1.5 items-center">
-          ${topChips}
-          <span id="remaining-companies" class="hidden">${remainingChips}</span>
-          ${moreLabel}
-          ${showLessLabel}
-        </div>
-      </div>
-    `;
-  } else {
-    // No company data available - show placeholder
-    companiesHTML = `
-      <div id="companies-section" class="mt-2 pt-2 border-t border-[#ffffff0d]">
-        <div class="flex items-center gap-1.5 mb-1.5">
-          <svg class="w-3 h-3 text-[#eff1f666]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 21h18"></path>
-            <path d="M9 8h1"></path>
-            <path d="M9 12h1"></path>
-            <path d="M9 16h1"></path>
-            <path d="M14 8h1"></path>
-            <path d="M14 12h1"></path>
-            <path d="M14 16h1"></path>
-            <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path>
-          </svg>
-          <span class="text-[11px] text-[#eff1f666]">No company data available</span>
-        </div>
-      </div>
-    `;
-  }
+  const hasCompanyData = companyData && companyData.companies && companyData.companies.length > 0;
+  const companiesArray = hasCompanyData ? companyData.companies : [];
 
   const problemUrl = `https://leetcode.com/problems/${question.titleSlug}`;
 
+  // Book icon for topics
+  const bookIcon = `<svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+  // Building icon for companies
+  const buildingIcon = `<svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M9 8h1"></path><path d="M9 12h1"></path><path d="M9 16h1"></path><path d="M14 8h1"></path><path d="M14 12h1"></path><path d="M14 16h1"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path></svg>`;
+
   document.getElementById("question").innerHTML = `
-    <div class="flex items-start gap-2 mb-2">
-      <div class="flex-1 min-w-0">
-        <h2 class="text-[14px] font-medium text-[#eff1f6] leading-snug">
-          <span class="text-[#eff1f699]">${question.questionFrontendId}.</span> ${question.title}
-        </h2>
+    <div class="mb-3 flex items-start gap-2">
+      <div class="flex-1 text-[14px] leading-snug">
+        <span class="text-[#eff1f699]">${question.questionFrontendId}.</span>
+        <span class="font-medium text-[#eff1f6]">${question.title}</span>
+        <span class="text-[#eff1f699] mx-1">·</span>
+        <span class="text-[11px] font-medium ${difficultyColor}">${question.difficulty}</span>
+        <span class="text-[11px] text-[#eff1f699] ml-1">${acceptanceRate}%</span>
       </div>
-      <button id="copy-link" class="flex-shrink-0 text-[#eff1f666] hover:text-[#ffa116] cursor-pointer transition-colors p-1 -m-1" title="Copy problem link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button id="copy-link" class="text-[#eff1f666] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Copy problem link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
         </svg>
       </button>
     </div>
-    <div class="flex items-center justify-between">
-      <button id="toggle-topics" class="text-[12px] text-[#eff1f699] hover:text-[#ffa116] cursor-pointer transition-colors focus:outline-none flex items-center gap-1">
-        <svg id="toggle-icon" class="w-3 h-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        <span id="toggle-text">Topics</span>
-      </button>
-      <div class="flex items-center gap-2 text-[12px]">
-        ${chipHTML}
-        <span class="text-[#eff1f699]">${acceptanceRate}% acceptance</span>
+    <div class="border-t border-[#ffffff0d] pt-3 space-y-3">
+      <!-- Topics row -->
+      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 rounded-lg border border-[#ffffff1a]">
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          ${bookIcon}
+          <span class="text-[11px] font-medium">Topics</span>
+          <span class="text-[#ffffff33]">›</span>
+        </div>
+        <div id="topics-row" class="flex-1 flex items-center gap-1.5 overflow-hidden min-w-0">
+          <!-- Chips injected by JS -->
+        </div>
+      </div>
+      <!-- Companies row -->
+      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 rounded-lg border border-[#ffffff1a]">
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          ${buildingIcon}
+          <span class="text-[11px] font-medium">Companies</span>
+          <span class="text-[#ffffff33]">›</span>
+        </div>
+        <div id="companies-row" class="flex-1 flex items-center gap-1.5 overflow-hidden min-w-0">
+          ${hasCompanyData ? '<!-- Chips injected by JS -->' : '<span class="text-[11px] text-[#eff1f666]">N/A</span>'}
+        </div>
       </div>
     </div>
-    <div id="topics-list" class="mt-2 flex-wrap gap-1.5 hidden">
-      ${topicsHTML}
-    </div>
-    ${companiesHTML}
   `;
+
+  // Render topic chips with "+X more" logic
+  const topicsRowEl = document.getElementById("topics-row");
+  if (topicsRowEl && topicsArray.length > 0) {
+    renderChipsWithOverflow(topicsRowEl, topicsArray, topicChipClass, moreChipClass, true);
+  } else if (topicsRowEl) {
+    topicsRowEl.innerHTML = '<span class="text-[11px] text-[#eff1f666]">N/A</span>';
+  }
+
+  // Render company chips with "+X more" logic (only if there's data)
+  const companiesRowEl = document.getElementById("companies-row");
+  if (companiesRowEl && hasCompanyData && companiesArray.length > 0) {
+    const companyItems = companiesArray.map(company => {
+      const freq = companyData.companyFrequency[company] || 0;
+      return { name: company, freq };
+    });
+    renderChipsWithOverflow(companiesRowEl, companyItems, companyChipClass, moreChipClass, false);
+  }
 
   // Copy link button
   const copyBtn = document.getElementById("copy-link");
@@ -458,38 +524,6 @@ function renderQuestion(question, companyData = null) {
     }
   });
 
-  // Attach topic chip click listener (event delegation)
-  const topicsListEl = document.getElementById("topics-list");
-  if (topicsListEl) {
-    topicsListEl.addEventListener("click", (event) => {
-      const target = event.target;
-      if (target && target.dataset && target.dataset.tag) {
-        const tagSlug = target.dataset.tag;
-        window.open(`https://leetcode.com/tag/${tagSlug}/`, "_blank");
-      }
-    });
-  }
-
-  // Toggle companies expand/collapse
-  const toggleCompaniesBtn = document.getElementById("toggle-companies");
-  const showLessBtn = document.getElementById("show-less-companies");
-  const remainingCompanies = document.getElementById("remaining-companies");
-
-  if (toggleCompaniesBtn && remainingCompanies) {
-    toggleCompaniesBtn.addEventListener("click", () => {
-      remainingCompanies.classList.remove("hidden");
-      toggleCompaniesBtn.classList.add("hidden");
-      if (showLessBtn) showLessBtn.classList.remove("hidden");
-    });
-  }
-
-  if (showLessBtn && remainingCompanies) {
-    showLessBtn.addEventListener("click", () => {
-      remainingCompanies.classList.add("hidden");
-      showLessBtn.classList.add("hidden");
-      if (toggleCompaniesBtn) toggleCompaniesBtn.classList.remove("hidden");
-    });
-  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -785,26 +819,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   loadYesterdayProblem();
 
-
-  document.getElementById("toggle-topics").addEventListener("click", () => {
-    const topicsList = document.getElementById("topics-list");
-    const toggleIcon = document.getElementById("toggle-icon");
-    const toggleText = document.getElementById("toggle-text");
-    const isHidden = topicsList.classList.contains("hidden");
-
-    if (isHidden) {
-      topicsList.classList.remove("hidden");
-      topicsList.classList.add("flex");
-      toggleIcon.classList.add("rotate-180");
-      toggleText.textContent = "Hide Topics";
-    } else {
-      topicsList.classList.add("hidden");
-      topicsList.classList.remove("flex");
-      toggleIcon.classList.remove("rotate-180");
-      toggleText.textContent = "Show Topics";
-    }
-  });
-
   document.getElementById("open").addEventListener("click", () => {
     chrome.tabs.create({
       url: `https://leetcode.com/problems/${question.titleSlug}`,
@@ -857,6 +871,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Badge streak toggle
+  const badgeToggle = document.getElementById("toggle-badge-streak");
+  const badgeDot = document.getElementById("badge-toggle-dot");
+
+  function updateBadgeToggleUI(enabled) {
+    if (enabled) {
+      badgeToggle.classList.remove("bg-[#ffffff1a]");
+      badgeToggle.classList.add("bg-[#2cbb5d]");
+      badgeDot.classList.add("translate-x-4");
+    } else {
+      badgeToggle.classList.add("bg-[#ffffff1a]");
+      badgeToggle.classList.remove("bg-[#2cbb5d]");
+      badgeDot.classList.remove("translate-x-4");
+    }
+  }
+
+  badgeToggle.addEventListener("click", () => {
+    chrome.storage.local.get(["badgeStreakEnabled"], (result) => {
+      const currentState = result.badgeStreakEnabled !== false; // Default to true
+      const newState = !currentState;
+
+      chrome.storage.local.set({ badgeStreakEnabled: newState }, () => {
+        updateBadgeToggleUI(newState);
+        // Notify background to update badge
+        chrome.runtime.sendMessage({ action: "updateBadge" });
+      });
+    });
+  });
+
   // Custom Time Picker
   const hourSelect = document.getElementById("hour-select");
   const minuteSelect = document.getElementById("minute-select");
@@ -905,9 +948,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Load initial settings state
-  chrome.storage.local.get(["notificationsEnabled", "reminderTime"], (result) => {
+  chrome.storage.local.get(["notificationsEnabled", "reminderTime", "badgeStreakEnabled"], (result) => {
     const enabled = result.notificationsEnabled !== false;
     updateNotificationToggleUI(enabled);
+
+    // Badge streak toggle (default to true)
+    const badgeEnabled = result.badgeStreakEnabled !== false;
+    updateBadgeToggleUI(badgeEnabled);
 
     // Parse stored time (24h format like "10:00" or "14:30")
     const time = result.reminderTime || "10:00";

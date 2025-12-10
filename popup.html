@@ -73,7 +73,7 @@
       </div>
       <div class="flex items-center gap-4 text-[12px]">
         <span><span id="easy-count" class="font-semibold text-[#00b8a3]">-</span> <span class="text-[#eff1f699]">Easy</span></span>
-        <span><span id="medium-count" class="font-semibold text-[#ffc01e]">-</span> <span class="text-[#eff1f699]">Med</span></span>
+        <span><span id="medium-count" class="font-semibold text-[#ffa116]">-</span> <span class="text-[#eff1f699]">Med</span></span>
         <span><span id="hard-count" class="font-semibold text-[#ff375f]">-</span> <span class="text-[#eff1f699]">Hard</span></span>
       </div>
     </div>
@@ -188,6 +188,13 @@
             <button id="ampm-btn" class="text-[12px] text-[#ffa116] font-medium px-2 py-1 cursor-pointer">AM</button>
           </div>
         </div>
+      </div>
+      <!-- Badge Streak Toggle -->
+      <div class="flex items-center justify-between">
+        <span class="text-[12px] text-[#eff1f699]">Show streak in badge</span>
+        <button id="toggle-badge-streak" class="relative w-9 h-5 rounded-full transition-colors bg-[#2cbb5d]" title="Toggle streak badge">
+          <span id="badge-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform translate-x-4"></span>
+        </button>
       </div>
     </div>
   </section>

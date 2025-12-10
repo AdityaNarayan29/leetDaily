@@ -4,6 +4,7 @@ function getTodayDate() {
 
 let blinkInterval = null;
 let blinkVisible = true;
+let currentBlinkText = "";
 
 function getTimeUntilMidnightUTC() {
   const now = new Date();
@@ -12,15 +13,24 @@ function getTimeUntilMidnightUTC() {
   return nextUTC - now;
 }
 
-function startBlinking() {
-  if (blinkInterval) return; // Already blinking
+function startBlinking(badgeText, textColor, bgColor) {
+  // If already blinking with same text, skip
+  if (blinkInterval && currentBlinkText === badgeText) return;
 
+  // Stop any existing blink first
+  if (blinkInterval) {
+    clearInterval(blinkInterval);
+  }
+
+  currentBlinkText = badgeText;
   blinkVisible = true;
+  chrome.action.setBadgeTextColor({ color: textColor });
+  chrome.action.setBadgeBackgroundColor({ color: bgColor });
+
   blinkInterval = setInterval(() => {
     blinkVisible = !blinkVisible;
     if (blinkVisible) {
-      chrome.action.setBadgeText({ text: " " });
-      chrome.action.setBadgeBackgroundColor({ color: "#ff0000" });
+      chrome.action.setBadgeText({ text: badgeText });
     } else {
       chrome.action.setBadgeText({ text: "" });
     }
@@ -32,33 +42,62 @@ function stopBlinking() {
     clearInterval(blinkInterval);
     blinkInterval = null;
     blinkVisible = true;
-    // Clear badge text when stopping to ensure clean state
-    chrome.action.setBadgeText({ text: "" });
+    currentBlinkText = "";
   }
 }
 
 function updateBadge() {
-  chrome.storage.local.get(["lastVisitedDate"], (result) => {
+  chrome.storage.local.get(["lastVisitedDate", "streak", "badgeStreakEnabled"], (result) => {
     if (!result) return;
 
+    const badgeEnabled = result.badgeStreakEnabled !== false; // Default to true
     const today = getTodayDate();
     const timeLeft = getTimeUntilMidnightUTC();
     const twoHoursInMs = 2 * 60 * 60 * 1000;
+    const streak = result.streak || 0;
 
-    // If already visited today, clear badge and stop blinking
+    // Colors - bright text on dark bg
+    const darkBg = "#1a1a1a"; // Dark background matching extension
+    const greenColor = "#4ade80"; // Bright green
+    const orangeColor = "#fbbf24"; // Bright amber/orange
+    const redColor = "#f87171"; // Bright red
+
+    // If already visited today, show green (solved)
     if (result.lastVisitedDate === today) {
       stopBlinking();
-      chrome.action.setBadgeText({ text: "" });
+      if (badgeEnabled) {
+        // Dark bg with green text
+        chrome.action.setBadgeBackgroundColor({ color: darkBg });
+        chrome.action.setBadgeTextColor({ color: greenColor });
+        chrome.action.setBadgeText({ text: String(streak) });
+      } else {
+        chrome.action.setBadgeText({ text: "" }); // Hide when solved
+      }
     }
-    // If not visited and less than 2 hours left, start blinking
+    // If not visited and less than 2 hours left, BLINK red
     else if (timeLeft <= twoHoursInMs) {
-      startBlinking();
+      if (badgeEnabled) {
+        // Dark bg with red text, blinking
+        startBlinking(String(streak), redColor, darkBg);
+      } else {
+        // Colored bg with space, blinking
+        startBlinking(" ", "#FFFFFF", redColor);
+      }
     }
-    // If not visited but more than 2 hours left, show normal orange badge
+    // If not visited but more than 2 hours left, show orange (pending)
     else {
       stopBlinking();
-      chrome.action.setBadgeText({ text: " " });
-      chrome.action.setBadgeBackgroundColor({ color: "#ff5511" });
+      if (badgeEnabled) {
+        // Dark bg with orange text
+        chrome.action.setBadgeBackgroundColor({ color: darkBg });
+        chrome.action.setBadgeTextColor({ color: orangeColor });
+        chrome.action.setBadgeText({ text: String(streak) });
+      } else {
+        // Colored bg with space
+        chrome.action.setBadgeBackgroundColor({ color: orangeColor });
+        chrome.action.setBadgeTextColor({ color: "#FFFFFF" });
+        chrome.action.setBadgeText({ text: " " });
+      }
     }
   });
 }
