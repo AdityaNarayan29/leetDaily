@@ -1,16 +1,33 @@
 {
   "name": "leetdaily",
-  "version": "1.0.0",
-  "description": "Chrome Extension using TailwindCSS",
+  "displayName": "LeetDaily",
+  "version": "1.1.1",
+  "description": "A Chrome extension that brings the LeetCode Daily Challenge to your browser toolbar. Track daily challenges, sync your stats & streak, get smart reminders, and build consistent coding habits.",
   "main": "popup.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --minify",
-    "dev:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css -w"
+    "dev:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css -w",
+    "build": "npm run build:css"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "leetcode",
+    "chrome-extension",
+    "daily-challenge",
+    "coding-practice",
+    "productivity",
+    "streak-tracker"
+  ],
+  "author": "Aditya Narayan <masst.dev@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adityanarayan/leetdaily"
+  },
+  "bugs": {
+    "url": "https://github.com/adityanarayan/leetdaily/issues"
+  },
+  "homepage": "https://github.com/adityanarayan/leetdaily#readme",
   "dependencies": {
     "tailwindcss": "^4.1.11"
   }

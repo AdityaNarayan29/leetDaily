@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LeetDaily - Daily LeetCode Kro",
+  "name": "LeetDaily - Daily LeetCode Challenge",
   "version": "1.1.1",
-  "description": "Daily LeetCode Kro! Track daily challenges, sync your stats & streak, get smart reminders, and build consistent coding habits.",
+  "description": "Stay consistent with your coding practice! View today's LeetCode Daily Challenge, track your streak, see problem difficulty & acceptance rate, and jump straight to solving.",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
