@@ -452,12 +452,10 @@ function renderQuestion(question, companyData = null) {
 
   document.getElementById("question").innerHTML = `
     <div class="mb-3 flex items-start gap-2">
-      <div class="flex-1 text-[14px] leading-snug">
+      <div class="flex-1 text-[14px] leading-snug" style="text-align-last: right;">
         <span class="text-[#eff1f699]">${question.questionFrontendId}.</span>
         <span class="font-medium text-[#eff1f6]">${question.title}</span>
-        <span class="text-[#eff1f699] mx-1">·</span>
-        <span class="text-[11px] font-medium ${difficultyColor}">${question.difficulty}</span>
-        <span class="text-[11px] text-[#eff1f699] ml-1">${acceptanceRate}%</span>
+        <span style="white-space: nowrap; font-size: 11px;"><span style="color: #eff1f699;">&nbsp;&nbsp;</span><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span>
       </div>
       <button id="copy-link" class="text-[#eff1f666] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Copy problem link">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -466,9 +464,9 @@ function renderQuestion(question, companyData = null) {
         </svg>
       </button>
     </div>
-    <div class="border-t border-[#ffffff0d] pt-3 space-y-3">
+    <div class="border-t border-[#ffffff0d] pt-3">
       <!-- Topics row -->
-      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 rounded-lg border border-[#ffffff1a]">
+      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a] border-b-0" style="border-radius: 8px 8px 0 0;">
         <div class="flex items-center gap-1.5 flex-shrink-0">
           ${bookIcon}
           <span class="text-[11px] font-medium">Topics</span>
@@ -479,7 +477,7 @@ function renderQuestion(question, companyData = null) {
         </div>
       </div>
       <!-- Companies row -->
-      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 rounded-lg border border-[#ffffff1a]">
+      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a]" style="border-radius: 0 0 8px 8px;">
         <div class="flex items-center gap-1.5 flex-shrink-0">
           ${buildingIcon}
           <span class="text-[11px] font-medium">Companies</span>
@@ -523,6 +521,27 @@ function renderQuestion(question, companyData = null) {
       console.error("Failed to copy:", err);
     }
   });
+
+  // Acceptance rate tooltip
+  const acceptanceEl = document.getElementById("acceptance-rate");
+  if (acceptanceEl) {
+    let tooltip = null;
+    acceptanceEl.addEventListener("mouseenter", () => {
+      tooltip = document.createElement("div");
+      tooltip.textContent = `${acceptanceRate}% Acceptance Rate`;
+      tooltip.style.cssText = "position:absolute;background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;z-index:1000;";
+      const rect = acceptanceEl.getBoundingClientRect();
+      tooltip.style.left = rect.left + "px";
+      tooltip.style.top = (rect.top - 28) + "px";
+      document.body.appendChild(tooltip);
+    });
+    acceptanceEl.addEventListener("mouseleave", () => {
+      if (tooltip) {
+        tooltip.remove();
+        tooltip = null;
+      }
+    });
+  }
 
 }
 
