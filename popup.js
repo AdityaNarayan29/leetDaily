@@ -466,7 +466,7 @@ function renderQuestion(question, companyData = null) {
     </div>
     <div class="border-t border-[#ffffff0d] pt-3">
       <!-- Topics row -->
-      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a] border-b-0" style="border-radius: 8px 8px 0 0;">
+      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a]" style="border-radius: 8px 8px 0 0; border-bottom: none;">
         <div class="flex items-center gap-1.5 flex-shrink-0">
           ${bookIcon}
           <span class="text-[11px] font-medium">Topics</span>
@@ -477,7 +477,7 @@ function renderQuestion(question, companyData = null) {
         </div>
       </div>
       <!-- Companies row -->
-      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a]" style="border-radius: 0 0 8px 8px;">
+      <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a] border-t-0" style="border-radius: 0 0 8px 8px;">
         <div class="flex items-center gap-1.5 flex-shrink-0">
           ${buildingIcon}
           <span class="text-[11px] font-medium">Companies</span>
