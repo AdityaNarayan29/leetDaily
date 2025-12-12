@@ -76,6 +76,43 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
+## Project Structure
+
+This repository contains both the Chrome extension and the landing page:
+
+```
+leetDaily/
+├── landing/          # Landing page (React + Vite + TypeScript)
+│   ├── src/
+│   ├── package.json
+│   └── ...
+├── src/              # Extension styles
+├── data/             # Problem metadata
+├── popup.html        # Extension UI
+├── popup.js          # Extension logic
+├── background.js     # Service worker
+├── manifest.json     # Extension manifest
+└── ...
+```
+
+### Running the Landing Page
+
+```bash
+cd landing
+npm install
+npm run dev      # Start dev server
+npm run build    # Build for production
+```
+
+### Building the Extension
+
+```bash
+npm install
+npm run build:css    # Compile Tailwind CSS
+```
+
+---
+
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/adityanarayan/leetdaily/issues)
