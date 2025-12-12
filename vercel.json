@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd landing && npm install && npm run build",
+  "outputDirectory": "landing/dist",
+  "installCommand": "echo 'skipping root install'"
+}
