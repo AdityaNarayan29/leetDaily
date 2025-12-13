@@ -209,70 +209,92 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-32 pb-20 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Badge */}
-          <div
-            ref={badgeRef}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 mb-8"
-          >
-            <Sparkles className="w-4 h-4 text-orange-400" />
-            <span className="text-sm text-orange-200/90">
-              Free Chrome Extension
-            </span>
-          </div>
-
-          {/* Main heading */}
-          <h1
-            ref={headingRef}
-            className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-6"
-          >
-            <span className="text-white">Never miss a</span>
-            <br />
-            <span className="bg-gradient-to-r from-orange-400 via-red-400 to-amber-400 bg-clip-text text-transparent">
-              Daily Challenge
-            </span>
-          </h1>
-
-          <p
-            ref={subtextRef}
-            className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            Your LeetCode companion. Track streaks, see company tags, get smart
-            reminders — all from your browser toolbar.
-          </p>
-
-          {/* CTA Buttons */}
-          <div
-            ref={ctaRef}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
-          >
-            <a
-              href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-orange-500 to-red-500 font-semibold transition-all duration-300 hover:shadow-[0_0_40px_rgba(249,115,22,0.4)] hover:scale-105"
-            >
-              <Chrome className="w-5 h-5" />
-              <span>Add to Chrome — Free</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </a>
-
-            <div className="flex items-center gap-4 text-sm text-white/50">
-              <div className="flex items-center gap-1">
-                <Shield className="w-4 h-4" />
-                <span>Privacy-first</span>
+      <section ref={heroRef} className="relative pt-28 sm:pt-32 pb-16 px-6 lg:px-12">
+        <div className="max-w-[1200px] mx-auto">
+          {/* Two column layout on desktop */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left side - Text content */}
+            <div className="text-center lg:text-left">
+              {/* Badge */}
+              <div
+                ref={badgeRef}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20 mb-6"
+              >
+                <Sparkles className="w-3 h-3 text-orange-400" />
+                <span className="text-xs text-orange-200/90">
+                  Free Chrome Extension
+                </span>
               </div>
-              <span className="w-1 h-1 rounded-full bg-white/30" />
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span>1000+ users</span>
+
+              {/* Main heading */}
+              <h1
+                ref={headingRef}
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-5"
+              >
+                <span className="text-white">Build your</span>
+                <br />
+                <span className="bg-gradient-to-r from-orange-400 via-red-400 to-amber-400 bg-clip-text text-transparent">
+                  LeetCode streak
+                </span>
+              </h1>
+
+              <p
+                ref={subtextRef}
+                className="text-base sm:text-lg text-white/60 max-w-md mx-auto lg:mx-0 mb-8 leading-relaxed"
+              >
+                Daily challenges, company tags, streak tracking & smart reminders — one click from your toolbar.
+              </p>
+
+              {/* CTA Buttons */}
+              <div
+                ref={ctaRef}
+                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center"
+              >
+                <a
+                  href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 font-semibold text-sm transition-all duration-300 hover:shadow-[0_0_40px_rgba(249,115,22,0.4)] hover:scale-105"
+                >
+                  <Chrome className="w-4 h-4" />
+                  <span>Add to Chrome — Free</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </a>
+
+                <div className="flex items-center gap-3 text-xs text-white/50">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-3 h-3" />
+                    <span>Privacy-first</span>
+                  </div>
+                  <span className="w-1 h-1 rounded-full bg-white/30" />
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    <span>1000+ users</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats row */}
+              <div className="flex justify-center lg:justify-start gap-8 mt-10 pt-8 border-t border-white/5">
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl font-bold text-orange-400">1K+</div>
+                  <div className="text-xs text-white/40">Active Users</div>
+                </div>
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl font-bold text-emerald-400">365</div>
+                  <div className="text-xs text-white/40">Max Streak</div>
+                </div>
+                <div className="text-center lg:text-left">
+                  <div className="text-2xl font-bold text-blue-400">50+</div>
+                  <div className="text-xs text-white/40">Companies</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Browser Mockup with Extension */}
-          <div className="relative max-w-5xl mx-auto">
+            {/* Right side - Browser mockup */}
+            <div className="relative">
+              {/* Browser Mockup with Extension */}
+              <div className="relative">
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-3xl blur-3xl scale-110" />
 
@@ -641,6 +663,8 @@ function App() {
                     </div>
                   </div>
                 </div>
+              </div>
+              </div>
               </div>
               </div>
               </div>
