@@ -452,11 +452,7 @@ function renderQuestion(question, companyData = null) {
 
   document.getElementById("question").innerHTML = `
     <div class="mb-3 flex items-start gap-2">
-      <div class="flex-1 text-[14px] leading-snug" style="text-align-last: right;">
-        <span class="text-[#eff1f699]">${question.questionFrontendId}.</span>
-        <span class="font-medium text-[#eff1f6]">${question.title}</span>
-        <span style="white-space: nowrap; font-size: 11px;"><span style="color: #eff1f699;">&nbsp;&nbsp;</span><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span>
-      </div>
+      <div class="flex-1 text-[14px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}.</span> <span class="font-medium text-[#eff1f6]">${question.title}</span> <span style="white-space: nowrap; font-size: 11px; float: right;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span></div>
       <button id="copy-link" class="text-[#eff1f666] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Copy problem link">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -484,7 +480,7 @@ function renderQuestion(question, companyData = null) {
           <span class="text-[#ffffff33]">›</span>
         </div>
         <div id="companies-row" class="flex-1 flex items-center gap-1.5 overflow-hidden min-w-0">
-          ${hasCompanyData ? '<!-- Chips injected by JS -->' : '<span class="text-[11px] text-[#eff1f666]">N/A</span>'}
+          ${hasCompanyData ? '<!-- Chips injected by JS -->' : '<span class="text-[11px] text-[#eff1f666]">Premium data shows no company tags</span>'}
         </div>
       </div>
     </div>

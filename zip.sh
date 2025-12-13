@@ -14,7 +14,7 @@ zip -r $ZIP_NAME \
   privacy.html \
   icon.png \
   styles/ \
-  src/ \
+  data/ \
   -x "node_modules/*" "package.json" "package-lock.json" "README.md" "tailwind.config.js" "zip.sh" "*.DS_Store"
 
   #chmod +x zip.sh
