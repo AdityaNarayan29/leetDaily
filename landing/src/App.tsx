@@ -209,10 +209,10 @@ function App() {
       </nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-28 sm:pt-32 pb-16 px-6 lg:px-12">
+      <section ref={heroRef} className="relative pt-24 sm:pt-28 pb-12 px-4 sm:px-6 lg:px-12">
         <div className="max-w-[1200px] mx-auto">
           {/* Two column layout on desktop */}
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left side - Text content */}
             <div className="text-center lg:text-left">
               {/* Badge */}
@@ -229,7 +229,7 @@ function App() {
               {/* Main heading */}
               <h1
                 ref={headingRef}
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-5"
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4"
               >
                 <span className="text-white">Build your</span>
                 <br />
@@ -240,7 +240,7 @@ function App() {
 
               <p
                 ref={subtextRef}
-                className="text-base sm:text-lg text-white/60 max-w-md mx-auto lg:mx-0 mb-8 leading-relaxed"
+                className="text-sm sm:text-base text-white/60 max-w-sm sm:max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed"
               >
                 Daily challenges, company tags, streak tracking & smart reminders — one click from your toolbar.
               </p>
@@ -254,11 +254,11 @@ function App() {
                   href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 font-semibold text-sm transition-all duration-300 hover:shadow-[0_0_40px_rgba(249,115,22,0.4)] hover:scale-105"
+                  className="group relative inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-orange-500 to-red-500 font-semibold text-xs sm:text-sm transition-all duration-300 hover:shadow-[0_0_40px_rgba(249,115,22,0.4)] hover:scale-105"
                 >
-                  <Chrome className="w-4 h-4" />
+                  <Chrome className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>Add to Chrome — Free</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
 
                 <div className="flex items-center gap-3 text-xs text-white/50">
@@ -275,24 +275,24 @@ function App() {
               </div>
 
               {/* Stats row */}
-              <div className="flex justify-center lg:justify-start gap-8 mt-10 pt-8 border-t border-white/5">
+              <div className="flex justify-center lg:justify-start gap-6 mt-6 pt-6 border-t border-white/5">
                 <div className="text-center lg:text-left">
-                  <div className="text-2xl font-bold text-orange-400">1K+</div>
-                  <div className="text-xs text-white/40">Active Users</div>
+                  <div className="text-xl sm:text-2xl font-bold text-orange-400">1K+</div>
+                  <div className="text-[10px] sm:text-xs text-white/40">Active Users</div>
                 </div>
                 <div className="text-center lg:text-left">
-                  <div className="text-2xl font-bold text-emerald-400">365</div>
-                  <div className="text-xs text-white/40">Max Streak</div>
+                  <div className="text-xl sm:text-2xl font-bold text-emerald-400">365</div>
+                  <div className="text-[10px] sm:text-xs text-white/40">Max Streak</div>
                 </div>
                 <div className="text-center lg:text-left">
-                  <div className="text-2xl font-bold text-blue-400">50+</div>
-                  <div className="text-xs text-white/40">Companies</div>
+                  <div className="text-xl sm:text-2xl font-bold text-blue-400">50+</div>
+                  <div className="text-[10px] sm:text-xs text-white/40">Companies</div>
                 </div>
               </div>
             </div>
 
             {/* Right side - Browser mockup */}
-            <div className="relative">
+            <div className="relative mx-auto lg:mx-0 max-w-sm sm:max-w-md lg:max-w-none">
               {/* Browser Mockup with Extension */}
               <div className="relative">
             {/* Glow effect */}
@@ -331,7 +331,7 @@ function App() {
               </div>
 
               {/* Browser Content Area with Popup */}
-              <div className="relative p-4 sm:p-6 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] min-h-[500px] sm:min-h-[800px]">
+              <div className="relative p-3 sm:p-4 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] min-h-[420px] sm:min-h-[620px]">
                 {/* Email Content - Stacked Emails (hidden on mobile, muted background) */}
                 <div className="hidden sm:block space-y-2 opacity-40">
                   {/* Email 1 - Boogle */}
