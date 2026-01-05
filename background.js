@@ -5,6 +5,7 @@ function getTodayDate() {
 let blinkInterval = null;
 let blinkVisible = true;
 let currentBlinkText = "";
+let isLoadingBlink = false;
 
 function getTimeUntilMidnightUTC() {
   const now = new Date();
@@ -44,6 +45,43 @@ function stopBlinking() {
     blinkVisible = true;
     currentBlinkText = "";
   }
+  isLoadingBlink = false;
+}
+
+// Loading blink - orange color (LeetCode theme) with streak number
+function startLoadingBlink() {
+  isLoadingBlink = true;
+  const loadingColor = "#fbbf24"; // Orange (LeetCode theme)
+  const darkBg = "#1a1a1a";
+
+  // Stop any existing blink first
+  if (blinkInterval) {
+    clearInterval(blinkInterval);
+  }
+
+  // Get current streak to display
+  chrome.storage.local.get(["streak"], (result) => {
+    const streak = String(result.streak || 0);
+    currentBlinkText = streak;
+    blinkVisible = true;
+    chrome.action.setBadgeTextColor({ color: loadingColor });
+    chrome.action.setBadgeBackgroundColor({ color: darkBg });
+
+    blinkInterval = setInterval(() => {
+      blinkVisible = !blinkVisible;
+      if (blinkVisible) {
+        chrome.action.setBadgeText({ text: streak });
+      } else {
+        chrome.action.setBadgeText({ text: "" });
+      }
+    }, 300); // Faster blink for loading
+  });
+}
+
+function stopLoadingBlink() {
+  isLoadingBlink = false;
+  stopBlinking();
+  updateBadge();
 }
 
 function updateBadge() {
@@ -102,7 +140,77 @@ function updateBadge() {
   });
 }
 
+// Check LeetCode API for completion status and update storage/badge
+async function checkLeetCodeCompletion() {
+  try {
+    // First check if we already know it's completed today
+    const stored = await chrome.storage.local.get(["lastVisitedDate"]);
+    const today = getTodayDate();
+
+    // If already marked as completed today, no need to check API
+    if (stored.lastVisitedDate === today) {
+      return;
+    }
+
+    // Fetch from LeetCode API
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        query: `
+          query globalData {
+            userStatus {
+              username
+              isSignedIn
+              avatar
+            }
+            streakCounter {
+              streakCount
+            }
+            activeDailyCodingChallengeQuestion {
+              userStatus
+            }
+          }
+        `
+      })
+    });
+
+    const data = await response.json();
+    const userStatus = data?.data?.userStatus;
+
+    // Only proceed if user is signed in
+    if (!userStatus?.isSignedIn) {
+      return;
+    }
+
+    const streakData = data?.data?.streakCounter;
+    const dailyStatus = data?.data?.activeDailyCodingChallengeQuestion?.userStatus;
+    const completedToday = dailyStatus === "Finish";
+
+    if (completedToday) {
+      // Update storage with completion status
+      await chrome.storage.local.set({
+        lastVisitedDate: today,
+        streak: streakData?.streakCount || 0,
+        leetCodeUsername: userStatus.username,
+        leetCodeAvatar: userStatus.avatar
+      });
+
+      // Immediately update badge
+      updateBadge();
+    }
+  } catch (error) {
+    // Silently fail - user might not be on leetcode.com or network issues
+    console.log("LeetCode API check failed:", error.message);
+  }
+}
+
 updateBadge();
+// Check LeetCode API every 2 minutes for instant badge updates
+setInterval(checkLeetCodeCompletion, 2 * 60 * 1000);
+// Also check immediately on startup
+checkLeetCodeCompletion();
 setInterval(updateBadge, 60 * 1000); // Check every minute instead of every hour
 
 // Notification system
@@ -249,6 +357,34 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   if (request.action === "updateReminderTime") {
     setupDailyReminder(request.time);
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === "startLoadingBlink") {
+    startLoadingBlink();
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === "stopLoadingBlink") {
+    stopLoadingBlink();
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === "problemSolved") {
+    // Instant badge update when content script detects completion
+    const today = getTodayDate();
+    chrome.storage.local.set({
+      lastVisitedDate: today,
+      streak: request.data.streak,
+      leetCodeUsername: request.data.username,
+      leetCodeAvatar: request.data.avatar
+    }).then(() => {
+      stopBlinking(); // Stop loading blink first
+      updateBadge();
+    });
     sendResponse({ success: true });
     return true;
   }
