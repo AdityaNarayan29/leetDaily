@@ -207,11 +207,10 @@ async function checkLeetCodeCompletion() {
 }
 
 updateBadge();
-// Check LeetCode API every 2 minutes for instant badge updates
-setInterval(checkLeetCodeCompletion, 2 * 60 * 1000);
-// Also check immediately on startup
-checkLeetCodeCompletion();
-setInterval(updateBadge, 60 * 1000); // Check every minute instead of every hour
+// Check LeetCode API every 5 minutes as fallback (content script handles instant updates)
+setInterval(checkLeetCodeCompletion, 5 * 60 * 1000);
+// Update badge display every minute (doesn't call API, just updates badge state)
+setInterval(updateBadge, 60 * 1000);
 
 // Notification system
 function setupDailyReminder(time = "10:00") {

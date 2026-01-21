@@ -26,7 +26,12 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["data/leetcode-problems.json"],
+      "resources": [
+        "data/leetcode-problems.json",
+        "problems-explorer.html",
+        "problems-explorer.js",
+        "styles/output.css"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

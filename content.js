@@ -88,18 +88,43 @@ async function checkAndNotifyCompletion() {
 
 // Listen for submission results by watching for success indicators
 function observeSubmissionResults() {
+  let hasTriggered = false;
+
   // Watch for DOM changes that indicate submission success
   const observer = new MutationObserver((mutations) => {
+    // Prevent multiple triggers from the same submission
+    if (hasTriggered) return;
+
     for (const mutation of mutations) {
       // Check for "Accepted" text appearing in the DOM
       if (mutation.type === "childList") {
-        const target = mutation.target;
-        if (target.textContent?.includes("Accepted")) {
-          // Start loading blink immediately, then check API after delay
-          isLoadingActive = true;
-          notifyLoading();
-          // Small delay to let LeetCode's backend update
-          setTimeout(() => checkAndNotifyCompletion(), 2000);
+        for (const node of mutation.addedNodes) {
+          // Only check text nodes and element nodes
+          if (node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE) {
+            continue;
+          }
+
+          const text = node.textContent || '';
+
+          // Look for "Accepted" in submission result context
+          // LeetCode shows this in the result panel after submission
+          if (text.includes('Accepted') &&
+              (text.includes('Runtime') || text.includes('Memory') || text.includes('testcase'))) {
+            hasTriggered = true;
+
+            // Start loading blink immediately, then check API after delay
+            isLoadingActive = true;
+            notifyLoading();
+
+            // Small delay to let LeetCode's backend update
+            setTimeout(() => {
+              checkAndNotifyCompletion();
+              // Reset trigger after 10 seconds to allow for next submission
+              setTimeout(() => { hasTriggered = false; }, 10000);
+            }, 2000);
+
+            break;
+          }
         }
       }
     }
@@ -112,22 +137,9 @@ function observeSubmissionResults() {
   });
 }
 
-// Also check on page load (user might land on a completed problem page)
-checkAndNotifyCompletion();
-
 // Start observing for submission results
 if (document.body) {
   observeSubmissionResults();
 } else {
   document.addEventListener("DOMContentLoaded", observeSubmissionResults);
 }
-
-// Listen for URL changes (SPA navigation)
-let lastUrl = location.href;
-new MutationObserver(() => {
-  if (location.href !== lastUrl) {
-    lastUrl = location.href;
-    // Check completion status on navigation
-    setTimeout(checkAndNotifyCompletion, 1000);
-  }
-}).observe(document.body, { childList: true, subtree: true });

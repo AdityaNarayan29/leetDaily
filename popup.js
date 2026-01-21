@@ -840,6 +840,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // Problems Explorer button
+  document.getElementById("explorer-btn").addEventListener("click", () => {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('problems-explorer.html'),
+    });
+  });
+
   // Settings accordion
   const settingsToggle = document.getElementById("settings-toggle");
   const settingsContent = document.getElementById("settings-content");

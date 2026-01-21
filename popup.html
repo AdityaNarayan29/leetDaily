@@ -115,10 +115,20 @@
   <!-- Question Section -->
   <section class="p-4 rounded-xl bg-[#282828]">
     <div id="question" class="mb-4 text-[#eff1f6]">Loading...</div>
-    <button id="open"
-      class="inline-flex items-center justify-center w-full rounded-lg bg-[#ffa116] text-[#1a1a1a] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#ffb84d] active:scale-[0.98] focus:outline-none">
-      Solve Challenge
-    </button>
+    <div class="flex gap-2">
+      <button id="open"
+        class="inline-flex items-center justify-center flex-1 rounded-lg bg-[#ffa116] text-[#1a1a1a] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#ffb84d] active:scale-[0.98] focus:outline-none">
+        Solve Challenge
+      </button>
+      <button id="explorer-btn"
+        class="inline-flex items-center justify-center rounded-lg bg-[#3a3a3a] text-[#eff1f6] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#4a4a4a] active:scale-[0.98] focus:outline-none"
+        title="Browse all problems">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </button>
+    </div>
   </section>
 
   <!-- Yesterday's Problem -->
