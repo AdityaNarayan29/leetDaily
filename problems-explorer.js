@@ -121,7 +121,7 @@ function renderTopics(topics) {
   const displayTopics = topicsExpanded ? topics : topics.slice(0, TOPICS_INITIAL_LIMIT);
 
   container.innerHTML = displayTopics.map(topic => `
-    <button class="filter-chip topic-filter" data-topic="${topic}">
+    <button class="chip topic-filter" data-topic="${topic}">
       ${topic}
     </button>
   `).join('');
@@ -166,7 +166,7 @@ function updateCompanyDisplay() {
   const displayCompanies = companiesExpanded ? filtered : filtered.slice(0, COMPANIES_INITIAL_LIMIT);
 
   container.innerHTML = displayCompanies.map(company => `
-    <button class="filter-chip company-filter" data-company="${company}">
+    <button class="chip company-filter" data-company="${company}">
       ${company}
     </button>
   `).join('');
@@ -191,7 +191,7 @@ function updateCompanyDisplay() {
     const filtered = companies.filter(c => c.toLowerCase().includes(searchTerm));
 
     container.innerHTML = filtered.slice(0, 100).map(company => `
-      <button class="filter-chip company-filter px-2.5 py-1.5 rounded-md bg-white/[0.02] border border-white/5 text-xs font-medium text-white/70 hover:bg-white/10 transition-all ${filters.companies.has(company) ? 'active' : ''}" data-company="${company}">
+      <button class="chip company-filter ${filters.companies.has(company) ? 'active' : ''}" data-company="${company}">
         ${company}
       </button>
     `).join('');
@@ -208,13 +208,12 @@ function toggleDifficultyFilter(difficulty, btn) {
   if (filters.difficulty.has(difficulty)) {
     filters.difficulty.delete(difficulty);
     btn.classList.remove('active');
-    btn.classList.remove('border-[#ffa116]');
   } else {
     filters.difficulty.add(difficulty);
     btn.classList.add('active');
-    btn.classList.add('border-[#ffa116]');
   }
   updateFilterCounts();
+  renderSelectedChips();
   applyFiltersAndRender();
 }
 
@@ -223,14 +222,13 @@ function toggleTopicFilter(topic, btn) {
   if (filters.topics.has(topic)) {
     filters.topics.delete(topic);
     btn.classList.remove('active');
-    btn.classList.remove('border-[#ffa116]');
   } else {
     filters.topics.add(topic);
     btn.classList.add('active');
-    btn.classList.add('border-[#ffa116]');
   }
 
   updateFilterCounts();
+  renderSelectedChips();
   applyFiltersAndRender();
 }
 
@@ -239,14 +237,13 @@ function toggleCompanyFilter(company, btn) {
   if (filters.companies.has(company)) {
     filters.companies.delete(company);
     btn.classList.remove('active');
-    btn.classList.remove('border-[#ffa116]');
   } else {
     filters.companies.add(company);
     btn.classList.add('active');
-    btn.classList.add('border-[#ffa116]');
   }
 
   updateFilterCounts();
+  renderSelectedChips();
   applyFiltersAndRender();
 }
 
@@ -276,6 +273,155 @@ function updateFilterCounts() {
   } else {
     companiesCount.classList.add('hidden');
   }
+}
+
+// Render selected filter chips in their respective sections
+function renderSelectedChips() {
+  const totalFilters = filters.difficulty.size + filters.topics.size + filters.companies.size;
+
+  // Update active filters summary bar
+  const activeBar = document.getElementById('active-filters-bar');
+  const totalCount = document.getElementById('total-filter-count');
+  if (totalFilters > 0) {
+    activeBar.classList.remove('hidden');
+    totalCount.textContent = totalFilters;
+  } else {
+    activeBar.classList.add('hidden');
+  }
+
+  // Difficulty section
+  const diffContainer = document.getElementById('selected-difficulty');
+  if (filters.difficulty.size > 0) {
+    diffContainer.classList.remove('hidden');
+    let chips = [
+      `<div class="selected-inline-header">
+        <span class="selected-inline-label">Selected (${filters.difficulty.size})</span>
+        <button class="clear-category-btn" data-category="difficulty">Clear</button>
+      </div>`
+    ];
+    filters.difficulty.forEach(diff => {
+      const colorClass = diff.toLowerCase();
+      chips.push(`
+        <div class="selected-chip selected-chip-${colorClass}">
+          <span class="selected-chip-label">${diff}</span>
+          <button class="selected-chip-remove" data-type="difficulty" data-value="${diff}" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      `);
+    });
+    diffContainer.innerHTML = chips.join('');
+  } else {
+    diffContainer.classList.add('hidden');
+    diffContainer.innerHTML = '';
+  }
+
+  // Topics section
+  const topicsContainer = document.getElementById('selected-topics');
+  if (filters.topics.size > 0) {
+    topicsContainer.classList.remove('hidden');
+    let chips = [
+      `<div class="selected-inline-header">
+        <span class="selected-inline-label">Selected (${filters.topics.size})</span>
+        <button class="clear-category-btn" data-category="topics">Clear</button>
+      </div>`
+    ];
+    filters.topics.forEach(topic => {
+      chips.push(`
+        <div class="selected-chip">
+          <span class="selected-chip-label">${topic}</span>
+          <button class="selected-chip-remove" data-type="topic" data-value="${topic}" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      `);
+    });
+    topicsContainer.innerHTML = chips.join('');
+  } else {
+    topicsContainer.classList.add('hidden');
+    topicsContainer.innerHTML = '';
+  }
+
+  // Companies section
+  const companiesContainer = document.getElementById('selected-companies');
+  if (filters.companies.size > 0) {
+    companiesContainer.classList.remove('hidden');
+    let chips = [
+      `<div class="selected-inline-header">
+        <span class="selected-inline-label">Selected (${filters.companies.size})</span>
+        <button class="clear-category-btn" data-category="companies">Clear</button>
+      </div>`
+    ];
+    filters.companies.forEach(company => {
+      chips.push(`
+        <div class="selected-chip">
+          <span class="selected-chip-label">${company}</span>
+          <button class="selected-chip-remove" data-type="company" data-value="${company}" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      `);
+    });
+    companiesContainer.innerHTML = chips.join('');
+  } else {
+    companiesContainer.classList.add('hidden');
+    companiesContainer.innerHTML = '';
+  }
+
+  // Add click handlers for remove buttons
+  document.querySelectorAll('.selected-chip-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.type;
+      const value = btn.dataset.value;
+
+      if (type === 'difficulty') {
+        filters.difficulty.delete(value);
+        document.querySelector(`.difficulty-filter[data-difficulty="${value}"]`)?.classList.remove('active');
+      } else if (type === 'topic') {
+        filters.topics.delete(value);
+        document.querySelector(`.topic-filter[data-topic="${value}"]`)?.classList.remove('active');
+      } else if (type === 'company') {
+        filters.companies.delete(value);
+        document.querySelector(`.company-filter[data-company="${value}"]`)?.classList.remove('active');
+      }
+
+      updateFilterCounts();
+      renderSelectedChips();
+      applyFiltersAndRender();
+    });
+  });
+
+  // Add click handlers for clear category buttons
+  document.querySelectorAll('.clear-category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.dataset.category;
+      clearCategory(category);
+    });
+  });
+}
+
+// Clear a specific filter category
+function clearCategory(category) {
+  if (category === 'difficulty') {
+    filters.difficulty.clear();
+    document.querySelectorAll('.difficulty-filter').forEach(chip => chip.classList.remove('active'));
+  } else if (category === 'topics') {
+    filters.topics.clear();
+    document.querySelectorAll('.topic-filter').forEach(chip => chip.classList.remove('active'));
+  } else if (category === 'companies') {
+    filters.companies.clear();
+    document.querySelectorAll('.company-filter').forEach(chip => chip.classList.remove('active'));
+  }
+
+  updateFilterCounts();
+  renderSelectedChips();
+  applyFiltersAndRender();
 }
 
 // Apply all filters
@@ -373,36 +519,28 @@ function renderProblems() {
 
   tableBody.innerHTML = pageProblems.map(problem => {
     const difficultyClass = `difficulty-${problem.difficulty.toLowerCase()}`;
-    const badgeClass = `badge-${problem.difficulty.toLowerCase()}`;
     const topics = problem.topics?.slice(0, 2).map(t => t.name) || [];
     const moreTopics = problem.topics?.length > 2 ? problem.topics.length - 2 : 0;
 
     return `
-      <tr class="problem-row cursor-pointer group" data-url="${problem.url}">
-        <td class="px-6 py-3">
-          <span class="text-xs text-white/40 font-mono">${problem.id}</span>
+      <tr data-url="${problem.url}" style="cursor: pointer;">
+        <td class="col-id">${problem.id}</td>
+        <td class="col-title">
+          <a href="${problem.url}" target="_blank" class="problem-link">${problem.title}</a>
         </td>
-        <td class="px-6 py-3">
-          <div class="text-sm font-medium text-white group-hover:text-orange-400 transition-colors">${problem.title}</div>
+        <td class="col-difficulty">
+          <span class="difficulty ${difficultyClass}">${problem.difficulty}</span>
         </td>
-        <td class="px-6 py-3">
-          <span class="badge ${badgeClass}">${problem.difficulty}</span>
-        </td>
-        <td class="px-6 py-3 text-center">
-          <span class="text-xs text-white/60 font-medium">${problem.acRate?.toFixed(1)}%</span>
-        </td>
-        <td class="px-6 py-3">
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-white/60 font-medium tabular-nums min-w-[28px]">${problem.frequency?.toFixed(1) || '0.0'}</span>
-            <div class="w-16 h-1.5 rounded-full bg-white/10">
-              <div class="h-full rounded-full bg-gradient-to-r from-orange-500 to-red-500" style="width: ${Math.min(problem.frequency || 0, 10) * 10}%"></div>
-            </div>
+        <td class="col-acceptance">${problem.acRate?.toFixed(1)}%</td>
+        <td class="col-frequency">
+          <div class="frequency-bar">
+            <div class="frequency-fill" style="width: ${Math.min(problem.frequency || 0, 10) * 10}%"></div>
           </div>
         </td>
-        <td class="px-6 py-3">
-          <div class="flex flex-wrap gap-1.5">
-            ${topics.map(topic => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-white/10 text-white/60">${topic}</span>`).join('')}
-            ${moreTopics > 0 ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white/50">+${moreTopics}</span>` : ''}
+        <td class="col-topics">
+          <div class="topic-tags">
+            ${topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+            ${moreTopics > 0 ? `<span class="topic-more">+${moreTopics}</span>` : ''}
           </div>
         </td>
       </tr>
@@ -464,10 +602,10 @@ function renderPagination() {
 
   pageNumbers.innerHTML = pages.map(page => {
     if (page === '...') {
-      return '<span class="px-3 py-2 text-[#eff1f699]">...</span>';
+      return '<span class="page-ellipsis">...</span>';
     }
     return `
-      <button class="page-btn px-3 py-2 rounded-lg text-sm ${page === currentPage ? 'bg-[#ffa116] text-[#1a1a1a]' : 'bg-[#282828] text-[#eff1f6] hover:bg-[#3a3a3a]'} transition-colors" data-page="${page}">
+      <button class="page-btn ${page === currentPage ? 'active' : ''}" data-page="${page}">
         ${page}
       </button>
     `;
@@ -529,12 +667,12 @@ function resetFilters() {
   document.getElementById('sort-select').value = 'frequency-desc';
   document.getElementById('company-search').value = '';
 
-  document.querySelectorAll('.filter-chip').forEach(chip => {
+  document.querySelectorAll('.chip').forEach(chip => {
     chip.classList.remove('active');
-    chip.classList.remove('border-[#ffa116]');
   });
 
   updateFilterCounts();
+  renderSelectedChips();
   applyFiltersAndRender();
 }
 
@@ -616,5 +754,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('company-search').addEventListener('input', () => {
     companiesExpanded = false; // Reset expansion when searching
     updateCompanyDisplay();
+  });
+
+  // Clear all filters button
+  document.getElementById('clear-all-filters').addEventListener('click', () => {
+    resetFilters();
   });
 });

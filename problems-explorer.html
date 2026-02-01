@@ -15,654 +15,985 @@
 
     html {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
       min-height: 100vh;
-      font-feature-settings: "rlig" 1, "calt" 1;
-    }
-
-    /* Layout Classes */
-    .fixed { position: fixed; }
-    .relative { position: relative; }
-    .sticky { position: sticky; }
-    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-    .top-0 { top: 0; }
-    .left-3\.5 { left: 0.875rem; }
-    .top-1\/2 { top: 50%; }
-    .-translate-y-1\/2 { transform: translateY(-50%); }
-    .z-40 { z-index: 40; }
-    .z-50 { z-index: 50; }
-
-    /* Display */
-    .flex { display: flex; }
-    .inline-flex { display: inline-flex; }
-    .inline-block { display: inline-block; }
-    .hidden { display: none; }
-    .block { display: block; }
-
-    /* Flexbox */
-    .flex-1 { flex: 1 1 0%; }
-    .flex-wrap { flex-wrap: wrap; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .gap-1 { gap: 0.25rem; }
-    .gap-1\.5 { gap: 0.375rem; }
-    .gap-2 { gap: 0.5rem; }
-    .gap-2\.5 { gap: 0.625rem; }
-    .gap-3 { gap: 0.75rem; }
-    .gap-4 { gap: 1rem; }
-
-    /* Spacing - Padding */
-    .p-2 { padding: 0.5rem; }
-    .p-3 { padding: 0.75rem; }
-    .p-4 { padding: 1rem; }
-    .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
-    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-    .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
-    .px-4 { padding-left: 1rem; padding-right: 1rem; }
-    .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
-    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-    .px-8 { padding-left: 2rem; padding-right: 2rem; }
-    .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
-    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
-    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-    .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
-    .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
-    .py-10 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-    .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-    .pl-10 { padding-left: 2.5rem; }
-    .pr-2 { padding-right: 0.5rem; }
-    .pr-4 { padding-right: 1rem; }
-    .-ml-2 { margin-left: -0.5rem; }
-
-    /* Spacing - Margin */
-    .mx-1 { margin-left: 0.25rem; margin-right: 0.25rem; }
-    .mx-auto { margin-left: auto; margin-right: auto; }
-    .mt-1 { margin-top: 0.25rem; }
-    .mt-3 { margin-top: 0.75rem; }
-    .mt-4 { margin-top: 1rem; }
-    .mt-6 { margin-top: 1.5rem; }
-    .mb-3 { margin-bottom: 0.75rem; }
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .pt-3 { padding-top: 0.75rem; }
-    .pt-4 { padding-top: 1rem; }
-    .pt-6 { padding-top: 1.5rem; }
-    .pb-1 { padding-bottom: 0.25rem; }
-    .pb-2 { padding-bottom: 0.5rem; }
-    .pb-12 { padding-bottom: 3rem; }
-    .pb-16 { padding-bottom: 4rem; }
-
-    /* Width & Height */
-    .w-4 { width: 1rem; }
-    .w-5 { width: 1.25rem; }
-    .w-8 { width: 2rem; }
-    .w-16 { width: 4rem; }
-    .w-24 { width: 6rem; }
-    .w-28 { width: 7rem; }
-    .w-32 { width: 8rem; }
-    .w-36 { width: 9rem; }
-    .w-full { width: 100%; }
-    .h-4 { height: 1rem; }
-    .h-5 { height: 1.25rem; }
-    .h-8 { height: 2rem; }
-    .h-9 { height: 2.25rem; }
-    .h-10 { height: 2.5rem; }
-    .h-11 { height: 2.75rem; }
-    .h-16 { height: 4rem; }
-    .min-w-\[180px\] { min-width: 180px; }
-    .min-w-\[200px\] { min-width: 200px; }
-    .max-w-6xl { max-width: 72rem; }
-    .max-w-7xl { max-width: 80rem; }
-    .max-h-48 { max-height: 12rem; }
-
-    /* Colors - Background */
-    .bg-black { background-color: rgb(0, 0, 0); }
-    .bg-red-900 { background-color: rgb(127, 29, 29); }
-    .bg-blue-600 { background-color: rgb(37, 99, 235); }
-    .bg-blue-500\/10 { background-color: rgba(59, 130, 246, 0.1); }
-    .bg-orange-500\/10 { background-color: rgba(249, 115, 22, 0.1); }
-    .bg-orange-500\/20 { background-color: rgba(249, 115, 22, 0.2); }
-    .bg-red-500\/10 { background-color: rgba(239, 68, 68, 0.1); }
-    .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.2); }
-    .bg-yellow-400 { background-color: rgb(250, 204, 21); }
-    .bg-green-500\/50 { background-color: rgba(34, 197, 94, 0.5); }
-    .bg-pink-500\/50 { background-color: rgba(236, 72, 153, 0.5); }
-    .bg-cyan-500 { background-color: rgb(6, 182, 212); }
-    .bg-white\/5 { background-color: rgba(255, 255, 255, 0.05); }
-    .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1); }
-    .bg-white\/15 { background-color: rgba(255, 255, 255, 0.15); }
-    .bg-white\/\[0\.02\] { background-color: rgba(255, 255, 255, 0.02); }
-    .bg-white\/\[0\.04\] { background-color: rgba(255, 255, 255, 0.04); }
-    .bg-gradient-to-br {
-      background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-    }
-    .from-purple-900 { --tw-gradient-from: rgb(88, 28, 135); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(88, 28, 135, 0)); }
-    .via-red-900 { --tw-gradient-to: rgb(127, 29, 29); --tw-gradient-stops: var(--tw-gradient-from), rgb(127, 29, 29), var(--tw-gradient-to, rgba(127, 29, 29, 0)); }
-    .to-orange-900 { --tw-gradient-to: rgb(124, 45, 18); }
-    .bg-\[\#282828\] { background-color: #282828; }
-
-    /* Colors - Text */
-    .text-white { color: rgb(255, 255, 255); }
-    .text-black { color: rgb(255, 255, 255); } /* Fixed: was invisible black on black bg */
-    .text-white\/30 { color: rgba(255, 255, 255, 0.3); }
-    .text-white\/40 { color: rgba(255, 255, 255, 0.4); }
-    .text-white\/50 { color: rgba(255, 255, 255, 0.5); }
-    .text-white\/60 { color: rgba(255, 255, 255, 0.6); }
-    .text-white\/70 { color: rgba(255, 255, 255, 0.7); }
-    .text-orange-400 { color: rgb(251, 146, 60); }
-    .text-orange-300\/50 { color: rgba(253, 186, 116, 0.5); }
-    .text-red-400 { color: rgb(248, 113, 113); }
-    .text-red-300 { color: rgb(252, 165, 165); }
-    .text-green-400 { color: rgb(74, 222, 128); }
-    .text-yellow-400 { color: rgb(250, 204, 21); }
-    .text-blue-400 { color: rgb(96, 165, 250); }
-    .text-purple-400 { color: rgb(192, 132, 252); }
-    .text-pink-400 { color: rgb(244, 114, 182); }
-    .text-\[\#eff1f633\] { color: rgba(239, 241, 246, 0.2); } /* Fixed: was nearly invisible */
-    .text-\[\#eff1f666\] { color: rgba(239, 241, 246, 0.4); }
-    .text-\[\#eff1f699\] { color: rgba(239, 241, 246, 0.6); }
-    .text-\[\#eff1f6\] { color: #eff1f6; }
-    .text-\[\#1a1a1a\] { color: rgb(255, 255, 255); } /* Fixed: was invisible dark on black bg */
-    .text-\[\#ffa116\] { color: #ffa116; }
-
-    /* Colors - Border */
-    .border { border-width: 1px; }
-    .border-b { border-bottom-width: 1px; }
-    .border-2 { border-width: 2px; }
-    .border-4 { border-width: 4px; }
-    .border-white\/5 { border-color: rgba(255, 255, 255, 0.05); }
-    .border-white\/10 { border-color: rgba(255, 255, 255, 0.1); }
-    .border-yellow-400 { border-color: rgb(250, 204, 21); }
-    .border-black { border-color: rgb(0, 0, 0); }
-    .border-orange-500\/30 { border-color: rgba(249, 115, 22, 0.3); }
-    .border-blue-500\/30 { border-color: rgba(59, 130, 246, 0.3); }
-    .border-red-500\/30 { border-color: rgba(239, 68, 68, 0.3); }
-    .border-\[\#10b981\]\/50 { border-color: rgba(16, 185, 129, 0.5); }
-    .border-\[\#f59e0b\]\/50 { border-color: rgba(245, 158, 11, 0.5); }
-    .border-\[\#ef4444\]\/50 { border-color: rgba(239, 68, 68, 0.5); }
-    .border-t-transparent { border-top-color: transparent; }
-
-    /* Border Radius */
-    .rounded { border-radius: 0.25rem; }
-    .rounded-lg { border-radius: 0.5rem; }
-    .rounded-2xl { border-radius: 1rem; }
-    .rounded-full { border-radius: 9999px; }
-
-    /* Typography */
-    .text-xs { font-size: 0.75rem; line-height: 1rem; }
-    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-    .font-sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    .font-medium { font-weight: 500; }
-    .font-semibold { font-weight: 600; }
-    .font-bold { font-weight: 700; }
-    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .uppercase { text-transform: uppercase; }
-    .tracking-wider { letter-spacing: 0.05em; }
-    .text-left { text-align: left; }
-    .text-center { text-align: center; }
-    .list-none { list-style: none; }
-    .placeholder-white\/40::placeholder { color: rgba(255, 255, 255, 0.4); }
-    .placeholder-orange-300\/50::placeholder { color: rgba(253, 186, 116, 0.5); }
-
-    /* Overflow */
-    .overflow-hidden { overflow: hidden; }
-    .overflow-x-auto { overflow-x: auto; }
-    .overflow-y-auto { overflow-y: auto; }
-
-    /* Cursor */
-    .cursor-pointer { cursor: pointer; }
-
-    /* Transitions */
-    .transition-colors { transition-property: color, background-color, border-color; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-    .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-    .transition-transform { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
-
-    /* Hover States */
-    .hover\:bg-white\/5:hover { background-color: rgba(255, 255, 255, 0.05); }
-    .hover\:bg-white\/10:hover { background-color: rgba(255, 255, 255, 0.1); }
-    .hover\:bg-white\/15:hover { background-color: rgba(255, 255, 255, 0.15); }
-    .hover\:bg-red-500\/20:hover { background-color: rgba(239, 68, 68, 0.2); }
-    .hover\:bg-\[\#3a3a3a\]:hover { background-color: #3a3a3a; }
-    .hover\:bg-\[\#ffb84d\]:hover { background-color: #ffb84d; }
-    .hover\:border-orange-500\/50:hover { border-color: rgba(249, 115, 22, 0.5); }
-    .hover\:border-blue-500\/50:hover { border-color: rgba(59, 130, 246, 0.5); }
-    .hover\:border-white\/10:hover { border-color: rgba(255, 255, 255, 0.1); }
-    .hover\:border-orange-500\/50:hover { border-color: rgba(249, 115, 22, 0.5); }
-    .hover\:text-red-300:hover { color: rgb(252, 165, 165); }
-    .hover\:bg-\[\#10b981\]\/30:hover { background-color: rgba(16, 185, 129, 0.3); }
-    .hover\:bg-\[\#f59e0b\]\/30:hover { background-color: rgba(245, 158, 11, 0.3); }
-    .hover\:bg-\[\#ef4444\]\/30:hover { background-color: rgba(239, 68, 68, 0.3); }
-
-    /* Focus States */
-    .focus\:border-orange-500:focus { border-color: rgb(249, 115, 22); }
-    .focus\:border-blue-500:focus { border-color: rgb(59, 130, 246); }
-    .focus\:bg-orange-500\/20:focus { background-color: rgba(249, 115, 22, 0.2); }
-    .focus\:bg-white\/\[0\.04\]:focus { background-color: rgba(255, 255, 255, 0.04); }
-    .focus\:border-orange-500\/50:focus { border-color: rgba(249, 115, 22, 0.5); }
-    .focus\:border-\[\#ffa116\]:focus { border-color: #ffa116; }
-
-    /* Additional hover states */
-    .hover\:border-white\/20:hover { border-color: rgba(255, 255, 255, 0.2); }
-    .hover\:bg-white\/\[0\.05\]:hover { background-color: rgba(255, 255, 255, 0.05); }
-    .hover\:text-white:hover { color: #fff; }
-
-    /* Disabled States */
-    button:disabled, .disabled\:opacity-50:disabled { opacity: 0.5; }
-    button:disabled, .disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
-
-    /* Group Hover */
-    .group:hover .group-open\:rotate-180 { transform: rotate(180deg); }
-    details[open] .group-open\:rotate-180 { transform: rotate(180deg); }
-    .group:hover .group-hover\:text-orange-400 { color: rgb(251, 146, 60); }
-
-    /* Animation */
-    .animate-spin {
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    /* Space-y */
-    .space-y-3 > * + * { margin-top: 0.75rem; }
-    .space-y-4 > * + * { margin-top: 1rem; }
-
-    /* Difficulty colors */
-    .difficulty-easy { color: #10b981; }
-    .difficulty-medium { color: #f59e0b; }
-    .difficulty-hard { color: #ef4444; }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #3a3a3a;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #4a4a4a;
-    }
-
-    /* Filter chip active state */
-    .filter-chip.active {
-      background: linear-gradient(to r, #f97316, #ef4444);
-      color: #fff;
-      border-color: #f97316;
-    }
-
-    /* Table styles */
-    .problem-row {
-      transition: all 0.15s ease;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .problem-row:hover {
-      background-color: rgba(255,255,255,0.04);
-    }
-    .problem-row:last-child {
-      border-bottom: none;
-    }
-
-    /* Search and select focus */
-    input:focus, select:focus {
-      outline: none;
-      border-color: rgba(249, 115, 22, 0.5) !important;
-      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.3);
-    }
-
-    /* Dropdown arrow */
-    select {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23eff1f699' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 32px;
-    }
-
-    /* Badge styles */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 12px;
-      font-weight: 500;
+      background: #000;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
       line-height: 1.5;
     }
-    .badge-easy {
-      background: #10b98110;
-      color: #10b981;
-    }
-    .badge-medium {
-      background: #f59e0b10;
-      color: #f59e0b;
-    }
-    .badge-hard {
-      background: #ef444410;
-      color: #ef4444;
+
+    /* Utility Classes */
+    .hidden { display: none !important; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-1 { flex: 1; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .text-center { text-align: center; }
+    .w-full { width: 100%; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
-    /* Premium Button Base */
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+
+    .header-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 2px;
+    }
+
+    .header-subtitle span {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      white-space: nowrap;
-      border-radius: 0.375rem;
-      font-size: 0.8125rem;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
       font-weight: 500;
-      letter-spacing: 0.01em;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      outline: none;
+      color: rgba(255, 255, 255, 0.7);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
       cursor: pointer;
-      border: 1px solid transparent;
-      user-select: none;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      white-space: nowrap;
     }
-    .btn:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(255, 161, 22, 0.4);
+
+    .btn:hover {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
     }
-    .btn:disabled {
-      pointer-events: none;
-      opacity: 0.4;
-    }
-    .btn:active:not(:disabled) {
+
+    .btn:active {
       transform: scale(0.98);
     }
 
-    /* Button Variants */
-    .btn-default {
-      background-color: rgba(255, 255, 255, 0.03);
-      border-color: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.7);
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
-    .btn-default:hover:not(:disabled) {
-      background-color: rgba(255, 255, 255, 0.06);
+
+    .btn-icon {
+      width: 32px;
+      padding: 0;
+      border: none;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Main Content */
+    .main {
+      padding: 32px 0;
+    }
+
+    /* Search Bar */
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .search-row .btn {
+      height: 40px;
+      padding: 0 16px;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px 0 40px;
+      font-size: 13px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .search-input:hover {
       border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .search-input:focus {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 161, 22, 0.5);
+    }
+
+    /* Select */
+    .select {
+      height: 40px;
+      padding: 0 32px 0 12px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      transition: all 0.15s ease;
+    }
+
+    .select:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .select:focus {
+      border-color: rgba(255, 161, 22, 0.5);
+    }
+
+    .select option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    /* Selected Filters Inline */
+    .selected-inline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+    }
+
+    .selected-inline-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 4px;
+    }
+
+    .selected-inline-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .clear-category-btn {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .clear-category-btn:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Active Filters Summary Bar */
+    .active-filters-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: rgba(255, 161, 22, 0.05);
+      border: 1px solid rgba(255, 161, 22, 0.1);
+      border-radius: 8px;
+    }
+
+    .active-filters-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .active-filters-count {
+      font-weight: 600;
+      color: #ffa116;
+    }
+
+    .clear-all-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.5);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .clear-all-btn:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .selected-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 8px 0 10px;
+      font-size: 12px;
+      font-weight: 450;
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.1);
+      border: 1px solid rgba(255, 161, 22, 0.2);
+      border-radius: 6px;
+      cursor: default;
+    }
+
+    .selected-chip-label {
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .selected-chip-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      color: rgba(255, 161, 22, 0.6);
+      background: none;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .selected-chip-remove:hover {
+      color: #fff;
+      background: rgba(255, 161, 22, 0.3);
+    }
+
+    .selected-chip-remove svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Difficulty Selected Chips */
+    .selected-chip-easy {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .selected-chip-easy .selected-chip-remove {
+      color: rgba(16, 185, 129, 0.6);
+    }
+    .selected-chip-easy .selected-chip-remove:hover {
+      background: rgba(16, 185, 129, 0.3);
+    }
+
+    .selected-chip-medium {
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    .selected-chip-medium .selected-chip-remove {
+      color: rgba(245, 158, 11, 0.6);
+    }
+    .selected-chip-medium .selected-chip-remove:hover {
+      background: rgba(245, 158, 11, 0.3);
+    }
+
+    .selected-chip-hard {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+    .selected-chip-hard .selected-chip-remove {
+      color: rgba(239, 68, 68, 0.6);
+    }
+    .selected-chip-hard .selected-chip-remove:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Filters Section */
+    .filters {
+      margin-bottom: 32px;
+    }
+
+    .filter-section {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .filter-section:last-child {
+      border-bottom: none;
+    }
+
+    .filter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+
+    .filter-header::-webkit-details-marker {
+      display: none;
+    }
+
+    .filter-header:hover .filter-label {
       color: rgba(255, 255, 255, 0.9);
     }
 
-    .btn-secondary {
-      background-color: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.85);
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.15);
-      color: rgb(255, 255, 255);
+    .filter-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .btn-ghost {
-      background-color: transparent;
+    .filter-count {
+      font-size: 11px;
+      font-weight: 500;
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .filter-chevron {
+      width: 16px;
+      height: 16px;
+      color: rgba(255, 255, 255, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .filter-section[open] .filter-chevron {
+      transform: rotate(180deg);
+    }
+
+    .filter-content {
+      padding: 0 0 16px 0;
+    }
+
+    /* Filter Chips */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 450;
       color: rgba(255, 255, 255, 0.5);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
-    .btn-ghost:hover:not(:disabled) {
-      background-color: rgba(255, 255, 255, 0.05);
+
+    .chip:hover {
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .chip.active {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.1);
+      border-color: rgba(255, 161, 22, 0.25);
+    }
+
+    /* Difficulty Chips */
+    .chip-easy {
+      color: rgba(16, 185, 129, 0.8);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .chip-easy:hover {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .chip-easy.active {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .chip-medium {
+      color: rgba(245, 158, 11, 0.8);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    .chip-medium:hover {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    .chip-medium.active {
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .chip-hard {
+      color: rgba(239, 68, 68, 0.8);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+    .chip-hard:hover {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .chip-hard.active {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    /* Show More Button */
+    .show-more-btn {
+      margin-top: 12px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color 0.15s ease;
+    }
+
+    .show-more-btn:hover {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Company Search */
+    .company-search {
+      width: 100%;
+      height: 36px;
+      padding: 0 12px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .company-search::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .company-search:focus {
+      border-color: rgba(255, 161, 22, 0.4);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Table */
+    .table-wrapper {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .table td {
+      padding: 14px 16px;
+      font-size: 13px;
       color: rgba(255, 255, 255, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 
-    .btn-primary {
-      background-color: rgba(255, 161, 22, 0.9);
-      border-color: rgba(255, 161, 22, 0.9);
-      color: rgb(0, 0, 0);
-    }
-    .btn-primary:hover:not(:disabled) {
-      background-color: rgb(255, 161, 22);
-      border-color: rgb(255, 161, 22);
+    .table tr:last-child td {
+      border-bottom: none;
     }
 
-    /* Button Sizes */
-    .btn-sm {
-      height: 1.875rem;
-      padding: 0 0.625rem;
-      font-size: 0.75rem;
-    }
-    .btn-md {
-      height: 2.125rem;
-      padding: 0 0.875rem;
-    }
-    .btn-lg {
-      height: 2.375rem;
-      padding: 0 1rem;
+    .table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
     }
 
-    /* Filter Chips - More Refined */
-    .filter-chip {
-      font-weight: 400;
-      letter-spacing: 0.02em;
+    .table .col-id { width: 60px; color: rgba(255, 255, 255, 0.4); }
+    .table .col-title { min-width: 250px; }
+    .table .col-difficulty { width: 100px; }
+    .table .col-acceptance { width: 100px; text-align: center; }
+    .table .col-frequency { width: 120px; }
+    .table .col-topics { min-width: 180px; }
+
+    /* Problem Link */
+    .problem-link {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      transition: color 0.15s ease;
     }
-    .filter-chip.active {
+
+    .problem-link:hover {
+      color: #ffa116;
+    }
+
+    /* Difficulty Badge */
+    .difficulty {
+      font-size: 12px;
       font-weight: 500;
     }
 
-    /* Rounded variants */
-    .rounded-md { border-radius: 0.375rem; }
-    .rounded-xl { border-radius: 0.75rem; }
+    .difficulty-easy { color: #10b981; }
+    .difficulty-medium { color: #f59e0b; }
+    .difficulty-hard { color: #ef4444; }
+
+    /* Frequency Bar */
+    .frequency-bar {
+      width: 60px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .frequency-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffa116, #ff6b35);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    /* Topic Tags */
+    .topic-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .topic-tag {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .topic-more {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Loading State */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 0;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid rgba(255, 161, 22, 0.2);
+      border-top-color: #ffa116;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 12px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 0;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      color: rgba(255, 255, 255, 0.15);
+      margin-bottom: 16px;
+    }
+
+    .empty-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 16px;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .pagination-info {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-numbers {
+      display: flex;
+      gap: 4px;
+    }
+
+    .page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .page-btn:hover {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .page-btn.active {
+      color: #000;
+      background: #ffa116;
+      font-weight: 500;
+    }
+
+    .page-ellipsis {
+      color: rgba(255, 255, 255, 0.3);
+      padding: 0 4px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      .search-row { flex-direction: column; }
+      .select { width: 100%; }
+    }
   </style>
 </head>
 
-<body class="bg-black text-white font-sans">
-  <!-- Pure black background -->
-  <div class="fixed inset-0 bg-black"></div>
-
+<body>
   <!-- Header -->
-  <header class="sticky top-0 z-50 bg-black border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-8 py-5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <button id="back-btn" class="btn btn-ghost btn-md -ml-2" title="Back to popup">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-          </button>
-          <div>
-            <h1 class="text-lg font-semibold">Problems Explorer</h1>
-            <p class="text-xs text-white/50">
-              <span id="filtered-count" class="font-medium text-white">0</span>
-              <span class="text-white/30 mx-1">/</span>
-              <span id="total-problems">0</span> problems
-            </p>
-          </div>
-        </div>
-        <a href="https://leetcode.com/problemset/" target="_blank" class="btn btn-secondary btn-md gap-2">
-          LeetCode
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17L17 7M17 7H7M17 7V17"/>
+  <header class="header">
+    <div class="container header-inner">
+      <div class="header-left">
+        <button id="back-btn" class="btn btn-icon" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
-        </a>
+        </button>
+        <div>
+          <h1 class="header-title">Problems Explorer</h1>
+          <p class="header-subtitle">
+            <span id="filtered-count">0</span> / <span id="total-problems">0</span> problems
+          </p>
+        </div>
       </div>
+      <a href="https://leetcode.com/problemset/" target="_blank" class="btn">
+        LeetCode
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 17L17 7M17 7H7M17 7V17"/>
+        </svg>
+      </a>
     </div>
   </header>
 
-  <!-- Status Info (hidden by default, only shown during development) -->
-  <div id="debug-info" class="relative z-50 max-w-6xl mx-auto px-6 pt-6 hidden">
-    <div class="p-3 rounded-lg bg-white/5 border border-white/10 text-white/70 text-xs">
-      <div id="js-status">Loading...</div>
-    </div>
+  <!-- Debug Info (hidden) -->
+  <div id="debug-info" class="hidden">
+    <div id="js-status">Loading...</div>
   </div>
 
   <!-- Main Content -->
-  <section class="relative z-40 max-w-7xl mx-auto px-8 py-10">
-    <!-- Search & Sort Row -->
-    <div class="flex gap-3 mb-8">
-      <div class="flex-1 relative">
-        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#eff1f666]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <main class="main">
+    <div class="container">
+      <!-- Search & Sort -->
+      <div class="search-row">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input id="search-input" type="text" class="search-input" placeholder="Search problems..." />
+        </div>
+        <select id="sort-select" class="select">
+          <option value="frequency-desc">Frequency ↓</option>
+          <option value="frequency-asc">Frequency ↑</option>
+          <option value="id-asc">ID ↑</option>
+          <option value="id-desc">ID ↓</option>
+          <option value="acceptance-desc">Acceptance ↓</option>
+          <option value="acceptance-asc">Acceptance ↑</option>
+          <option value="title-asc">Title A-Z</option>
+          <option value="title-desc">Title Z-A</option>
+        </select>
+        <button id="reset-filters" class="btn">Reset</button>
+      </div>
+
+      <!-- Active Filters Summary -->
+      <div id="active-filters-bar" class="active-filters-bar hidden">
+        <div class="active-filters-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <span><span id="total-filter-count" class="active-filters-count">0</span> filters active</span>
+        </div>
+        <button id="clear-all-filters" class="clear-all-btn">Clear all</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <!-- Difficulty -->
+        <details class="filter-section" open>
+          <summary class="filter-header">
+            <span class="filter-label">
+              Difficulty
+              <span id="difficulty-count" class="filter-count hidden"></span>
+            </span>
+            <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="filter-content">
+            <div id="selected-difficulty" class="selected-inline hidden"></div>
+            <div class="chip-group">
+              <button class="chip chip-easy difficulty-filter" data-difficulty="Easy">Easy</button>
+              <button class="chip chip-medium difficulty-filter" data-difficulty="Medium">Medium</button>
+              <button class="chip chip-hard difficulty-filter" data-difficulty="Hard">Hard</button>
+            </div>
+          </div>
+        </details>
+
+        <!-- Topics -->
+        <details class="filter-section">
+          <summary class="filter-header">
+            <span class="filter-label">
+              Topics
+              <span id="topics-count" class="filter-count hidden"></span>
+            </span>
+            <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="filter-content">
+            <div id="selected-topics" class="selected-inline hidden"></div>
+            <div id="topics-container" class="chip-group"></div>
+            <button id="topics-show-more" class="show-more-btn hidden">Show more</button>
+          </div>
+        </details>
+
+        <!-- Companies -->
+        <details class="filter-section">
+          <summary class="filter-header">
+            <span class="filter-label">
+              Companies
+              <span id="companies-count" class="filter-count hidden"></span>
+            </span>
+            <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </summary>
+          <div class="filter-content">
+            <div id="selected-companies" class="selected-inline hidden"></div>
+            <input id="company-search" type="text" class="company-search" placeholder="Search companies..." />
+            <div id="companies-container" class="chip-group"></div>
+            <button id="companies-show-more" class="show-more-btn hidden">Show more</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="col-id">#</th>
+              <th class="col-title">Title</th>
+              <th class="col-difficulty">Difficulty</th>
+              <th class="col-acceptance">Acceptance</th>
+              <th class="col-frequency">Frequency</th>
+              <th class="col-topics">Topics</th>
+            </tr>
+          </thead>
+          <tbody id="problems-table"></tbody>
+        </table>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading-state" class="loading">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading problems...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state hidden">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="11" cy="11" r="8"></circle>
           <path d="m21 21-4.35-4.35"></path>
         </svg>
-        <input
-          id="search-input"
-          type="text"
-          placeholder="Search problems..."
-          class="w-full h-11 pl-10 pr-4 rounded-lg bg-white/[0.02] border border-white/10 text-sm text-white placeholder-white/40 transition-all hover:border-white/20 focus:border-[#ffa116] focus:bg-white/[0.04]"
-        />
+        <p class="empty-text">No problems found matching your filters.</p>
+        <button id="reset-from-empty" class="btn">Reset Filters</button>
       </div>
-      <select id="sort-select" class="h-11 px-4 rounded-lg bg-white/[0.02] border border-white/10 text-sm text-white cursor-pointer min-w-[200px] transition-all hover:border-white/20 focus:border-[#ffa116]">
-        <option value="frequency-desc">Frequency ↓</option>
-        <option value="frequency-asc">Frequency ↑</option>
-        <option value="id-asc">ID ↑</option>
-        <option value="id-desc">ID ↓</option>
-        <option value="acceptance-desc">Acceptance ↓</option>
-        <option value="acceptance-asc">Acceptance ↑</option>
-        <option value="title-asc">Title A-Z</option>
-        <option value="title-desc">Title Z-A</option>
-      </select>
-      <button id="reset-filters" class="btn btn-default btn-lg">
-        Reset
-      </button>
-    </div>
 
-    <!-- Collapsible Filters -->
-    <div class="space-y-3">
-      <!-- Difficulty Filter -->
-      <details class="group" open>
-        <summary class="flex items-center justify-between cursor-pointer list-none py-3 px-4 rounded-lg hover:bg-white/5 transition-colors">
-          <div class="flex items-center gap-2.5">
-            <span class="text-sm font-medium">Difficulty</span>
-            <div id="difficulty-count" class="text-xs text-orange-400 font-medium px-1.5 py-0.5 rounded bg-orange-500/10 hidden"></div>
-          </div>
-          <svg class="w-4 h-4 text-white/50 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </summary>
-        <div class="pt-4 pb-2 px-4">
-          <div class="flex gap-2.5">
-            <button class="filter-chip difficulty-filter btn btn-sm bg-[#10b981]/20 border border-[#10b981]/50 text-[#10b981] hover:bg-[#10b981]/30" data-difficulty="Easy">
-              Easy
-            </button>
-            <button class="filter-chip difficulty-filter btn btn-sm bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30" data-difficulty="Medium">
-              Medium
-            </button>
-            <button class="filter-chip difficulty-filter btn btn-sm bg-[#ef4444]/20 border border-[#ef4444]/50 text-[#ef4444] hover:bg-[#ef4444]/30" data-difficulty="Hard">
-              Hard
-            </button>
-          </div>
+      <!-- Pagination -->
+      <div id="pagination" class="pagination hidden">
+        <div class="pagination-info">
+          Showing <span id="showing-start">1</span>-<span id="showing-end">50</span> of <span id="showing-total">0</span>
         </div>
-      </details>
-
-      <!-- Topics Filter -->
-      <details class="group">
-        <summary class="flex items-center justify-between cursor-pointer list-none py-3 px-4 rounded-lg hover:bg-white/5 transition-colors">
-          <div class="flex items-center gap-2.5">
-            <span class="text-sm font-medium">Topics</span>
-            <div id="topics-count" class="text-xs text-orange-400 font-medium px-1.5 py-0.5 rounded bg-orange-500/10 hidden"></div>
-          </div>
-          <svg class="w-4 h-4 text-white/50 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </summary>
-        <div class="pt-4 pb-2 px-4">
-          <div id="topics-container" class="flex flex-wrap gap-2">
-            <!-- Topics will be injected here -->
-          </div>
-          <button id="topics-show-more" class="btn btn-ghost btn-sm mt-3 hidden">
-            Show more
-          </button>
+        <div class="pagination-controls">
+          <button id="prev-page" class="btn" disabled>Previous</button>
+          <div id="page-numbers" class="page-numbers"></div>
+          <button id="next-page" class="btn">Next</button>
         </div>
-      </details>
-
-      <!-- Companies Filter -->
-      <details class="group">
-        <summary class="flex items-center justify-between cursor-pointer list-none py-3 px-4 rounded-lg hover:bg-white/5 transition-colors">
-          <div class="flex items-center gap-2.5">
-            <span class="text-sm font-medium">Companies</span>
-            <div id="companies-count" class="text-xs text-orange-400 font-medium px-1.5 py-0.5 rounded bg-orange-500/10 hidden"></div>
-          </div>
-          <svg class="w-4 h-4 text-white/50 transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </summary>
-        <div class="pt-4 pb-2 px-4">
-          <input
-            id="company-search"
-            type="text"
-            placeholder="Search companies..."
-            class="w-full h-10 mb-4 px-3 rounded-lg text-sm bg-white/[0.02] border border-white/10 text-white placeholder-white/40 transition-all hover:border-white/10 focus:border-orange-500/50 focus:bg-white/[0.04]"
-          />
-          <div id="companies-container" class="flex flex-wrap gap-2">
-            <!-- Companies will be injected here -->
-          </div>
-          <button id="companies-show-more" class="btn btn-ghost btn-sm mt-3 hidden">
-            Show more
-          </button>
-        </div>
-      </details>
-    </div>
-  </section>
-
-  <!-- Problems Table -->
-  <section class="relative z-40 max-w-7xl mx-auto px-8 pb-16">
-    <div class="rounded-xl border border-white/10 bg-black overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b border-white/10 bg-white/[0.02]">
-              <th class="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider text-white/50 w-16">#</th>
-              <th class="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider text-white/50">Title</th>
-              <th class="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider text-white/50 w-32">Difficulty</th>
-              <th class="text-center px-6 py-4 text-xs font-medium uppercase tracking-wider text-white/50 w-28">Acceptance</th>
-              <th class="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider text-white/50 w-36">Frequency</th>
-              <th class="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider text-white/50">Topics</th>
-            </tr>
-          </thead>
-          <tbody id="problems-table" class="text-sm">
-            <!-- Problems will be injected here -->
-          </tbody>
-        </table>
       </div>
     </div>
-
-    <!-- Loading State -->
-    <div id="loading-state" class="text-center py-12">
-      <div class="inline-block w-8 h-8 border-2 border-[#ffa116] border-t-transparent rounded-full animate-spin"></div>
-      <p class="mt-3 text-sm text-[#eff1f699]">Loading problems...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div id="empty-state" class="hidden text-center py-12">
-      <svg class="mx-auto w-16 h-16 text-[#eff1f633]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="11" cy="11" r="8"></circle>
-        <path d="m21 21-4.35-4.35"></path>
-      </svg>
-      <p class="mt-3 text-sm text-[#eff1f699]">No problems found matching your filters.</p>
-      <button id="reset-from-empty" class="btn btn-secondary btn-md mt-4">
-        Reset Filters
-      </button>
-    </div>
-
-    <!-- Pagination -->
-    <div id="pagination" class="hidden mt-8 flex items-center justify-between">
-      <div class="text-sm text-white/60">
-        Showing <span id="showing-start">1</span>-<span id="showing-end">50</span> of <span id="showing-total">0</span>
-      </div>
-      <div class="flex gap-2">
-        <button id="prev-page" class="btn btn-default btn-md" disabled>
-          Previous
-        </button>
-        <div id="page-numbers" class="flex gap-1">
-          <!-- Page numbers will be injected here -->
-        </div>
-        <button id="next-page" class="btn btn-default btn-md">
-          Next
-        </button>
-      </div>
-    </div>
-  </section>
+  </main>
 
   <script src="problems-explorer.js"></script>
 </body>
