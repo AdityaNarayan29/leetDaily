@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LeetDaily - Daily LeetCode Challenge",
-  "version": "1.1.1.1",
+  "version": "1.1.1.1.1",
   "description": "Never miss a LeetCode Daily Challenge! Track streaks, company tags, profile sync, 30-day heatmap & notifications.",
   "action": {
     "default_popup": "popup.html",
