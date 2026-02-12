@@ -211,7 +211,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section ref={heroRef} className="relative pt-24 sm:pt-28 pb-12 px-4 sm:px-6 lg:px-12">
+      <section ref={heroRef} aria-label="LeetDaily Chrome Extension for LeetCode" className="relative pt-24 sm:pt-28 pb-12 px-4 sm:px-6 lg:px-12">
         <div className="max-w-[1200px] mx-auto">
           {/* Two column layout on desktop */}
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -236,7 +236,7 @@ export default function LandingPage() {
                 <span className="text-white">Build your</span>
                 <br />
                 <span className="bg-gradient-to-r from-orange-400 via-red-400 to-amber-400 bg-clip-text text-transparent">
-                  LeetCode streak
+                  LeetCode streak daily
                 </span>
               </h1>
 
@@ -244,7 +244,7 @@ export default function LandingPage() {
                 ref={subtextRef}
                 className="text-sm sm:text-base text-white/60 max-w-sm sm:max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed"
               >
-                Daily challenges, company tags, streak tracking & smart reminders — one click from your toolbar.
+                Free Chrome extension for daily LeetCode challenges, FAANG company tags, streak tracking & smart coding interview reminders — one click from your toolbar.
               </p>
 
               {/* CTA Buttons */}
@@ -676,18 +676,18 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-6">
+      <section aria-label="LeetCode Chrome Extension Features" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Everything you need to{" "}
+              LeetCode Chrome Extension{" "}
               <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                stay consistent
+                features
               </span>
             </h2>
             <p className="text-white/50 max-w-xl mx-auto">
               Packed with features to help you build a daily coding habit and
-              ace your interviews
+              ace your FAANG interviews
             </p>
           </div>
 
@@ -779,6 +779,7 @@ export default function LandingPage() {
       {/* Smart Reminders Showcase */}
       <section
         ref={notificationSectionRef}
+        aria-label="Smart LeetCode Reminders"
         className="notification-showcase py-16 px-6 border-t border-white/5"
       >
         <div className="max-w-6xl mx-auto">
@@ -788,13 +789,13 @@ export default function LandingPage() {
               <span className="text-xs text-purple-200/90">Smart Reminders</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-2">
-              Never let your{" "}
+              Smart LeetCode{" "}
               <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                streak break
+                streak reminders
               </span>
             </h2>
             <p className="text-sm text-white/50 max-w-md mx-auto">
-              Intelligent notifications that nudge you at the right time
+              Intelligent notifications that nudge you before your daily coding streak resets
             </p>
           </div>
 
@@ -862,11 +863,11 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="py-24 px-6 border-t border-white/5">
+      <section aria-label="How to start tracking your LeetCode streak" className="py-24 px-6 border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Get started in{" "}
+              Start tracking your LeetCode streak in{" "}
               <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
                 30 seconds
               </span>
@@ -905,9 +906,10 @@ export default function LandingPage() {
       </section>
 
       {/* Social proof */}
-      <section className="py-24 px-6 border-t border-white/5">
+      <section aria-label="Developer reviews and testimonials" className="py-24 px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
+            <h2 className="sr-only">Trusted by 1000+ LeetCode developers</h2>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
               <Users className="w-4 h-4 text-orange-400" />
               <span className="text-sm text-white/70">
@@ -970,16 +972,16 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 px-6">
+      <section aria-label="Install LeetDaily Chrome Extension" className="py-24 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="relative rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 p-12 text-center overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
             <div className="relative">
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Ready to build your streak?
+                Start your daily LeetCode challenge streak
               </h2>
               <p className="text-white/60 mb-8 max-w-md mx-auto">
-                Join thousands of developers who never miss a daily challenge
+                Join thousands of developers who never miss a daily coding challenge
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

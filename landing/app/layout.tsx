@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://leetdaily.masst.dev"),
   title: "LeetDaily - Daily LeetCode Challenge Reminder & Streak Tracker",
   description:
-    "Never miss a LeetCode Daily Challenge! Track streaks, company tags, profile sync, 30-day heatmap & smart notifications. Free Chrome extension for developers preparing for coding interviews.",
+    "LeetDaily is a free Chrome extension for LeetCode daily challenges. Track your streak, see FAANG company tags, 30-day heatmap & smart reminders for coding interview prep.",
   keywords: [
     "LeetCode",
     "daily challenge",
