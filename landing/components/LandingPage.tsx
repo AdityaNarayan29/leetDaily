@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -30,7 +32,7 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-function App() {
+export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
@@ -349,7 +351,7 @@ function App() {
                       </div>
                     </div>
                     <div className="mt-2 pt-2 border-t border-white/[0.03]">
-                      <h3 className="text-xs text-emerald-400/70 mb-1">🎉 Your Offer Letter from Boogle</h3>
+                      <h3 className="text-xs text-emerald-400/70 mb-1">Your Offer Letter from Boogle</h3>
                       <p className="text-[10px] text-white/40 leading-relaxed">
                         We are thrilled to extend an offer for Software Engineer L4...
                       </p>
@@ -371,9 +373,9 @@ function App() {
                       </div>
                     </div>
                     <div className="mt-2 pt-2 border-t border-white/[0.03]">
-                      <h3 className="text-xs text-blue-400/70 mb-1">🚀 Offer Letter - Software Engineer E5</h3>
+                      <h3 className="text-xs text-blue-400/70 mb-1">Offer Letter - Software Engineer E5</h3>
                       <p className="text-[10px] text-white/40 leading-relaxed">
-                        We're excited to offer you the role of Software Engineer E5...
+                        We&apos;re excited to offer you the role of Software Engineer E5...
                       </p>
                     </div>
                   </div>
@@ -393,9 +395,9 @@ function App() {
                       </div>
                     </div>
                     <div className="mt-2 pt-2 border-t border-white/[0.03]">
-                      <h3 className="text-xs text-orange-400/70 mb-1">🎯 Welcome to Nilezon - SDE II</h3>
+                      <h3 className="text-xs text-orange-400/70 mb-1">Welcome to Nilezon - SDE II</h3>
                       <p className="text-[10px] text-white/40 leading-relaxed">
-                        We're excited to offer you the SDE II position...
+                        We&apos;re excited to offer you the SDE II position...
                       </p>
                     </div>
                   </div>
@@ -415,9 +417,9 @@ function App() {
                       </div>
                     </div>
                     <div className="mt-2 pt-2 border-t border-white/[0.03]">
-                      <h3 className="text-xs text-gray-300/70 mb-1">✨ Offer Letter - Software Engineer</h3>
+                      <h3 className="text-xs text-gray-300/70 mb-1">Offer Letter - Software Engineer</h3>
                       <p className="text-[10px] text-white/40 leading-relaxed">
-                        We're pleased to offer you a position at Mapple...
+                        We&apos;re pleased to offer you a position at Mapple...
                       </p>
                     </div>
                   </div>
@@ -449,7 +451,7 @@ function App() {
                   <div className="flex items-center gap-2">
                     <div className="text-[10px] text-white/40">New in: 5h 23m</div>
                     <div className="streak-counter flex items-center gap-0.5">
-                      <span className="text-sm leading-none">🔥</span>
+                      <span className="text-sm leading-none">&#x1F525;</span>
                       <span className="text-sm font-bold text-orange-400">7</span>
                     </div>
                   </div>
@@ -566,7 +568,7 @@ function App() {
                           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                         </svg>
                         <span className="text-[10px] font-medium">Topics</span>
-                        <span className="text-white/20">›</span>
+                        <span className="text-white/20">&rsaquo;</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
                         <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-white/10 text-white/70 hover:bg-white/20 cursor-pointer transition-colors">
@@ -586,7 +588,7 @@ function App() {
                       <div className="flex items-center gap-1.5 text-white/50 shrink-0">
                         <Building2 className="w-3 h-3" />
                         <span className="text-[10px] font-medium">Companies</span>
-                        <span className="text-white/20">›</span>
+                        <span className="text-white/20">&rsaquo;</span>
                       </div>
                       <div className="flex flex-wrap gap-1">
                         <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 cursor-pointer transition-colors">
@@ -811,7 +813,7 @@ function App() {
                     </div>
                     <div className="flex-1">
                       <span className="font-medium text-sm block">LeetDaily</span>
-                      <p className="text-xs text-white/60">🔥 Your 7-day streak is waiting!</p>
+                      <p className="text-xs text-white/60">&#x1F525; Your 7-day streak is waiting!</p>
                     </div>
                   </div>
                 </div>
@@ -819,7 +821,7 @@ function App() {
                   <span>Reminder at 9:00 AM</span>
                   <div className="flex gap-3">
                     <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 rounded bg-emerald-500 flex items-center justify-center text-[7px]">✓</div>
+                      <div className="w-3 h-3 rounded bg-emerald-500 flex items-center justify-center text-[7px]">&#x2713;</div>
                       <span>Solved</span>
                     </div>
                     <div className="flex items-center gap-1">
@@ -845,7 +847,7 @@ function App() {
                     </div>
                     <div className="flex-1">
                       <span className="font-semibold text-red-400 block">Streak at Risk!</span>
-                      <p className="text-xs text-white/60">⏰ 2 hours left before reset</p>
+                      <p className="text-xs text-white/60">&#x23F0; 2 hours left before reset</p>
                     </div>
                   </div>
                 </div>
@@ -948,7 +950,7 @@ function App() {
                   ))}
                 </div>
                 <p className="text-white/70 mb-4 text-sm leading-relaxed">
-                  "{testimonial.quote}"
+                  &ldquo;{testimonial.quote}&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-xs font-bold">
@@ -1062,7 +1064,7 @@ function App() {
 
           <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-white/40">
             <p>
-              Built for developers, by developers. © 2025 LeetDaily.
+              Built for developers, by developers. &copy; 2026 LeetDaily.
               Privacy-first.
             </p>
           </div>
@@ -1071,5 +1073,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
