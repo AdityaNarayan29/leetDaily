@@ -198,15 +198,23 @@ export default function LandingPage() {
             </div>
             <span className="text-lg font-semibold">LeetDaily</span>
           </div>
-          <a
-            href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-sm font-medium transition-all duration-300"
-          >
-            <Chrome className="w-4 h-4" />
-            Add to Chrome
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href="/blog"
+              className="text-sm text-white/60 hover:text-white transition-colors"
+            >
+              Blog
+            </a>
+            <a
+              href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-sm font-medium transition-all duration-300"
+            >
+              <Chrome className="w-4 h-4" />
+              Add to Chrome
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -1028,6 +1036,12 @@ export default function LandingPage() {
             </div>
 
             <div className="flex items-center gap-6">
+              <a
+                href="/blog"
+                className="text-white/40 hover:text-white transition-colors text-sm"
+              >
+                Blog
+              </a>
               {[
                 {
                   icon: Globe,
