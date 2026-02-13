@@ -214,6 +214,14 @@ export default function LandingPage() {
               <Chrome className="w-4 h-4" />
               Add to Chrome
             </a>
+            <a
+              href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sm:hidden inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 transition-all duration-300"
+            >
+              <Chrome className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </nav>
@@ -341,7 +349,7 @@ export default function LandingPage() {
               </div>
 
               {/* Browser Content Area with Popup */}
-              <div className="relative p-3 sm:p-4 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] min-h-[420px] sm:min-h-[620px]">
+              <div className="relative p-3 sm:p-4 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] sm:min-h-[620px]">
                 {/* Email Content - Stacked Emails (hidden on mobile, muted background) */}
                 <div className="hidden sm:block space-y-2 opacity-40">
                   {/* Email 1 - Boogle */}
@@ -684,10 +692,10 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section aria-label="LeetCode Chrome Extension Features" className="py-24 px-6">
+      <section aria-label="LeetCode Chrome Extension Features" className="py-12 sm:py-24 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          <div className="text-center mb-8 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               LeetCode Chrome Extension{" "}
               <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
                 features
@@ -767,7 +775,7 @@ export default function LandingPage() {
             ].map((feature, i) => (
               <div
                 key={i}
-                className="group relative p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-300"
+                className="group relative p-4 sm:p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-300"
               >
                 <div
                   className={`w-10 h-10 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
@@ -788,7 +796,7 @@ export default function LandingPage() {
       <section
         ref={notificationSectionRef}
         aria-label="Smart LeetCode Reminders"
-        className="notification-showcase py-16 px-6 border-t border-white/5"
+        className="notification-showcase py-12 sm:py-16 px-4 sm:px-6 border-t border-white/5"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
@@ -871,10 +879,10 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section aria-label="How to start tracking your LeetCode streak" className="py-24 px-6 border-t border-white/5">
+      <section aria-label="How to start tracking your LeetCode streak" className="py-12 sm:py-24 px-4 sm:px-6 border-t border-white/5">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          <div className="text-center mb-8 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               Start tracking your LeetCode streak in{" "}
               <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
                 30 seconds
@@ -914,9 +922,9 @@ export default function LandingPage() {
       </section>
 
       {/* Social proof */}
-      <section aria-label="Developer reviews and testimonials" className="py-24 px-6 border-t border-white/5">
+      <section aria-label="Developer reviews and testimonials" className="py-12 sm:py-24 px-4 sm:px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <h2 className="sr-only">Trusted by 1000+ LeetCode developers</h2>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
               <Users className="w-4 h-4 text-orange-400" />
@@ -949,7 +957,7 @@ export default function LandingPage() {
             ].map((testimonial, i) => (
               <div
                 key={i}
-                className="p-6 rounded-2xl bg-white/[0.02] border border-white/5"
+                className="p-4 sm:p-6 rounded-2xl bg-white/[0.02] border border-white/5"
               >
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, j) => (
@@ -980,12 +988,12 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section aria-label="Install LeetDaily Chrome Extension" className="py-24 px-6">
+      <section aria-label="Install LeetDaily Chrome Extension" className="py-12 sm:py-24 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="relative rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 p-12 text-center overflow-hidden">
+          <div className="relative rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 p-6 sm:p-12 text-center overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
             <div className="relative">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
                 Start your daily LeetCode challenge streak
               </h2>
               <p className="text-white/60 mb-8 max-w-md mx-auto">
@@ -1005,7 +1013,7 @@ export default function LandingPage() {
                 </a>
               </div>
 
-              <div className="flex items-center justify-center gap-6 mt-8 text-sm text-white/40">
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-6 sm:mt-8 text-xs sm:text-sm text-white/40">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400" />
                   <span>Free forever</span>
@@ -1025,7 +1033,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-12 px-6">
+      <footer className="border-t border-white/5 py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">

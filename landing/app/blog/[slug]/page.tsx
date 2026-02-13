@@ -133,7 +133,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         <Navbar />
 
-        <main className="pt-28 pb-20 px-6">
+        <main className="pt-24 sm:pt-28 pb-12 sm:pb-20 px-4 sm:px-6">
           <div className="max-w-6xl mx-auto">
             <Link
               href="/blog"
@@ -143,7 +143,7 @@ export default async function BlogPostPage({ params }: Props) {
               Back to Blog
             </Link>
 
-            <div className="grid xl:grid-cols-[1fr_250px] gap-12">
+            <div className="grid xl:grid-cols-[1fr_250px] gap-6 sm:gap-12">
               <article className="max-w-3xl">
                 <ScrollFadeIn>
                 <header className="mb-10">

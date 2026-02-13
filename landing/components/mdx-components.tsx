@@ -5,7 +5,7 @@ export const mdxComponents: MDXComponents = {
   h1: (props) => (
     <ScrollFadeIn>
       <h1
-        className="text-3xl sm:text-4xl font-bold mt-10 mb-4 text-white"
+        className="text-2xl sm:text-3xl lg:text-4xl font-bold mt-8 sm:mt-10 mb-4 text-white"
         {...props}
       />
     </ScrollFadeIn>
@@ -13,7 +13,7 @@ export const mdxComponents: MDXComponents = {
   h2: (props) => (
     <ScrollFadeIn>
       <h2
-        className="text-2xl sm:text-3xl font-bold mt-10 mb-3 text-white scroll-mt-24"
+        className="text-xl sm:text-2xl lg:text-3xl font-bold mt-8 sm:mt-10 mb-3 text-white scroll-mt-24"
         {...props}
       />
     </ScrollFadeIn>
@@ -84,13 +84,13 @@ export const mdxComponents: MDXComponents = {
   ),
   th: (props) => (
     <th
-      className="border-b border-white/10 bg-white/5 px-4 py-3 text-white font-semibold"
+      className="border-b border-white/10 bg-white/5 px-2 sm:px-4 py-2 sm:py-3 text-white font-semibold text-xs sm:text-sm"
       {...props}
     />
   ),
   td: (props) => (
     <td
-      className="border-b border-white/5 px-4 py-3 text-white/70"
+      className="border-b border-white/5 px-2 sm:px-4 py-2 sm:py-3 text-white/70 text-xs sm:text-sm"
       {...props}
     />
   ),
@@ -99,7 +99,7 @@ export const mdxComponents: MDXComponents = {
     <ScrollFadeIn>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        className="rounded-xl border border-white/10 my-6"
+        className="rounded-xl border border-white/10 my-6 max-w-full h-auto"
         alt={props.alt || ""}
         {...props}
       />

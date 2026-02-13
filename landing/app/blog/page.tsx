@@ -40,7 +40,7 @@ export default function BlogPage() {
 
       <Navbar />
 
-      <main className="pt-28 pb-20 px-6">
+      <main className="pt-24 sm:pt-28 pb-12 sm:pb-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <ScrollFadeIn>
             <h1 className="text-3xl sm:text-4xl font-bold mb-2">
@@ -57,7 +57,7 @@ export default function BlogPage() {
             {posts.map((post) => (
               <ScrollFadeIn key={post.slug}>
               <Link href={`/blog/${post.slug}`}>
-                <article className="group p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300">
+                <article className="group p-4 sm:p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 hover:bg-white/[0.04] transition-all duration-300">
                   <div className="flex items-center gap-3 text-xs text-white/40 mb-3">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />

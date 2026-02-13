@@ -27,6 +27,14 @@ export default function Navbar() {
             <Chrome className="w-4 h-4" />
             Add to Chrome
           </a>
+          <a
+            href="https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sm:hidden inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 transition-all duration-300 text-white"
+          >
+            <Chrome className="w-4 h-4" />
+          </a>
         </div>
       </div>
     </nav>
