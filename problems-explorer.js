@@ -10,6 +10,8 @@ let allProblems = [];
 let filteredProblems = [];
 let currentPage = 1;
 const ITEMS_PER_PAGE = 20;
+let selectedList = null; // 'blind75', 'neetcode150', 'leetcode75', or null
+let listProblemIds = []; // Problem IDs from the selected list
 
 // Filters state
 const filters = {
@@ -17,8 +19,64 @@ const filters = {
   difficulty: new Set(),
   topics: new Set(),
   companies: new Set(),
-  sort: 'frequency-desc'
+  sortColumn: 'frequency',
+  sortDirection: 'desc',
+  list: null // Selected list filter
 };
+
+// Check URL parameters for list filter
+function getListFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const list = urlParams.get('list');
+  if (list && ['blind75', 'neetcode150', 'leetcode75'].includes(list)) {
+    return list;
+  }
+  return null;
+}
+
+// Load list data (Blind 75, NeetCode 150, or LeetCode 75)
+async function loadListData(listName) {
+  try {
+    let url;
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+      url = chrome.runtime.getURL(`data/${listName}.json`);
+    } else {
+      url = `data/${listName}.json`;
+    }
+
+    console.log(`Loading list data from: ${url}`);
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(`Loaded ${listName} data:`, data);
+
+    // Extract all problem IDs from all categories (deduplicate)
+    const problemIds = [];
+    if (data.categories && Array.isArray(data.categories)) {
+      data.categories.forEach(category => {
+        if (category.problemIds && Array.isArray(category.problemIds)) {
+          problemIds.push(...category.problemIds);
+        }
+      });
+    }
+
+    // Remove duplicates (some problems appear in multiple categories)
+    const uniqueProblemIds = [...new Set(problemIds)];
+
+    return {
+      name: data.name,
+      description: data.description,
+      problemIds: uniqueProblemIds
+    };
+  } catch (error) {
+    console.error(`Failed to load ${listName} data:`, error);
+    return null;
+  }
+}
 
 // Load problems data
 async function loadProblems() {
@@ -49,11 +107,48 @@ async function loadProblems() {
     allProblems = data.problems;
     console.log('Loaded problems:', allProblems.length);
     console.log('First problem sample:', allProblems[0]);
-    document.getElementById('total-problems').textContent = allProblems.length;
+
+    // Check if a list filter is specified in URL
+    selectedList = getListFromURL();
+    if (selectedList) {
+      console.log(`📋 List filter detected: ${selectedList}`);
+      const listData = await loadListData(selectedList);
+      if (listData) {
+        listProblemIds = listData.problemIds;
+        filters.list = selectedList;
+        console.log(`✅ Loaded ${listData.name}: ${listProblemIds.length} problems`);
+
+        // Update header to show list name and add badge
+        const headerTitle = document.querySelector('h1');
+        if (headerTitle) {
+          headerTitle.innerHTML = `
+            ${listData.name}
+            <span style="display: inline-block; margin-left: 8px; padding: 2px 8px; font-size: 11px; font-weight: 500; background: rgba(255, 161, 22, 0.15); color: #ffa116; border-radius: 4px; vertical-align: middle;">
+              CURATED LIST
+            </span>
+          `;
+        }
+
+        // Update subtitle to show description
+        const headerSubtitle = document.querySelector('.header-subtitle');
+        if (headerSubtitle && listData.description) {
+          const descriptionDiv = document.createElement('div');
+          descriptionDiv.style.cssText = 'font-size: 12px; color: rgba(255, 255, 255, 0.6); margin-top: 6px; margin-bottom: 4px; max-width: 600px; line-height: 1.5;';
+          descriptionDiv.textContent = listData.description;
+          headerSubtitle.parentNode.insertBefore(descriptionDiv, headerSubtitle);
+        }
+
+        // Update total problems count to show list size
+        document.getElementById('total-problems').textContent = listProblemIds.length;
+      }
+    } else {
+      document.getElementById('total-problems').textContent = allProblems.length;
+    }
 
     // Update debug status
     if (document.getElementById('js-status')) {
-      document.getElementById('js-status').innerHTML = `✅ JavaScript loaded!<br>✅ Loaded ${allProblems.length} problems<br>🔄 Rendering...`;
+      const listInfo = selectedList ? `<br>📋 Filtering: ${selectedList}` : '';
+      document.getElementById('js-status').innerHTML = `✅ JavaScript loaded!<br>✅ Loaded ${allProblems.length} problems${listInfo}<br>🔄 Rendering...`;
     }
 
     // Extract unique topics and companies
@@ -111,32 +206,64 @@ function extractFilters() {
 // Render topic filter chips
 let allTopics = [];
 let topicsExpanded = false;
-const TOPICS_INITIAL_LIMIT = 12;
+const TOPICS_INITIAL_LIMIT = 20;
 
 function renderTopics(topics) {
   allTopics = topics;
+  updateTopicDisplay();
+}
+
+function updateTopicDisplay() {
   const container = document.getElementById('topics-container');
   const showMoreBtn = document.getElementById('topics-show-more');
+  const searchTerm = document.getElementById('topic-search')?.value.toLowerCase() || '';
+  const clearAllBtn = document.getElementById('topics-clear-all');
 
-  const displayTopics = topicsExpanded ? topics : topics.slice(0, TOPICS_INITIAL_LIMIT);
+  // Filter by search term
+  let filtered = searchTerm
+    ? allTopics.filter(t => t.toLowerCase().includes(searchTerm))
+    : allTopics;
 
-  container.innerHTML = displayTopics.map(topic => `
-    <button class="chip topic-filter" data-topic="${topic}">
-      ${topic}
-    </button>
-  `).join('');
+  // Separate selected and unselected topics
+  const selected = filtered.filter(topic => filters.topics.has(topic));
+  const unselected = filtered.filter(topic => !filters.topics.has(topic));
+
+  // Combine: selected first, then unselected
+  const sortedTopics = [...selected, ...unselected];
+
+  // Limit display if not expanded
+  const displayTopics = (topicsExpanded || searchTerm) ? sortedTopics : sortedTopics.slice(0, TOPICS_INITIAL_LIMIT);
+
+  // Render chips with selected styling (orange like LeetCode)
+  container.innerHTML = displayTopics.map(topic => {
+    const isSelected = filters.topics.has(topic);
+    const chipClass = isSelected ? 'chip topic-filter active' : 'chip topic-filter';
+    const style = isSelected ? 'background: rgba(255, 161, 22, 0.15); border-color: rgba(255, 161, 22, 0.5); color: #ffa116;' : '';
+    return `
+      <button class="${chipClass}" data-topic="${topic}" style="${style}">
+        ${topic}${isSelected ? ' ×' : ''}
+      </button>
+    `;
+  }).join('');
 
   // Show/hide "Show more" button
-  if (topics.length > TOPICS_INITIAL_LIMIT) {
+  if (!searchTerm && sortedTopics.length > TOPICS_INITIAL_LIMIT) {
     showMoreBtn.classList.remove('hidden');
-    showMoreBtn.textContent = topicsExpanded ? 'Show less' : `Show ${topics.length - TOPICS_INITIAL_LIMIT} more`;
+    showMoreBtn.textContent = topicsExpanded ? 'Show less' : `Show ${sortedTopics.length - TOPICS_INITIAL_LIMIT} more`;
   } else {
     showMoreBtn.classList.add('hidden');
   }
 
+  // Show/hide "Clear all" button
+  if (selected.length > 0) {
+    clearAllBtn.classList.remove('hidden');
+  } else {
+    clearAllBtn.classList.add('hidden');
+  }
+
   // Add click listeners
   document.querySelectorAll('.topic-filter').forEach(btn => {
-    btn.addEventListener('click', () => toggleTopicFilter(btn.dataset.topic, btn));
+    btn.addEventListener('click', () => toggleTopicFilter(btn.dataset.topic));
   });
 }
 
@@ -156,109 +283,110 @@ function updateCompanyDisplay() {
   const container = document.getElementById('companies-container');
   const showMoreBtn = document.getElementById('companies-show-more');
   const searchTerm = document.getElementById('company-search')?.value.toLowerCase() || '';
+  const clearAllBtn = document.getElementById('companies-clear-all');
 
   // Filter by search term
-  const filtered = searchTerm
+  let filtered = searchTerm
     ? allCompanies.filter(c => c.toLowerCase().includes(searchTerm))
     : allCompanies;
 
-  filteredCompanies = filtered;
-  const displayCompanies = companiesExpanded ? filtered : filtered.slice(0, COMPANIES_INITIAL_LIMIT);
+  // Separate selected and unselected companies
+  const selected = filtered.filter(company => filters.companies.has(company));
+  const unselected = filtered.filter(company => !filters.companies.has(company));
 
-  container.innerHTML = displayCompanies.map(company => `
-    <button class="chip company-filter" data-company="${company}">
-      ${company}
-    </button>
-  `).join('');
+  // Combine: selected first, then unselected
+  const sortedCompanies = [...selected, ...unselected];
+
+  // Limit display if not expanded
+  filteredCompanies = sortedCompanies;
+  const displayCompanies = (companiesExpanded || searchTerm) ? sortedCompanies : sortedCompanies.slice(0, COMPANIES_INITIAL_LIMIT);
+
+  // Render chips with selected styling (orange like LeetCode)
+  container.innerHTML = displayCompanies.map(company => {
+    const isSelected = filters.companies.has(company);
+    const chipClass = isSelected ? 'chip company-filter active' : 'chip company-filter';
+    const style = isSelected ? 'background: rgba(255, 161, 22, 0.15); border-color: rgba(255, 161, 22, 0.5); color: #ffa116;' : '';
+    return `
+      <button class="${chipClass}" data-company="${company}" style="${style}">
+        ${company}${isSelected ? ' ×' : ''}
+      </button>
+    `;
+  }).join('');
 
   // Show/hide "Show more" button
-  if (filtered.length > COMPANIES_INITIAL_LIMIT && !searchTerm) {
+  if (!searchTerm && sortedCompanies.length > COMPANIES_INITIAL_LIMIT) {
     showMoreBtn.classList.remove('hidden');
-    showMoreBtn.textContent = companiesExpanded ? 'Show less' : `Show ${filtered.length - COMPANIES_INITIAL_LIMIT} more`;
+    showMoreBtn.textContent = companiesExpanded ? 'Show less' : `Show ${sortedCompanies.length - COMPANIES_INITIAL_LIMIT} more`;
   } else {
     showMoreBtn.classList.add('hidden');
   }
 
+  // Show/hide "Clear all" button
+  if (selected.length > 0) {
+    clearAllBtn.classList.remove('hidden');
+  } else {
+    clearAllBtn.classList.add('hidden');
+  }
+
   // Add click listeners
   document.querySelectorAll('.company-filter').forEach(btn => {
-    btn.addEventListener('click', () => toggleCompanyFilter(btn.dataset.company, btn));
-  });
-
-  // Company search functionality
-  const companySearch = document.getElementById('company-search');
-  companySearch.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filtered = companies.filter(c => c.toLowerCase().includes(searchTerm));
-
-    container.innerHTML = filtered.slice(0, 100).map(company => `
-      <button class="chip company-filter ${filters.companies.has(company) ? 'active' : ''}" data-company="${company}">
-        ${company}
-      </button>
-    `).join('');
-
-    // Re-attach listeners
-    document.querySelectorAll('.company-filter').forEach(btn => {
-      btn.addEventListener('click', () => toggleCompanyFilter(btn.dataset.company, btn));
-    });
+    btn.addEventListener('click', () => toggleCompanyFilter(btn.dataset.company));
   });
 }
 
 // Toggle difficulty filter
-function toggleDifficultyFilter(difficulty, btn) {
-  if (filters.difficulty.has(difficulty)) {
-    filters.difficulty.delete(difficulty);
-    btn.classList.remove('active');
-  } else {
+function toggleDifficultyFilter(difficulty, checkbox) {
+  if (checkbox.checked) {
     filters.difficulty.add(difficulty);
-    btn.classList.add('active');
+  } else {
+    filters.difficulty.delete(difficulty);
   }
+
+  // Update filter toggle button appearance
+  const toggleBtn = document.getElementById('difficulty-filter-toggle');
+  if (toggleBtn) {
+    if (filters.difficulty.size > 0) {
+      toggleBtn.classList.add('active');
+    } else {
+      toggleBtn.classList.remove('active');
+    }
+  }
+
   updateFilterCounts();
   renderSelectedChips();
   applyFiltersAndRender();
 }
 
 // Toggle topic filter
-function toggleTopicFilter(topic, btn) {
+function toggleTopicFilter(topic) {
   if (filters.topics.has(topic)) {
     filters.topics.delete(topic);
-    btn.classList.remove('active');
   } else {
     filters.topics.add(topic);
-    btn.classList.add('active');
   }
 
+  updateTopicDisplay(); // Re-render with selected topics at top
   updateFilterCounts();
-  renderSelectedChips();
   applyFiltersAndRender();
 }
 
 // Toggle company filter
-function toggleCompanyFilter(company, btn) {
+function toggleCompanyFilter(company) {
   if (filters.companies.has(company)) {
     filters.companies.delete(company);
-    btn.classList.remove('active');
   } else {
     filters.companies.add(company);
-    btn.classList.add('active');
   }
 
+  updateCompanyDisplay(); // Re-render with selected companies at top
   updateFilterCounts();
-  renderSelectedChips();
   applyFiltersAndRender();
 }
 
 // Update filter counts
 function updateFilterCounts() {
-  const difficultyCount = document.getElementById('difficulty-count');
   const topicsCount = document.getElementById('topics-count');
   const companiesCount = document.getElementById('companies-count');
-
-  if (filters.difficulty.size > 0) {
-    difficultyCount.textContent = `${filters.difficulty.size} selected`;
-    difficultyCount.classList.remove('hidden');
-  } else {
-    difficultyCount.classList.add('hidden');
-  }
 
   if (filters.topics.size > 0) {
     topicsCount.textContent = `${filters.topics.size} selected`;
@@ -277,99 +405,18 @@ function updateFilterCounts() {
 
 // Render selected filter chips in their respective sections
 function renderSelectedChips() {
-  const totalFilters = filters.difficulty.size + filters.topics.size + filters.companies.size;
+  // Difficulty section - now handled in column header dropdown, no separate UI needed
 
-  // Update active filters summary bar
-  const activeBar = document.getElementById('active-filters-bar');
-  const totalCount = document.getElementById('total-filter-count');
-  if (totalFilters > 0) {
-    activeBar.classList.remove('hidden');
-    totalCount.textContent = totalFilters;
-  } else {
-    activeBar.classList.add('hidden');
-  }
-
-  // Difficulty section
-  const diffContainer = document.getElementById('selected-difficulty');
-  if (filters.difficulty.size > 0) {
-    diffContainer.classList.remove('hidden');
-    let chips = [
-      `<div class="selected-inline-header">
-        <span class="selected-inline-label">Selected (${filters.difficulty.size})</span>
-        <button class="clear-category-btn" data-category="difficulty">Clear</button>
-      </div>`
-    ];
-    filters.difficulty.forEach(diff => {
-      const colorClass = diff.toLowerCase();
-      chips.push(`
-        <div class="selected-chip selected-chip-${colorClass}">
-          <span class="selected-chip-label">${diff}</span>
-          <button class="selected-chip-remove" data-type="difficulty" data-value="${diff}" title="Remove">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-      `);
-    });
-    diffContainer.innerHTML = chips.join('');
-  } else {
-    diffContainer.classList.add('hidden');
-    diffContainer.innerHTML = '';
-  }
-
-  // Topics section
+  // Topics section - Now handled inline with search, so hide this
   const topicsContainer = document.getElementById('selected-topics');
-  if (filters.topics.size > 0) {
-    topicsContainer.classList.remove('hidden');
-    let chips = [
-      `<div class="selected-inline-header">
-        <span class="selected-inline-label">Selected (${filters.topics.size})</span>
-        <button class="clear-category-btn" data-category="topics">Clear</button>
-      </div>`
-    ];
-    filters.topics.forEach(topic => {
-      chips.push(`
-        <div class="selected-chip">
-          <span class="selected-chip-label">${topic}</span>
-          <button class="selected-chip-remove" data-type="topic" data-value="${topic}" title="Remove">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-      `);
-    });
-    topicsContainer.innerHTML = chips.join('');
-  } else {
+  if (topicsContainer) {
     topicsContainer.classList.add('hidden');
     topicsContainer.innerHTML = '';
   }
 
-  // Companies section
+  // Companies section - Now handled inline with search, so hide this
   const companiesContainer = document.getElementById('selected-companies');
-  if (filters.companies.size > 0) {
-    companiesContainer.classList.remove('hidden');
-    let chips = [
-      `<div class="selected-inline-header">
-        <span class="selected-inline-label">Selected (${filters.companies.size})</span>
-        <button class="clear-category-btn" data-category="companies">Clear</button>
-      </div>`
-    ];
-    filters.companies.forEach(company => {
-      chips.push(`
-        <div class="selected-chip">
-          <span class="selected-chip-label">${company}</span>
-          <button class="selected-chip-remove" data-type="company" data-value="${company}" title="Remove">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        </div>
-      `);
-    });
-    companiesContainer.innerHTML = chips.join('');
-  } else {
+  if (companiesContainer) {
     companiesContainer.classList.add('hidden');
     companiesContainer.innerHTML = '';
   }
@@ -427,6 +474,13 @@ function clearCategory(category) {
 // Apply all filters
 function applyFilters() {
   filteredProblems = allProblems.filter(problem => {
+    // List filter (Blind 75, NeetCode 150, LeetCode 75)
+    if (filters.list && listProblemIds.length > 0) {
+      if (!listProblemIds.includes(problem.id)) {
+        return false;
+      }
+    }
+
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -462,36 +516,68 @@ function applyFilters() {
   // Apply sorting
   sortProblems();
 
-  // Update filtered count
-  document.getElementById('filtered-count').textContent = filteredProblems.length;
+  // Update filtered count display
+  const filteredCountEl = document.getElementById('filtered-count');
+  const countSeparatorEl = document.getElementById('count-separator');
+  const totalProblemsEl = document.getElementById('total-problems');
+
+  const totalCount = parseInt(totalProblemsEl.textContent);
+  const filteredCount = filteredProblems.length;
+
+  filteredCountEl.textContent = filteredCount;
+
+  // Hide filtered count and separator when showing all problems (no additional filters)
+  if (filteredCount === totalCount) {
+    filteredCountEl.style.display = 'none';
+    countSeparatorEl.style.display = 'none';
+  } else {
+    filteredCountEl.style.display = 'inline';
+    countSeparatorEl.style.display = 'inline';
+  }
 }
 
-// Sort problems based on selected option
+// Sort problems based on selected column and direction
 function sortProblems() {
-  const sortBy = filters.sort;
+  const { sortColumn, sortDirection } = filters;
+  const isAsc = sortDirection === 'asc';
 
   filteredProblems.sort((a, b) => {
-    switch (sortBy) {
-      case 'frequency-desc':
-        return (b.frequency || 0) - (a.frequency || 0);
-      case 'frequency-asc':
-        return (a.frequency || 0) - (b.frequency || 0);
-      case 'id-asc':
-        return a.id - b.id;
-      case 'id-desc':
-        return b.id - a.id;
-      case 'acceptance-desc':
-        return (b.acRate || 0) - (a.acRate || 0);
-      case 'acceptance-asc':
-        return (a.acRate || 0) - (b.acRate || 0);
-      case 'title-asc':
-        return a.title.localeCompare(b.title);
-      case 'title-desc':
-        return b.title.localeCompare(a.title);
+    let comparison = 0;
+
+    switch (sortColumn) {
+      case 'id':
+        comparison = a.id - b.id;
+        break;
+      case 'title':
+        comparison = a.title.localeCompare(b.title);
+        break;
+      case 'difficulty':
+        const difficultyOrder = { Easy: 1, Medium: 2, Hard: 3 };
+        comparison = (difficultyOrder[a.difficulty] || 0) - (difficultyOrder[b.difficulty] || 0);
+        break;
+      case 'acceptance':
+        comparison = (a.acRate || 0) - (b.acRate || 0);
+        break;
+      case 'frequency':
+        comparison = (a.frequency || 0) - (b.frequency || 0);
+        break;
       default:
         return 0;
     }
+
+    return isAsc ? comparison : -comparison;
   });
+}
+
+// Expand topics inline
+function expandTopics(moreBtn) {
+  const allTopics = JSON.parse(moreBtn.dataset.topics.replace(/&quot;/g, '"'));
+  const container = moreBtn.closest('.topic-tags');
+
+  // Replace content with all topics
+  container.innerHTML = allTopics.map(topic =>
+    `<span class="topic-tag">${topic}</span>`
+  ).join('');
 }
 
 // Render problems table
@@ -517,10 +603,11 @@ function renderProblems() {
 
   hideEmptyState();
 
-  tableBody.innerHTML = pageProblems.map(problem => {
+  tableBody.innerHTML = pageProblems.map((problem, index) => {
     const difficultyClass = `difficulty-${problem.difficulty.toLowerCase()}`;
     const topics = problem.topics?.slice(0, 2).map(t => t.name) || [];
     const moreTopics = problem.topics?.length > 2 ? problem.topics.length - 2 : 0;
+    const allTopicsJson = JSON.stringify((problem.topics || []).map(t => t.name)).replace(/"/g, '&quot;');
 
     return `
       <tr data-url="${problem.url}" style="cursor: pointer;">
@@ -540,7 +627,7 @@ function renderProblems() {
         <td class="col-topics">
           <div class="topic-tags">
             ${topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
-            ${moreTopics > 0 ? `<span class="topic-more">+${moreTopics}</span>` : ''}
+            ${moreTopics > 0 ? `<span class="topic-more" data-topics="${allTopicsJson}">+${moreTopics}</span>` : ''}
           </div>
         </td>
       </tr>
@@ -551,6 +638,14 @@ function renderProblems() {
   document.querySelectorAll('.problem-row').forEach(row => {
     row.addEventListener('click', () => {
       window.open(row.dataset.url, '_blank');
+    });
+  });
+
+  // Add click listeners for "+N" topics
+  document.querySelectorAll('.topic-more').forEach(moreBtn => {
+    moreBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent row click
+      expandTopics(moreBtn);
     });
   });
 
@@ -575,6 +670,24 @@ function renderPagination() {
   document.getElementById('showing-start').textContent = start;
   document.getElementById('showing-end').textContent = end;
   document.getElementById('showing-total').textContent = filteredProblems.length;
+
+  // Show total count if filtered
+  const totalAllProblems = document.getElementById('total-all-problems');
+  const fromTotalSeparator = document.getElementById('from-total-separator');
+
+  // Use list total if viewing a curated list, otherwise use all problems
+  const actualTotal = filters.list && listProblemIds.length > 0
+    ? listProblemIds.length
+    : allProblems.length;
+
+  if (filteredProblems.length < actualTotal) {
+    totalAllProblems.textContent = actualTotal;
+    totalAllProblems.classList.remove('hidden');
+    fromTotalSeparator.classList.remove('hidden');
+  } else {
+    totalAllProblems.classList.add('hidden');
+    fromTotalSeparator.classList.add('hidden');
+  }
 
   // Update buttons
   const prevBtn = document.getElementById('prev-page');
@@ -660,12 +773,31 @@ function resetFilters() {
   filters.difficulty.clear();
   filters.topics.clear();
   filters.companies.clear();
-  filters.sort = 'frequency-desc';
+  filters.sortColumn = 'frequency';
+  filters.sortDirection = 'desc';
 
   // Reset UI
   document.getElementById('search-input').value = '';
-  document.getElementById('sort-select').value = 'frequency-desc';
   document.getElementById('company-search').value = '';
+
+  // Reset difficulty checkboxes
+  document.querySelectorAll('.difficulty-checkbox').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  document.getElementById('difficulty-filter-toggle').classList.remove('active');
+
+  // Reset column headers
+  document.querySelectorAll('.sortable').forEach(th => {
+    th.classList.remove('active');
+    th.removeAttribute('data-sort-direction');
+  });
+
+  // Set default sort (frequency desc)
+  const frequencyHeader = document.querySelector('.sortable[data-sort="frequency"]');
+  if (frequencyHeader) {
+    frequencyHeader.classList.add('active');
+    frequencyHeader.setAttribute('data-sort-direction', 'desc');
+  }
 
   document.querySelectorAll('.chip').forEach(chip => {
     chip.classList.remove('active');
@@ -689,30 +821,104 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadProblems();
 
+  // Initialize default sort column (frequency desc)
+  setTimeout(() => {
+    const frequencyHeader = document.querySelector('.sortable[data-sort="frequency"]');
+    if (frequencyHeader) {
+      frequencyHeader.classList.add('active');
+      frequencyHeader.setAttribute('data-sort-direction', 'desc');
+    }
+  }, 100);
+
   // Search
   const searchInput = document.getElementById('search-input');
+  const clearSearchBtn = document.getElementById('clear-search');
   let searchTimeout;
+
   searchInput.addEventListener('input', (e) => {
+    const value = e.target.value;
+
+    // Show/hide clear button
+    if (value) {
+      clearSearchBtn.classList.remove('hidden');
+    } else {
+      clearSearchBtn.classList.add('hidden');
+    }
+
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
-      filters.search = e.target.value;
+      filters.search = value;
       applyFiltersAndRender();
     }, 300);
   });
 
-  // Sort
-  document.getElementById('sort-select').addEventListener('change', (e) => {
-    filters.sort = e.target.value;
+  // Clear search
+  clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    filters.search = '';
+    clearSearchBtn.classList.add('hidden');
     applyFiltersAndRender();
   });
 
-  // Difficulty filters
-  document.querySelectorAll('.difficulty-filter').forEach(btn => {
-    btn.addEventListener('click', () => toggleDifficultyFilter(btn.dataset.difficulty, btn));
+  // Sortable column headers
+  document.querySelectorAll('.sortable .header-content').forEach(headerContent => {
+    headerContent.addEventListener('click', () => {
+      const th = headerContent.closest('.sortable');
+      const column = th.dataset.sort;
+      const currentDirection = th.getAttribute('data-sort-direction');
+
+      // If clicking the same column, toggle direction
+      if (filters.sortColumn === column) {
+        filters.sortDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        // New column, default to desc (except for id and title which default to asc)
+        filters.sortColumn = column;
+        filters.sortDirection = (column === 'id' || column === 'title') ? 'asc' : 'desc';
+      }
+
+      // Update UI
+      document.querySelectorAll('.sortable').forEach(header => {
+        header.classList.remove('active');
+        header.removeAttribute('data-sort-direction');
+      });
+      th.classList.add('active');
+      th.setAttribute('data-sort-direction', filters.sortDirection);
+
+      applyFiltersAndRender();
+    });
   });
 
-  // Reset filters
-  document.getElementById('reset-filters').addEventListener('click', resetFilters);
+  // Difficulty filter dropdown
+  const difficultyToggle = document.getElementById('difficulty-filter-toggle');
+  const difficultyDropdown = document.getElementById('difficulty-dropdown');
+
+  if (difficultyToggle && difficultyDropdown) {
+    difficultyToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      difficultyDropdown.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const isClickInside = difficultyDropdown.contains(e.target) ||
+                           difficultyToggle.contains(e.target) ||
+                           e.target === difficultyToggle;
+
+      if (!isClickInside) {
+        difficultyDropdown.classList.add('hidden');
+      }
+    });
+  }
+
+  // Difficulty checkboxes
+  document.querySelectorAll('.difficulty-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      toggleDifficultyFilter(checkbox.value, checkbox);
+    });
+  });
+
+  // Reset filters (from empty state)
   document.getElementById('reset-from-empty').addEventListener('click', resetFilters);
 
   // Pagination
@@ -739,9 +945,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Topics show more/less
+  // Topics show more/less
   document.getElementById('topics-show-more').addEventListener('click', () => {
     topicsExpanded = !topicsExpanded;
-    renderTopics(allTopics);
+    updateTopicDisplay();
+  });
+
+  // Topic search
+  document.getElementById('topic-search').addEventListener('input', () => {
+    topicsExpanded = false; // Reset expansion when searching
+    updateTopicDisplay();
+  });
+
+  // Topics clear all
+  document.getElementById('topics-clear-all').addEventListener('click', () => {
+    filters.topics.clear();
+    updateTopicDisplay();
+    updateFilterCounts();
+    applyFiltersAndRender();
   });
 
   // Companies show more/less
@@ -756,8 +977,12 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCompanyDisplay();
   });
 
-  // Clear all filters button
-  document.getElementById('clear-all-filters').addEventListener('click', () => {
-    resetFilters();
+  // Companies clear all
+  document.getElementById('companies-clear-all').addEventListener('click', () => {
+    filters.companies.clear();
+    updateCompanyDisplay();
+    updateFilterCounts();
+    applyFiltersAndRender();
   });
+
 });

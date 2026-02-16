@@ -79,6 +79,48 @@
     </div>
   </section>
 
+  <!-- List Progress -->
+  <section class="mb-4 p-4 rounded-xl bg-[#282828]">
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-[13px] font-semibold text-[#eff1f6]">Your Progress</span>
+      <span class="text-[10px] text-[#eff1f699]">Track curated lists</span>
+    </div>
+    <div class="space-y-5">
+      <!-- Blind 75 -->
+      <div id="blind75-card" class="cursor-pointer group mb-2">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#00b8a3] transition-colors">Blind 75</span>
+          <span class="text-[11px] text-[#eff1f699]"><span id="blind75-count" class="text-[#eff1f6]">0/74</span> <span id="blind75-percentage" class="text-[#00b8a3] font-semibold">0%</span></span>
+        </div>
+        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+          <div id="blind75-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #00b8a3;"></div>
+        </div>
+      </div>
+
+      <!-- NeetCode 150 -->
+      <div id="neetcode150-card" class="cursor-pointer group mb-2">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#ffa116] transition-colors">NC 150</span>
+          <span class="text-[11px] text-[#eff1f699]"><span id="neetcode150-count" class="text-[#eff1f6]">0/158</span> <span id="neetcode150-percentage" class="text-[#ffa116] font-semibold">0%</span></span>
+        </div>
+        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+          <div id="neetcode150-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ffa116;"></div>
+        </div>
+      </div>
+
+      <!-- LeetCode 75 -->
+      <div id="leetcode75-card" class="cursor-pointer group">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#ff375f] transition-colors">LC 75</span>
+          <span class="text-[11px] text-[#eff1f699]"><span id="leetcode75-count" class="text-[#eff1f6]">0/75</span> <span id="leetcode75-percentage" class="text-[#ff375f] font-semibold">0%</span></span>
+        </div>
+        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+          <div id="leetcode75-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ff375f;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 30-Day Activity -->
   <section class="mb-4 p-4 rounded-xl bg-[#282828]">
     <div class="flex items-center justify-between mb-3">

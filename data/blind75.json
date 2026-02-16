@@ -1,7 +1,7 @@
 {
   "name": "Blind 75",
   "description": "Curated list of 75 LeetCode problems covering all important patterns for coding interviews",
-  "totalProblems": 75,
+  "totalProblems": 74,
   "categories": [
     {
       "name": "Array & Hashing",

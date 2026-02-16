@@ -1,3 +1,73 @@
+// List helpers - inlined for Chrome extension compatibility
+const listDataCache = {};
+
+async function loadListData(listName) {
+  if (listDataCache[listName]) {
+    return listDataCache[listName];
+  }
+
+  try {
+    const response = await fetch(chrome.runtime.getURL(`data/${listName}.json`));
+    const data = await response.json();
+    listDataCache[listName] = data;
+    return data;
+  } catch (error) {
+    console.error(`Error loading ${listName} data:`, error);
+    return null;
+  }
+}
+
+async function loadMasterProblems() {
+  if (listDataCache['master']) {
+    return listDataCache['master'];
+  }
+
+  try {
+    const response = await fetch(chrome.runtime.getURL('data/leetcode-problems.json'));
+    const data = await response.json();
+
+    const problemMap = {};
+    for (const problem of data.problems) {
+      problemMap[problem.id] = problem;
+    }
+
+    const masterData = { ...data, problemMap };
+    listDataCache['master'] = masterData;
+    return masterData;
+  } catch (error) {
+    console.error('Error loading master problems:', error);
+    return null;
+  }
+}
+
+async function getListStats(listName, completedIds = []) {
+  const listData = await loadListData(listName);
+  const master = await loadMasterProblems();
+
+  if (!listData || !master || !listData.categories) {
+    return { total: 0, completed: 0, remaining: 0, percentage: 0 };
+  }
+
+  let total = 0;
+  let completed = 0;
+
+  for (const category of listData.categories) {
+    if (!category.problemIds) continue;
+
+    for (const problemId of category.problemIds) {
+      total++;
+      if (completedIds.includes(problemId)) {
+        completed++;
+      }
+    }
+  }
+
+  const remaining = total - completed;
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return { total, completed, remaining, percentage };
+}
+
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -797,9 +867,146 @@ document.addEventListener("DOMContentLoaded", async () => {
     `;
   }
 
-  // Initialize all data
-  syncFromLeetCode();
-  updateStreakDisplay();
+  // Render list progress cards
+  async function renderListProgress() {
+    try {
+      console.log('🔄 Starting renderListProgress...');
+
+      // Get list of completed problem IDs from user's LeetCode history
+      const { completedProblemIds = [] } = await new Promise(resolve => {
+        chrome.storage.local.get(['completedProblemIds'], resolve);
+      });
+
+      console.log('📊 Completed problems:', completedProblemIds.length, completedProblemIds);
+
+      // Get stats for each list
+      const [blind75Stats, neetcode150Stats, leetcode75Stats] = await Promise.all([
+        getListStats('blind75', completedProblemIds),
+        getListStats('neetcode150', completedProblemIds),
+        getListStats('leetcode75', completedProblemIds)
+      ]);
+
+      console.log('📈 List stats:', { blind75Stats, neetcode150Stats, leetcode75Stats });
+
+      // Update Blind 75 card
+      console.log('Updating Blind 75:', blind75Stats);
+      updateProgressCard('blind75', blind75Stats.completed, blind75Stats.total, blind75Stats.percentage);
+
+      // Update NeetCode 150 card
+      console.log('Updating NC 150:', neetcode150Stats);
+      updateProgressCard('neetcode150', neetcode150Stats.completed, neetcode150Stats.total, neetcode150Stats.percentage);
+
+      // Update LeetCode 75 card
+      console.log('Updating LC 75:', leetcode75Stats);
+      updateProgressCard('leetcode75', leetcode75Stats.completed, leetcode75Stats.total, leetcode75Stats.percentage);
+
+      console.log('✅ List progress rendering complete!');
+
+    } catch (error) {
+      console.error('❌ Failed to render list progress:', error);
+      console.error(error.stack);
+      // Show 0% progress on error
+      updateProgressCard('blind75', 0, 74, 0);
+      updateProgressCard('neetcode150', 0, 158, 0);
+      updateProgressCard('leetcode75', 0, 75, 0);
+    }
+  }
+
+  // Update a single progress card (horizontal bar)
+  function updateProgressCard(listName, completed, total, percentage) {
+    console.log(`🎨 Updating ${listName}: ${completed}/${total} = ${percentage}%`);
+
+    const progressBar = document.getElementById(`${listName}-progress`);
+    const percentageText = document.getElementById(`${listName}-percentage`);
+    const countText = document.getElementById(`${listName}-count`);
+
+    // Update progress bar width
+    if (progressBar) {
+      progressBar.style.width = `${percentage}%`;
+      console.log(`  ✅ Set bar width to ${percentage}%`);
+    } else {
+      console.error(`  ❌ Progress bar not found: ${listName}-progress`);
+    }
+
+    // Update percentage text
+    if (percentageText) {
+      percentageText.textContent = `${percentage}%`;
+    } else {
+      console.error(`  ❌ Percentage text not found: ${listName}-percentage`);
+    }
+
+    // Update count text
+    if (countText) {
+      countText.textContent = `${completed}/${total}`;
+    } else {
+      console.error(`  ❌ Count text not found: ${listName}-count`);
+    }
+  }
+
+  // Add click handlers for list cards
+  const blind75Card = document.getElementById('blind75-card');
+  const neetcode150Card = document.getElementById('neetcode150-card');
+  const leetcode75Card = document.getElementById('leetcode75-card');
+
+  if (blind75Card) {
+    blind75Card.addEventListener('click', () => {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('problems-explorer.html?list=blind75')
+      });
+    });
+  }
+
+  if (neetcode150Card) {
+    neetcode150Card.addEventListener('click', () => {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('problems-explorer.html?list=neetcode150')
+      });
+    });
+  }
+
+  if (leetcode75Card) {
+    leetcode75Card.addEventListener('click', () => {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('problems-explorer.html?list=leetcode75')
+      });
+    });
+  }
+
+  // Demo data setup (for testing - remove in production)
+  async function setupDemoData() {
+    return new Promise(resolve => {
+      chrome.storage.local.get(['completedProblemIds'], (result) => {
+        // Always set demo data for testing
+        const demoCompletedIds = [
+          1, 217, 242, 49, 347,  // Some from Blind 75
+          238, 125, 15, 11, 121, // More from Blind 75
+          3, 424, 76, 20, 153,   // Even more
+          1768, 1071, 1431       // Some from LeetCode 75
+        ];
+
+        chrome.storage.local.set({ completedProblemIds: demoCompletedIds }, () => {
+          console.log('✅ Demo data loaded:', demoCompletedIds.length, 'problems');
+          resolve();
+        });
+      });
+    });
+  }
+
+  // Initialize in proper order
+  async function initialize() {
+    // Load demo data first
+    await setupDemoData();
+
+    // Then render progress
+    await renderListProgress();
+
+    // Initialize other data
+    syncFromLeetCode();
+    updateStreakDisplay();
+  }
+
+  // Start initialization
+  initialize();
 
   // Load stats and heatmap from storage initially (will be updated by syncFromLeetCode)
   chrome.storage.local.get(["leetCodeUsername", "leetCodeAvatar"], (result) => {

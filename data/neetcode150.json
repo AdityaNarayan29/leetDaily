@@ -1,7 +1,7 @@
 {
   "name": "NeetCode 150",
   "description": "Comprehensive list of 150 LeetCode problems covering all important data structures and algorithms",
-  "totalProblems": 150,
+  "totalProblems": 158,
   "categories": [
     {
       "name": "Arrays & Hashing",

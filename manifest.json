@@ -33,6 +33,10 @@
     {
       "resources": [
         "data/leetcode-problems.json",
+        "data/blind75.json",
+        "data/neetcode150.json",
+        "data/leetcode75.json",
+        "utils/list-helpers.js",
         "problems-explorer.html",
         "problems-explorer.js",
         "styles/output.css"
