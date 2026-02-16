@@ -9,10 +9,13 @@ rm -f $ZIP_NAME
 zip -r $ZIP_NAME \
   manifest.json \
   background.js \
+  content.js \
   popup.html \
   popup.js \
   privacy.html \
   icon.png \
+  problems-explorer.html \
+  problems-explorer.js \
   styles/ \
   data/ \
   -x "node_modules/*" "package.json" "package-lock.json" "README.md" "tailwind.config.js" "zip.sh" "*.DS_Store"
