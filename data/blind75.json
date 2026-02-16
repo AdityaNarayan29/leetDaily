@@ -1,0 +1,79 @@
+{
+  "name": "Blind 75",
+  "description": "Curated list of 75 LeetCode problems covering all important patterns for coding interviews",
+  "totalProblems": 75,
+  "categories": [
+    {
+      "name": "Array & Hashing",
+      "problemIds": [1, 217, 242, 49, 347, 238, 271, 36, 128]
+    },
+    {
+      "name": "Two Pointers",
+      "problemIds": [125, 15, 11]
+    },
+    {
+      "name": "Sliding Window",
+      "problemIds": [121, 3, 424, 76]
+    },
+    {
+      "name": "Stack",
+      "problemIds": [20]
+    },
+    {
+      "name": "Binary Search",
+      "problemIds": [153, 33]
+    },
+    {
+      "name": "Linked List",
+      "problemIds": [206, 21, 143, 141, 287, 23]
+    },
+    {
+      "name": "Trees",
+      "problemIds": [226, 104, 100, 572, 235, 102, 105, 98, 230, 124, 297]
+    },
+    {
+      "name": "Tries",
+      "problemIds": [208, 211, 212]
+    },
+    {
+      "name": "Heap / Priority Queue",
+      "problemIds": [295]
+    },
+    {
+      "name": "Backtracking",
+      "problemIds": [39, 79]
+    },
+    {
+      "name": "Graphs",
+      "problemIds": [200, 133, 417, 207, 323, 261]
+    },
+    {
+      "name": "Advanced Graphs",
+      "problemIds": [269]
+    },
+    {
+      "name": "1-D Dynamic Programming",
+      "problemIds": [70, 198, 213, 5, 647, 91, 322, 152, 139, 300]
+    },
+    {
+      "name": "2-D Dynamic Programming",
+      "problemIds": [62, 1143]
+    },
+    {
+      "name": "Greedy",
+      "problemIds": [53, 55]
+    },
+    {
+      "name": "Intervals",
+      "problemIds": [57, 56, 435]
+    },
+    {
+      "name": "Math & Geometry",
+      "problemIds": [48, 54, 73]
+    },
+    {
+      "name": "Bit Manipulation",
+      "problemIds": [191, 338, 190, 268, 371]
+    }
+  ]
+}
