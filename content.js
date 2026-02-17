@@ -17,6 +17,40 @@ function notifyLoadingDone() {
 // isLoadingActive tracks if we started a loading blink that needs cleanup
 let isLoadingActive = false;
 
+// Extract problem titleSlug from current URL
+function getProblemSlugFromURL() {
+  const match = window.location.href.match(/leetcode\.com\/problems\/([^/?]+)/);
+  return match ? match[1] : null;
+}
+
+// Load problem metadata from local JSON
+async function getProblemMetadata(titleSlug) {
+  try {
+    const response = await fetch(chrome.runtime.getURL('data/leetcode-problems.json'));
+    const data = await response.json();
+
+    // Find problem by titleSlug
+    const problem = data.problems.find(p => p.titleSlug === titleSlug);
+    if (!problem) {
+      console.log(`Problem not found in local data: ${titleSlug}`);
+      return null;
+    }
+
+    return {
+      id: problem.id,
+      titleSlug: problem.titleSlug,
+      title: problem.title,
+      difficulty: problem.difficulty,
+      topics: (problem.topics || []).map(t => typeof t === 'string' ? t : t.name),
+      companies: problem.companies || [],
+      companyFrequency: problem.companyFrequency || {}
+    };
+  } catch (error) {
+    console.error('Failed to load problem metadata:', error);
+    return null;
+  }
+}
+
 async function checkAndNotifyCompletion() {
   const now = Date.now();
   if (now - lastCheck < CHECK_COOLDOWN) return;
@@ -86,6 +120,39 @@ async function checkAndNotifyCompletion() {
   }
 }
 
+// Notify individual problem solution to background
+async function notifyIndividualProblemSolved() {
+  const titleSlug = getProblemSlugFromURL();
+  if (!titleSlug) {
+    console.log('No problem slug found in URL');
+    return;
+  }
+
+  // Get problem metadata from local JSON
+  const metadata = await getProblemMetadata(titleSlug);
+  if (!metadata) {
+    console.log('No metadata found for problem');
+    return;
+  }
+
+  // Send to background script
+  chrome.runtime.sendMessage({
+    action: "individualProblemSolved",
+    data: {
+      problemId: metadata.id,
+      titleSlug: metadata.titleSlug,
+      title: metadata.title,
+      difficulty: metadata.difficulty,
+      topics: metadata.topics,
+      companies: metadata.companies,
+      companyFrequency: metadata.companyFrequency,
+      solvedAt: new Date().toISOString()
+    }
+  });
+
+  console.log('✅ Individual problem solved notification sent:', metadata.title);
+}
+
 // Listen for submission results by watching for success indicators
 function observeSubmissionResults() {
   let hasTriggered = false;
@@ -111,6 +178,9 @@ function observeSubmissionResults() {
           if (text.includes('Accepted') &&
               (text.includes('Runtime') || text.includes('Memory') || text.includes('testcase'))) {
             hasTriggered = true;
+
+            // PHASE 3: Notify individual problem solution immediately
+            notifyIndividualProblemSolved();
 
             // Start loading blink immediately, then check API after delay
             isLoadingActive = true;

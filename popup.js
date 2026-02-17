@@ -1,3 +1,8 @@
+// Valid options for combobox inputs
+const VALID_TOPICS = ['Array','Backtracking','Biconnected Component','Binary Indexed Tree','Binary Search','Binary Search Tree','Binary Tree','Bit Manipulation','Bitmask','Brainteaser','Breadth-First Search','Bucket Sort','Combinatorics','Concurrency','Counting','Counting Sort','Data Stream','Database','Depth-First Search','Design','Divide and Conquer','Doubly-Linked List','Dynamic Programming','Enumeration','Eulerian Circuit','Game Theory','Geometry','Graph','Greedy','Hash Function','Hash Table','Heap (Priority Queue)','Interactive','Iterator','Line Sweep','Linked List','Math','Matrix','Memoization','Merge Sort','Minimum Spanning Tree','Monotonic Queue','Monotonic Stack','Number Theory','Ordered Set','Prefix Sum','Probability and Statistics','Queue','Quickselect','Radix Sort','Randomized','Recursion','Rejection Sampling','Reservoir Sampling','Rolling Hash','Segment Tree','Shell','Shortest Path','Simulation','Sliding Window','Sort','Sorting','Stack','String','String Matching','Strongly Connected Component','Suffix Array','Topological Sort','Tree','Trie','Two Pointers','Union Find'];
+
+const VALID_COMPANIES = ['1Kosmos','23&me','6sense','AMD','APT Portfolio','AQR Capital Management','ASUS','AT&T','Accelya','Accenture','Accolite','Acko','Activevideo','Activision','Addepar','Adobe','Aetion','Affinity','Affirm','Agoda','Airbnb','Airbus SE','Airtel','Ajira','Akamai','Akuna','Akuna Capital','Alibaba','AllinCall','Alphonso','Altimetrik','Amazon','Amadeus','American Express','Amplitude','Anaplan','Ancestry','Anduril','Angi','Ant Group','Apple','Applied Intuition','Arcesium','Arclight','Ares Management','Arista Networks','Asana','Ascend Learning','Atlassian','Aurora','Autodesk','Avalara','Avito','Axon','Baidu','Barclays','Benchling','BitGo','Bloomberg','Bolt','Box','Brex','Bristol-Myers Squibb','Broadcom','C3.AI','Cadence','Capital One','Careem','Carta','Cashfree','Chime','Citadel','Citrix','Cisco','Cloudera','Cloudflare','Clover Health','Codenation','Coinbase','Comcast','Coupang','Cruise','Databricks','Datadog','Dataminr','De Shaw','Dell','Deutsche Bank','DoorDash','Dropbox','DRW','Duolingo','eBay','Electronic Arts','Expedia','Expensify','Facebook','Fidelity','Figma','FlipKart','Flipkart','Foursquare','GE Healthcare','GoDaddy','Goldman Sachs','Google','Grab','Groupon','HRT','HackerRank','HashiCorp','Hims & Hers','Houzz','Huawei','IBM','IIT','IXL','Indeed','Infosys','Instagram','Instacart','Intel','Intuit','Jio','JP Morgan','Jane Street','Johnson & Johnson','Jpmorgan','Kakao','Karat','Kargo','Klarna','Kustomer','LinkedIn','Loft','Looker','Lyft','MakeMyTrip','Mathworks','Media.net','Meta','Microsoft','Mindtickle','Miro','Morgan Stanley','Myntra','Nagarro','NCR','Netflix','Niantic','Nvidia','Nykaa','OKX','Oracle','Oyo','Paytm','Paypal','Palo Alto Networks','Palantir Technologies','Pinterest','Pocket Gems','Pony.ai','Postmates','PwC','Qualcomm','Qualtrics','Quora','Razorpay','Redfin','Roblox','Robinhood','Salesforce','Samsung','SAP','Seagate','ServiceNow','Shopee','Shopify','Siemens','Slack','Snapchat','Snowflake','SpaceX','Splunk','Spotify','Square','Stripe','Swiggy','Synopsys','TCS','TikTok','Twitter','Two Sigma','Twitch','Twilio','Uber','Unity','Veritas','VMware','Visa','Walmart','Wayfair','Waymo','Wells Fargo','Wish','Wolfe Research','Workday','Yahoo','Yandex','Yelp','Zenefits','Zendesk','Zillow','Zomato','Zoom','Zscaler','eBay','FactSet','Groupon','Hulu','Kaspersky','NerdWallet','Okta','Plaid','Ramp','Scale AI','Sentry','Squarespace','Stitch Fix','Taboola','TaskUs','ThoughtWorks','Twitch','Yatra','Zuora'];
+
 // List helpers - inlined for Chrome extension compatibility
 const listDataCache = {};
 
@@ -206,52 +211,6 @@ async function getDailyQuestionSlug() {
   return { ...challenge.question, date: challenge.date };
 }
 
-async function getYesterdayQuestion(todayDateString) {
-  // Calculate yesterday based on today's daily challenge date (UTC-based from LeetCode)
-  const todayDate = new Date(todayDateString + 'T00:00:00Z');
-  const yesterday = new Date(todayDate);
-  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-
-  const year = yesterday.getUTCFullYear();
-  const month = yesterday.getUTCMonth() + 1;
-  const day = yesterday.getUTCDate();
-  const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-  const query = {
-    query: `
-      query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
-        dailyCodingChallengeV2(year: $year, month: $month) {
-          challenges {
-            date
-            link
-            question {
-              titleSlug
-              title
-              questionFrontendId
-            }
-          }
-        }
-      }
-    `,
-    variables: { year, month }
-  };
-
-  try {
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(query),
-    });
-
-    const data = await response.json();
-    const challenges = data?.data?.dailyCodingChallengeV2?.challenges || [];
-    return challenges.find(c => c.date === dateString) || null;
-  } catch (error) {
-    console.error("Failed to fetch yesterday's question:", error);
-    return null;
-  }
-}
 
 async function fetchUserSolvedStats(username) {
   try {
@@ -634,31 +593,44 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateStreakDisplay() {
-    chrome.storage.local.get(["streak", "lastVisitedDate", "leetCodeUsername"], (result) => {
-      const streak = result.streak || 0;
+    chrome.storage.local.get([
+      "currentStreak",
+      "longestStreak",
+      "lastSolvedDate",
+      "leetCodeUsername",
+      "streakMode"
+    ], (result) => {
+      const streak = result.currentStreak || 0;
+      const longestStreak = result.longestStreak || 0;
       const today = getTodayDate();
+      const lastSolved = result.lastSolvedDate || null;
       const streakDisplay = document.getElementById("streakDisplay");
       const username = result.leetCodeUsername;
       const milestone = getStreakMilestone(streak);
+      const mode = result.streakMode || "OR";
 
-      if (result.lastVisitedDate === today) {
-        // Visited today - show active streak
+      const solvedToday = lastSolved === today;
+
+      if (solvedToday) {
+        // Solved today - show active streak
         const milestoneEmoji = milestone ? ` ${milestone.emoji}` : "";
         streakDisplay.textContent = `🔥 ${streak}${milestoneEmoji}`;
+        const modeText = mode === "OR" ? "any selected category" : "all selected categories";
         streakDisplay.title = milestone
           ? `${milestone.message} ${username ? `(${username})` : ""}`
-          : (username ? `Streak active! Synced with LeetCode (${username})` : "Streak active! You've completed today's problem.");
+          : `Streak active! ${streak} day${streak !== 1 ? 's' : ''} (${modeText} mode)`;
       } else {
-        // Not visited today - show pending streak
+        // Not solved today - show pending streak
         streakDisplay.textContent = `🔥 ${streak}`;
+        const modeText = mode === "OR" ? "any selected category" : "all selected categories";
         streakDisplay.title = streak > 0
-          ? `Streak at risk! Complete today's problem to continue your ${streak}-day streak.`
-          : "Start your streak by solving today's problem!";
+          ? `Streak at risk! Solve ${modeText} to continue your ${streak}-day streak.`
+          : `Start your streak by solving ${modeText}!`;
       }
 
       // Show milestone celebration banner if applicable
       const milestoneEl = document.getElementById("milestone-banner");
-      if (milestoneEl && milestone && result.lastVisitedDate === today) {
+      if (milestoneEl && milestone && solvedToday) {
         milestoneEl.textContent = `${milestone.emoji} ${milestone.message}`;
         milestoneEl.classList.remove("hidden");
       } else if (milestoneEl) {
@@ -972,37 +944,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Demo data setup (for testing - remove in production)
-  async function setupDemoData() {
-    return new Promise(resolve => {
-      chrome.storage.local.get(['completedProblemIds'], (result) => {
-        // Always set demo data for testing
-        const demoCompletedIds = [
-          1, 217, 242, 49, 347,  // Some from Blind 75
-          238, 125, 15, 11, 121, // More from Blind 75
-          3, 424, 76, 20, 153,   // Even more
-          1768, 1071, 1431       // Some from LeetCode 75
-        ];
-
-        chrome.storage.local.set({ completedProblemIds: demoCompletedIds }, () => {
-          console.log('✅ Demo data loaded:', demoCompletedIds.length, 'problems');
-          resolve();
-        });
-      });
-    });
-  }
-
   // Initialize in proper order
   async function initialize() {
-    // Load demo data first
-    await setupDemoData();
-
-    // Then render progress
     await renderListProgress();
-
-    // Initialize other data
     syncFromLeetCode();
     updateStreakDisplay();
+    refreshTagProgress();
   }
 
   // Start initialization
@@ -1024,23 +971,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // Load yesterday's problem
-  async function loadYesterdayProblem() {
-    const yesterdayData = await getYesterdayQuestion(question.date);
-    if (yesterdayData) {
-      const section = document.getElementById("yesterday-section");
-      const link = document.getElementById("yesterday-link");
-      const numSpan = document.getElementById("yesterday-num");
-      const titleSpan = document.getElementById("yesterday-title");
-      link.href = `https://leetcode.com${yesterdayData.link}`;
-      numSpan.textContent = `${yesterdayData.question.questionFrontendId}. `;
-      titleSpan.textContent = yesterdayData.question.title;
-      section.classList.remove("hidden");
-    }
-  }
-
-  loadYesterdayProblem();
-
   document.getElementById("open").addEventListener("click", () => {
     chrome.tabs.create({
       url: `https://leetcode.com/problems/${question.titleSlug}`,
@@ -1054,20 +984,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Settings accordion
-  const settingsToggle = document.getElementById("settings-toggle");
-  const settingsContent = document.getElementById("settings-content");
-  const settingsIcon = document.getElementById("settings-icon");
+  // Settings page navigation
+  const mainView = document.getElementById("main-view");
+  const settingsView = document.getElementById("settings-view");
 
-  settingsToggle.addEventListener("click", () => {
-    const isHidden = settingsContent.classList.contains("hidden");
-    if (isHidden) {
-      settingsContent.classList.remove("hidden");
-      settingsIcon.classList.add("rotate-180");
-    } else {
-      settingsContent.classList.add("hidden");
-      settingsIcon.classList.remove("rotate-180");
-    }
+  document.getElementById("settings-btn").addEventListener("click", () => {
+    mainView.classList.add("hidden");
+    settingsView.classList.remove("hidden");
+  });
+
+  document.getElementById("settings-back-btn").addEventListener("click", () => {
+    settingsView.classList.add("hidden");
+    mainView.classList.remove("hidden");
   });
 
   // Notification toggle
@@ -1209,5 +1137,491 @@ document.addEventListener("DOMContentLoaded", async () => {
     hourSelect.value = hour12;
     minuteSelect.value = minute;
     ampmBtn.textContent = selectedAmPm;
+  });
+
+  // PHASE 3: Streak Mode Toggle
+  const modeOrBtn = document.getElementById("mode-or-btn");
+  const modeAndBtn = document.getElementById("mode-and-btn");
+  const modeDescription = document.getElementById("streak-mode-description");
+  const orRequirementsSection = document.getElementById("or-mode-requirements");
+  const andRequirementsSection = document.getElementById("and-mode-requirements");
+
+  // OR mode requirement checkboxes
+  const orReqDaily = document.getElementById("or-req-daily");
+  const orReqLc75 = document.getElementById("or-req-lc75");
+  const orReqBlind75 = document.getElementById("or-req-blind75");
+  const orReqNc150 = document.getElementById("or-req-nc150");
+
+  // AND mode requirement checkboxes
+  const andReqDaily = document.getElementById("and-req-daily");
+  const andReqLc75 = document.getElementById("and-req-lc75");
+  const andReqBlind75 = document.getElementById("and-req-blind75");
+  const andReqNc150 = document.getElementById("and-req-nc150");
+
+  // Tag input state (initialized after setupTagInput is defined)
+  let orCompanyTags = null;
+  let orTopicTags = null;
+  let andCompanyTags = null;
+  let andTopicTags = null;
+
+  function updateStreakModeUI(mode) {
+    if (mode === "OR") {
+      modeOrBtn.classList.add("bg-[#ffa116]", "text-[#1a1a1a]");
+      modeOrBtn.classList.remove("text-[#eff1f699]");
+      modeAndBtn.classList.remove("bg-[#ffa116]", "text-[#1a1a1a]");
+      modeAndBtn.classList.add("text-[#eff1f699]");
+      modeDescription.textContent = "Solve any selected category";
+      orRequirementsSection.classList.remove("hidden");
+      andRequirementsSection.classList.add("hidden");
+    } else {
+      modeAndBtn.classList.add("bg-[#ffa116]", "text-[#1a1a1a]");
+      modeAndBtn.classList.remove("text-[#eff1f699]");
+      modeOrBtn.classList.remove("bg-[#ffa116]", "text-[#1a1a1a]");
+      modeOrBtn.classList.add("text-[#eff1f699]");
+      modeDescription.textContent = "Solve all selected categories";
+      orRequirementsSection.classList.add("hidden");
+      andRequirementsSection.classList.remove("hidden");
+    }
+  }
+
+  function saveOrModeRequirements() {
+    // All requirements are shared — OR/AND only changes the logic, not the selection
+    const shared = {
+      dailyChallenge: orReqDaily.checked,
+      leetcode75: orReqLc75.checked,
+      blind75: orReqBlind75.checked,
+      neetcode150: orReqNc150.checked,
+      companyFocus: orCompanyTags ? orCompanyTags.isEnabled() : false,
+      selectedCompanies: orCompanyTags ? orCompanyTags.getTags() : [],
+      topicFocus: orTopicTags ? orTopicTags.isEnabled() : false,
+      selectedTopics: orTopicTags ? orTopicTags.getTags() : []
+    };
+    // Sync all state to AND mode inputs
+    andReqDaily.checked = shared.dailyChallenge;
+    andReqLc75.checked = shared.leetcode75;
+    andReqBlind75.checked = shared.blind75;
+    andReqNc150.checked = shared.neetcode150;
+    if (andCompanyTags) { andCompanyTags.setEnabled(shared.companyFocus); andCompanyTags.setTags(shared.selectedCompanies); }
+    if (andTopicTags) { andTopicTags.setEnabled(shared.topicFocus); andTopicTags.setTags(shared.selectedTopics); }
+    chrome.storage.local.set({ orModeRequirements: shared, andModeRequirements: shared });
+    updateProgressCardVisibility("OR");
+    refreshTagProgress();
+  }
+
+  function saveAndModeRequirements() {
+    // All requirements are shared — OR/AND only changes the logic, not the selection
+    const shared = {
+      dailyChallenge: andReqDaily.checked,
+      leetcode75: andReqLc75.checked,
+      blind75: andReqBlind75.checked,
+      neetcode150: andReqNc150.checked,
+      companyFocus: andCompanyTags ? andCompanyTags.isEnabled() : false,
+      selectedCompanies: andCompanyTags ? andCompanyTags.getTags() : [],
+      topicFocus: andTopicTags ? andTopicTags.isEnabled() : false,
+      selectedTopics: andTopicTags ? andTopicTags.getTags() : []
+    };
+    // Sync all state to OR mode inputs
+    orReqDaily.checked = shared.dailyChallenge;
+    orReqLc75.checked = shared.leetcode75;
+    orReqBlind75.checked = shared.blind75;
+    orReqNc150.checked = shared.neetcode150;
+    if (orCompanyTags) { orCompanyTags.setEnabled(shared.companyFocus); orCompanyTags.setTags(shared.selectedCompanies); }
+    if (orTopicTags) { orTopicTags.setEnabled(shared.topicFocus); orTopicTags.setTags(shared.selectedTopics); }
+    chrome.storage.local.set({ andModeRequirements: shared, orModeRequirements: shared });
+    updateProgressCardVisibility("AND");
+    refreshTagProgress();
+  }
+
+  function updateProgressCardVisibility(mode) {
+    const reqs = mode === "OR"
+      ? { dailyChallenge: orReqDaily.checked, blind75: orReqBlind75.checked, neetcode150: orReqNc150.checked, leetcode75: orReqLc75.checked }
+      : { dailyChallenge: andReqDaily.checked, blind75: andReqBlind75.checked, neetcode150: andReqNc150.checked, leetcode75: andReqLc75.checked };
+
+    const blind75Card = document.getElementById('blind75-card');
+    const neetcode150Card = document.getElementById('neetcode150-card');
+    const leetcode75Card = document.getElementById('leetcode75-card');
+    const progressSection = document.getElementById('list-progress-section');
+    const dailyChallengeSection = document.getElementById('daily-challenge-section');
+
+    if (blind75Card) blind75Card.classList.toggle('hidden', !reqs.blind75);
+    if (neetcode150Card) neetcode150Card.classList.toggle('hidden', !reqs.neetcode150);
+    if (leetcode75Card) leetcode75Card.classList.toggle('hidden', !reqs.leetcode75);
+
+    // Hide the entire progress section if no list is selected
+    if (progressSection) {
+      progressSection.classList.toggle('hidden', !reqs.blind75 && !reqs.neetcode150 && !reqs.leetcode75);
+    }
+
+    // Show/hide daily challenge section based on checkbox
+    if (dailyChallengeSection) {
+      dailyChallengeSection.classList.toggle('hidden', !reqs.dailyChallenge);
+    }
+  }
+
+  // Render tag progress bars for selected topics/companies in main view
+  async function refreshTagProgress() {
+    const tagProgressSection = document.getElementById('tag-progress-section');
+    const tagProgressList = document.getElementById('tag-progress-list');
+    if (!tagProgressSection || !tagProgressList) return;
+
+    const result = await new Promise(resolve => {
+      chrome.storage.local.get(['streakMode', 'orModeRequirements', 'andModeRequirements', 'completedProblemIds'], resolve);
+    });
+
+    const mode = result.streakMode || 'OR';
+    const req = mode === 'OR'
+      ? (result.orModeRequirements || {})
+      : (result.andModeRequirements || {});
+
+    const selectedTopics = req.topicFocus && req.selectedTopics?.length ? req.selectedTopics : [];
+    const selectedCompanies = req.companyFocus && req.selectedCompanies?.length ? req.selectedCompanies : [];
+
+    if (selectedTopics.length === 0 && selectedCompanies.length === 0) {
+      tagProgressSection.classList.add('hidden');
+      return;
+    }
+
+    tagProgressSection.classList.remove('hidden');
+
+    const completedProblemIds = result.completedProblemIds || [];
+    const master = await loadMasterProblems();
+
+    if (!master || !master.problems) {
+      tagProgressList.innerHTML = '';
+      return;
+    }
+
+    // Compute solved/total for each selected tag + AND intersection
+    const allTags = [
+      ...selectedTopics.map(t => ({ name: t, type: 'topic' })),
+      ...selectedCompanies.map(c => ({ name: c, type: 'company' }))
+    ];
+
+    const stats = {};
+    allTags.forEach(({ name }) => { stats[name] = { solved: 0, total: 0 }; });
+
+    const intersection = { solved: 0, total: 0 };
+    const showIntersection = selectedTopics.length > 0 && selectedCompanies.length > 0;
+
+    for (const problem of master.problems) {
+      const id = String(problem.id);
+      const solved = completedProblemIds.some(pid => String(pid) === id);
+
+      const problemTopics = (problem.topics || []).map(t => typeof t === 'string' ? t : t.name);
+      for (const tag of selectedTopics) {
+        if (problemTopics.some(t => t.toLowerCase() === tag.toLowerCase())) {
+          stats[tag].total++;
+          if (solved) stats[tag].solved++;
+        }
+      }
+
+      const problemCompanies = problem.companies || [];
+      for (const tag of selectedCompanies) {
+        if (problemCompanies.some(c => c.toLowerCase() === tag.toLowerCase())) {
+          stats[tag].total++;
+          if (solved) stats[tag].solved++;
+        }
+      }
+
+      // Intersection: problem matches any selected topic AND any selected company
+      if (showIntersection) {
+        const matchesTopic = selectedTopics.some(tag => problemTopics.some(t => t.toLowerCase() === tag.toLowerCase()));
+        const matchesCompany = selectedCompanies.some(tag => problemCompanies.some(c => c.toLowerCase() === tag.toLowerCase()));
+        if (matchesTopic && matchesCompany) {
+          intersection.total++;
+          if (solved) intersection.solved++;
+        }
+      }
+    }
+
+    // Build intersection label: "Array and Google, Amazon"
+    function buildIntersectionLabel(topics, companies) {
+      const topicPart = topics.length === 1 ? topics[0] : `${topics.slice(0, 2).join(', ')}${topics.length > 2 ? ` +${topics.length - 2}` : ''}`;
+      const companyPart = companies.length === 1 ? companies[0] : `${companies.slice(0, 2).join(', ')}${companies.length > 2 ? ` +${companies.length - 2}` : ''}`;
+      return `${topicPart} and ${companyPart}`;
+    }
+
+    function makeProgressRow(label, solved, total, color) {
+      const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+      const el = document.createElement('div');
+      el.innerHTML = `
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[12px] font-medium text-[#eff1f6]">${label}</span>
+          <span class="text-[11px] text-[#eff1f699]">${solved} / ${total} <span class="font-semibold" style="color:${color}">${pct}%</span></span>
+        </div>
+        <div class="w-full h-1.5 bg-[#ffffff1a] rounded-full overflow-hidden">
+          <div class="h-1.5 rounded-full transition-all duration-300" style="width:${pct}%;background-color:${color};"></div>
+        </div>
+      `;
+      return el;
+    }
+
+    // Render
+    tagProgressList.innerHTML = '';
+
+    if (showIntersection) {
+      // Primary: intersection row (the actionable number)
+      tagProgressList.appendChild(makeProgressRow(
+        buildIntersectionLabel(selectedTopics, selectedCompanies),
+        intersection.solved, intersection.total,
+        '#eff1f6'
+      ));
+
+      // Accordion toggle
+      const totalTags = allTags.length;
+      const toggle = document.createElement('button');
+      toggle.className = 'tag-accordion-toggle';
+      toggle.innerHTML = `<span class="tag-accordion-chevron">▾</span><span>${totalTags} individual tag${totalTags !== 1 ? 's' : ''}</span>`;
+
+      // Accordion body with individual rows
+      const body = document.createElement('div');
+      body.className = 'tag-accordion-body';
+      allTags.forEach(({ name, type }, i) => {
+        const indRow = makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3');
+        if (i < allTags.length - 1) indRow.style.marginBottom = '10px';
+        body.appendChild(indRow);
+      });
+
+      toggle.addEventListener('click', () => {
+        const isOpen = body.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+      });
+
+      tagProgressList.appendChild(toggle);
+      tagProgressList.appendChild(body);
+    } else {
+      // No intersection — just show individual rows
+      allTags.forEach(({ name, type }) => {
+        tagProgressList.appendChild(
+          makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3')
+        );
+      });
+    }
+  }
+
+  // Combobox tag input utility (only valid options can be added)
+  function setupTagInput(checkboxEl, sectionEl, tagsContainerEl, textInputEl, dropdownEl, color, saveCallback, validOptions) {
+    let tags = [];
+    let activeIndex = -1;
+
+    function renderTags() {
+      tagsContainerEl.innerHTML = '';
+      tags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.style.cssText = `background:${color}22; color:${color}; border:1px solid ${color}44;`;
+        const text = document.createElement('span');
+        text.textContent = tag;
+        const btn = document.createElement('button');
+        btn.className = 'tag-chip-x';
+        btn.textContent = '×';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          tags = tags.filter(t => t !== tag);
+          renderTags();
+          saveCallback();
+        });
+        chip.appendChild(text);
+        chip.appendChild(btn);
+        tagsContainerEl.appendChild(chip);
+      });
+    }
+
+    function addTag(val) {
+      const trimmed = val.trim();
+      if (!trimmed) return;
+      const match = validOptions.find(o => o.toLowerCase() === trimmed.toLowerCase());
+      if (match && !tags.includes(match)) {
+        tags.push(match);
+        renderTags();
+        saveCallback();
+      }
+      textInputEl.value = '';
+      closeDropdown();
+    }
+
+    function closeDropdown() {
+      dropdownEl.classList.add('hidden');
+      dropdownEl.innerHTML = '';
+      activeIndex = -1;
+    }
+
+    function openDropdown(filtered) {
+      dropdownEl.innerHTML = '';
+      activeIndex = -1;
+      if (filtered.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'combobox-empty';
+        empty.textContent = 'No matches';
+        dropdownEl.appendChild(empty);
+      } else {
+        filtered.forEach((opt, i) => {
+          const item = document.createElement('div');
+          item.className = 'combobox-item';
+          item.textContent = opt;
+          item.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            addTag(opt);
+          });
+          dropdownEl.appendChild(item);
+        });
+      }
+      dropdownEl.classList.remove('hidden');
+    }
+
+    textInputEl.addEventListener('input', () => {
+      const q = textInputEl.value.trim().toLowerCase();
+      if (!q) { closeDropdown(); return; }
+      const filtered = validOptions.filter(o => o.toLowerCase().includes(q) && !tags.includes(o));
+      openDropdown(filtered.slice(0, 20));
+    });
+
+    textInputEl.addEventListener('keydown', (e) => {
+      const items = dropdownEl.querySelectorAll('.combobox-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+        if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        items.forEach((el, i) => el.classList.toggle('active', i === activeIndex));
+        if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && items[activeIndex]) {
+          addTag(items[activeIndex].textContent);
+        } else if (items.length === 1) {
+          addTag(items[0].textContent);
+        }
+      } else if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
+
+    textInputEl.addEventListener('blur', () => {
+      // Small delay so mousedown on item fires first
+      setTimeout(closeDropdown, 150);
+    });
+
+    checkboxEl.addEventListener('change', () => {
+      sectionEl.classList.toggle('hidden', !checkboxEl.checked);
+      saveCallback();
+    });
+
+    return {
+      getTags: () => [...tags],
+      setTags: (newTags) => { tags = Array.isArray(newTags) ? [...newTags] : []; renderTags(); },
+      isEnabled: () => checkboxEl.checked,
+      setEnabled: (val) => {
+        checkboxEl.checked = val;
+        sectionEl.classList.toggle('hidden', !val);
+      }
+    };
+  }
+
+  // Initialize tag inputs
+  orCompanyTags = setupTagInput(
+    document.getElementById('or-req-company'),
+    document.getElementById('or-company-section'),
+    document.getElementById('or-company-tags'),
+    document.getElementById('or-company-text'),
+    document.getElementById('or-company-dropdown'),
+    '#2cbb5d',
+    saveOrModeRequirements,
+    VALID_COMPANIES
+  );
+  orTopicTags = setupTagInput(
+    document.getElementById('or-req-topic'),
+    document.getElementById('or-topic-section'),
+    document.getElementById('or-topic-tags'),
+    document.getElementById('or-topic-text'),
+    document.getElementById('or-topic-dropdown'),
+    '#2cbb5d',
+    saveOrModeRequirements,
+    VALID_TOPICS
+  );
+  andCompanyTags = setupTagInput(
+    document.getElementById('and-req-company'),
+    document.getElementById('and-company-section'),
+    document.getElementById('and-company-tags'),
+    document.getElementById('and-company-text'),
+    document.getElementById('and-company-dropdown'),
+    '#ffa116',
+    saveAndModeRequirements,
+    VALID_COMPANIES
+  );
+  andTopicTags = setupTagInput(
+    document.getElementById('and-req-topic'),
+    document.getElementById('and-topic-section'),
+    document.getElementById('and-topic-tags'),
+    document.getElementById('and-topic-text'),
+    document.getElementById('and-topic-dropdown'),
+    '#ffa116',
+    saveAndModeRequirements,
+    VALID_TOPICS
+  );
+
+  modeOrBtn.addEventListener("click", () => {
+    chrome.storage.local.set({ streakMode: "OR" }, () => {
+      updateStreakModeUI("OR");
+      updateStreakDisplay();
+      updateProgressCardVisibility("OR");
+      refreshTagProgress();
+      // NOTE: We do NOT recalculate streaks to preserve current streak number
+    });
+  });
+
+  modeAndBtn.addEventListener("click", () => {
+    chrome.storage.local.set({ streakMode: "AND" }, () => {
+      updateStreakModeUI("AND");
+      updateStreakDisplay();
+      updateProgressCardVisibility("AND");
+      refreshTagProgress();
+      // NOTE: We do NOT recalculate streaks to preserve current streak number
+    });
+  });
+
+  // Save OR requirements when checkboxes change
+  [orReqDaily, orReqLc75, orReqBlind75, orReqNc150].forEach(checkbox => {
+    checkbox.addEventListener("change", saveOrModeRequirements);
+  });
+
+  // Save AND requirements when checkboxes change
+  [andReqDaily, andReqLc75, andReqBlind75, andReqNc150].forEach(checkbox => {
+    checkbox.addEventListener("change", saveAndModeRequirements);
+  });
+
+  // Load initial streak mode and requirements
+  // Requirements are shared — OR/AND only changes logic, not selection
+  chrome.storage.local.get(["streakMode", "orModeRequirements", "andModeRequirements"], (result) => {
+    const mode = result.streakMode || "OR";
+    updateStreakModeUI(mode);
+
+    // Use whichever mode's requirements exist, preferring the active mode
+    const defaults = { dailyChallenge: true, leetcode75: true, blind75: true, neetcode150: true };
+    const req = (mode === "OR" ? result.orModeRequirements : result.andModeRequirements)
+              || result.orModeRequirements
+              || result.andModeRequirements
+              || defaults;
+
+    // Apply to both OR and AND inputs (they're identical)
+    orReqDaily.checked = req.dailyChallenge;
+    orReqLc75.checked = req.leetcode75;
+    orReqBlind75.checked = req.blind75;
+    orReqNc150.checked = req.neetcode150;
+    andReqDaily.checked = req.dailyChallenge;
+    andReqLc75.checked = req.leetcode75;
+    andReqBlind75.checked = req.blind75;
+    andReqNc150.checked = req.neetcode150;
+
+    if (req.companyFocus) { orCompanyTags.setEnabled(true); andCompanyTags.setEnabled(true); }
+    if (req.selectedCompanies?.length) { orCompanyTags.setTags(req.selectedCompanies); andCompanyTags.setTags(req.selectedCompanies); }
+    if (req.topicFocus) { orTopicTags.setEnabled(true); andTopicTags.setEnabled(true); }
+    if (req.selectedTopics?.length) { orTopicTags.setTags(req.selectedTopics); andTopicTags.setTags(req.selectedTopics); }
+
+    updateProgressCardVisibility(mode);
+    refreshTagProgress();
   });
 });

@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/adityanarayan/leetdaily#readme",
   "dependencies": {
-    "tailwindcss": "^4.1.11"
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18"
   }
 }

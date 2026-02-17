@@ -29,227 +29,473 @@
     #ampm-btn {
       margin-left: -4px;
     }
+
+    /* Custom checkboxes */
+    input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      display: inline-block;
+      flex-shrink: 0;
+      width: 15px;
+      height: 15px;
+      min-width: 15px;
+      border-radius: 3px;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      background: #1a1a1a;
+      cursor: pointer;
+      position: relative;
+      margin: 0;
+      vertical-align: middle;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 5px;
+      height: 8px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+    #or-mode-requirements input[type="checkbox"]:checked {
+      background-color: #2cbb5d;
+      border-color: #2cbb5d;
+    }
+    #and-mode-requirements input[type="checkbox"]:checked {
+      background-color: #ffa116;
+      border-color: #ffa116;
+    }
+
+    /* Tag chips */
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 5px 1px 7px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: inherit;
+      line-height: 1.6;
+    }
+    .tag-chip-x {
+      cursor: pointer;
+      opacity: 0.6;
+      font-size: 14px;
+      line-height: 1;
+      background: none;
+      border: none;
+      padding: 0 1px;
+      color: inherit;
+      font-family: inherit;
+    }
+    .tag-chip-x:hover { opacity: 1; }
+    .tag-text-input {
+      flex: 1;
+      background: #1a1a1a;
+      color: #eff1f6;
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.1);
+      outline: none;
+      min-width: 0;
+      font-family: inherit;
+    }
+    .tag-text-input::placeholder { color: rgba(255,255,255,0.2); }
+    /* Combobox dropdown */
+    .combobox-dropdown {
+      position: absolute;
+      top: calc(100% + 2px);
+      left: 0;
+      right: 0;
+      background: #2e2e2e;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      max-height: 140px;
+      overflow-y: auto;
+      z-index: 200;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    }
+    .combobox-item {
+      padding: 5px 10px;
+      font-size: 11px;
+      color: rgba(239,241,246,0.7);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .combobox-item:hover, .combobox-item.active {
+      background: rgba(255,255,255,0.08);
+      color: #eff1f6;
+    }
+    .combobox-empty {
+      padding: 5px 10px;
+      font-size: 11px;
+      color: rgba(239,241,246,0.3);
+      font-family: inherit;
+      font-style: italic;
+    }
+    /* Tag progress accordion */
+    .tag-accordion-toggle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 7px;
+      font-size: 11px;
+      color: rgba(239,241,246,0.35);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      transition: color 0.15s;
+    }
+    .tag-accordion-toggle:hover { color: rgba(239,241,246,0.6); }
+    .tag-accordion-chevron {
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    .tag-accordion-toggle.open .tag-accordion-chevron { transform: rotate(180deg); }
+    .tag-accordion-body {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      space-y: 10px;
+    }
+    .tag-accordion-body.open { display: block; }
   </style>
 </head>
 
-<body class="bg-[#1a1a1a] text-[#eff1f6] w-[400px] p-5 font-sans">
-  <!-- Milestone Banner -->
-  <div id="milestone-banner" class="hidden text-center text-[13px] font-medium py-2.5 px-4 mb-4 rounded-lg bg-[#ffa1161a] text-[#ffa116] border border-[#ffa11633]"></div>
+<body class="bg-[#1a1a1a] text-[#eff1f6] w-[400px] font-sans">
 
-  <!-- Header -->
-  <header class="flex items-center justify-between w-full mb-5">
-    <div class="flex items-center gap-2.5">
-      <!-- User avatar (shown when logged in) -->
-      <img id="user-avatar" src="" alt="" class="w-8 h-8 rounded-full hidden object-cover">
-      <!-- LeetCode logo (shown when not logged in) -->
-      <svg id="lc-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 00-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.535-1.387-.552-1.902-.038l-10.1 10.101c-.981.982-1.494 2.337-1.494 3.835 0 1.498.513 2.895 1.494 3.875l4.347 4.361c.981.979 2.337 1.452 3.834 1.452s2.853-.512 3.835-1.494l2.609-2.637c.514-.514.496-1.365-.039-1.9s-1.386-.553-1.899-.039zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z" fill="#FFA116"/>
-      </svg>
-      <div>
-        <h1 id="header-title" class="text-[15px] font-semibold text-[#eff1f6] leading-tight">LeetDaily</h1>
-        <p id="header-subtitle" class="text-[11px] text-[#eff1f699] leading-tight">Daily LeetCode Kro</p>
-      </div>
-    </div>
-    <div class="flex items-center gap-4">
-      <span id="timer" class="text-[12px] text-[#eff1f699] tabular-nums"></span>
-      <span id="streakDisplay" class="text-[14px] font-semibold text-[#ffa116]"></span>
-    </div>
-  </header>
+  <!-- ─── MAIN VIEW ─────────────────────────────────────────────── -->
+  <div id="main-view" class="p-5">
+    <!-- Milestone Banner -->
+    <div id="milestone-banner" class="hidden text-center text-[13px] font-medium py-2.5 px-4 mb-4 rounded-lg bg-[#ffa1161a] text-[#ffa116] border border-[#ffa11633]"></div>
 
-  <!-- Login Prompt (shown when not logged in) -->
-  <section id="login-prompt" class="mb-4 px-4 py-3 rounded-xl bg-[#282828] hidden">
-    <div class="flex items-center justify-between">
-      <span class="text-[12px] text-[#eff1f699]">Sign in to LeetCode to see your stats</span>
-      <a href="https://leetcode.com/accounts/login/" target="_blank" class="text-[12px] font-medium text-[#ffa116] hover:underline">Sign in</a>
-    </div>
-  </section>
-
-  <!-- Stats Panel -->
-  <section id="stats-panel" class="mb-4 px-4 py-3 rounded-xl bg-[#282828]">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <span class="text-[12px] text-[#eff1f699]">Solved</span>
-        <span id="total-count" class="text-[14px] font-semibold text-[#eff1f6]">-</span>
-      </div>
-      <div class="flex items-center gap-4 text-[12px]">
-        <span><span id="easy-count" class="font-semibold text-[#00b8a3]">-</span> <span class="text-[#eff1f699]">Easy</span></span>
-        <span><span id="medium-count" class="font-semibold text-[#ffa116]">-</span> <span class="text-[#eff1f699]">Med</span></span>
-        <span><span id="hard-count" class="font-semibold text-[#ff375f]">-</span> <span class="text-[#eff1f699]">Hard</span></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- List Progress -->
-  <section class="mb-4 p-4 rounded-xl bg-[#282828]">
-    <div class="flex items-center justify-between mb-4">
-      <span class="text-[13px] font-semibold text-[#eff1f6]">Your Progress</span>
-      <span class="text-[10px] text-[#eff1f699]">Track curated lists</span>
-    </div>
-    <div class="space-y-5">
-      <!-- Blind 75 -->
-      <div id="blind75-card" class="cursor-pointer group mb-2">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#00b8a3] transition-colors">Blind 75</span>
-          <span class="text-[11px] text-[#eff1f699]"><span id="blind75-count" class="text-[#eff1f6]">0/74</span> <span id="blind75-percentage" class="text-[#00b8a3] font-semibold">0%</span></span>
-        </div>
-        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
-          <div id="blind75-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #00b8a3;"></div>
-        </div>
-      </div>
-
-      <!-- NeetCode 150 -->
-      <div id="neetcode150-card" class="cursor-pointer group mb-2">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#ffa116] transition-colors">NC 150</span>
-          <span class="text-[11px] text-[#eff1f699]"><span id="neetcode150-count" class="text-[#eff1f6]">0/158</span> <span id="neetcode150-percentage" class="text-[#ffa116] font-semibold">0%</span></span>
-        </div>
-        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
-          <div id="neetcode150-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ffa116;"></div>
-        </div>
-      </div>
-
-      <!-- LeetCode 75 -->
-      <div id="leetcode75-card" class="cursor-pointer group">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#ff375f] transition-colors">LC 75</span>
-          <span class="text-[11px] text-[#eff1f699]"><span id="leetcode75-count" class="text-[#eff1f6]">0/75</span> <span id="leetcode75-percentage" class="text-[#ff375f] font-semibold">0%</span></span>
-        </div>
-        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
-          <div id="leetcode75-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ff375f;"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 30-Day Activity -->
-  <section class="mb-4 p-4 rounded-xl bg-[#282828]">
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center gap-2">
-        <span class="text-[12px] font-medium text-[#eff1f6]">30-Day Activity</span>
-        <span id="heatmap-count" class="text-[11px] text-[#2cbb5d] font-medium"></span>
-      </div>
-      <div class="flex items-center gap-2 text-[10px] text-[#eff1f699]">
-        <div class="flex items-center gap-1">
-          <svg class="w-2 h-2" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>
-          <span>Daily</span>
-        </div>
-        <span class="text-[#ffffff33]">|</span>
-        <div class="flex items-center gap-1">
-          <span>Less</span>
-          <div class="flex gap-0.5">
-            <div class="w-2.5 h-2.5 rounded-sm bg-[#ffffff0d]"></div>
-            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d40]"></div>
-            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d80]"></div>
-            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d]"></div>
-          </div>
-          <span>More</span>
-        </div>
-      </div>
-    </div>
-    <div id="heatmap" class="grid grid-cols-15 gap-[3px]">
-      <!-- Heatmap cells will be injected by JS -->
-    </div>
-    <div id="heatmap-dates" class="flex justify-between mt-2 text-[10px] text-[#eff1f666]">
-      <!-- Date labels will be injected by JS -->
-    </div>
-  </section>
-
-  <!-- Question Section -->
-  <section class="p-4 rounded-xl bg-[#282828]">
-    <div id="question" class="mb-4 text-[#eff1f6]">Loading...</div>
-    <div class="flex gap-2">
-      <button id="open"
-        class="inline-flex items-center justify-center flex-1 rounded-lg bg-[#ffa116] text-[#1a1a1a] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#ffb84d] active:scale-[0.98] focus:outline-none">
-        Solve Challenge
-      </button>
-      <button id="explorer-btn"
-        class="inline-flex items-center justify-center rounded-lg bg-[#3a3a3a] text-[#eff1f6] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#4a4a4a] active:scale-[0.98] focus:outline-none"
-        title="Browse all problems">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.35-4.35"></path>
+    <!-- Header -->
+    <header class="flex items-center justify-between w-full mb-5">
+      <div class="flex items-center gap-2.5">
+        <!-- User avatar (shown when logged in) -->
+        <img id="user-avatar" src="" alt="" class="w-8 h-8 rounded-full hidden object-cover">
+        <!-- LeetCode logo (shown when not logged in) -->
+        <svg id="lc-logo" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 00-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.535-1.387-.552-1.902-.038l-10.1 10.101c-.981.982-1.494 2.337-1.494 3.835 0 1.498.513 2.895 1.494 3.875l4.347 4.361c.981.979 2.337 1.452 3.834 1.452s2.853-.512 3.835-1.494l2.609-2.637c.514-.514.496-1.365-.039-1.9s-1.386-.553-1.899-.039zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z" fill="#FFA116"/>
         </svg>
-      </button>
-    </div>
-  </section>
-
-  <!-- Yesterday's Problem -->
-  <section id="yesterday-section" class="mt-4 p-4 rounded-xl bg-[#282828] hidden">
-    <span class="text-[12px] text-[#eff1f699] block mb-1.5">Missed yesterday?</span>
-    <a id="yesterday-link" href="#" target="_blank" class="text-[13px] font-medium text-[#eff1f6] hover:text-[#ffa116] transition-colors block truncate">
-      <span id="yesterday-num" class="text-[#eff1f699]"></span>
-      <span id="yesterday-title"></span>
-    </a>
-  </section>
-
-  <!-- Settings Accordion -->
-  <section class="mt-4 rounded-xl bg-[#282828] overflow-hidden">
-    <button id="settings-toggle" class="w-full p-4 flex items-center justify-between text-[12px] text-[#eff1f699] hover:text-[#eff1f6] transition-colors">
-      <span class="flex items-center gap-2">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-        Settings
-      </span>
-      <svg id="settings-icon" class="w-3 h-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
-    </button>
-    <div id="settings-content" class="hidden px-4 pb-4 space-y-3">
-      <!-- Notifications Toggle -->
-      <div class="flex items-center justify-between">
-        <span class="text-[12px] text-[#eff1f699]">Daily reminders</span>
-        <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications">
-          <span id="notif-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform"></span>
+        <div>
+          <h1 id="header-title" class="text-[15px] font-semibold text-[#eff1f6] leading-tight">LeetDaily</h1>
+          <p id="header-subtitle" class="text-[11px] text-[#eff1f699] leading-tight">Daily LeetCode Kro</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="timer" class="text-[12px] text-[#eff1f699] tabular-nums"></span>
+        <span id="streakDisplay" class="text-[14px] font-semibold text-[#ffa116]"></span>
+        <span class="text-[#ffffff1a]">|</span>
+        <!-- Settings Icon -->
+        <button id="settings-btn" class="text-[#eff1f699] hover:text-[#eff1f6] transition-colors" title="Settings">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
         </button>
       </div>
-      <!-- Reminder Time -->
-      <div id="reminder-time-section" class="flex items-center justify-between">
-        <span class="text-[12px] text-[#eff1f699]">Reminder time</span>
+    </header>
+
+    <!-- Login Prompt (shown when not logged in) -->
+    <section id="login-prompt" class="mb-4 px-4 py-3 rounded-xl bg-[#282828] hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-[12px] text-[#eff1f699]">Sign in to LeetCode to see your stats</span>
+        <a href="https://leetcode.com/accounts/login/" target="_blank" class="text-[12px] font-medium text-[#ffa116] hover:underline">Sign in</a>
+      </div>
+    </section>
+
+    <!-- Stats Panel -->
+    <section id="stats-panel" class="mb-4 px-4 py-3 rounded-xl bg-[#282828]">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <span class="text-[12px] text-[#eff1f699]">Solved</span>
+          <span id="total-count" class="text-[14px] font-semibold text-[#eff1f6]">-</span>
+        </div>
+        <div class="flex items-center gap-4 text-[12px]">
+          <span><span id="easy-count" class="font-semibold text-[#00b8a3]">-</span> <span class="text-[#eff1f699]">Easy</span></span>
+          <span><span id="medium-count" class="font-semibold text-[#ffa116]">-</span> <span class="text-[#eff1f699]">Med</span></span>
+          <span><span id="hard-count" class="font-semibold text-[#ff375f]">-</span> <span class="text-[#eff1f699]">Hard</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 30-Day Activity -->
+    <section class="mb-4 p-4 rounded-xl bg-[#282828]">
+      <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          <svg id="time-saved-check" class="w-4 h-4 opacity-0 transition-opacity" style="color: #4ade80;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <!-- Custom Time Picker -->
-          <div class="flex items-center bg-[#1a1a1a] rounded border border-[#ffffff1a]">
-            <!-- Hour Select -->
-            <select id="hour-select" class="bg-transparent text-[#eff1f6] text-[12px] cursor-pointer focus:outline-none">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10" selected>10</option>
-              <option value="11">11</option>
-              <option value="12">12</option>
-            </select>
-            <span class="text-[12px] text-[#eff1f699]">:</span>
-            <!-- Minute Select -->
-            <select id="minute-select" class="bg-transparent text-[#eff1f6] text-[12px] cursor-pointer focus:outline-none">
-              <option value="0" selected>00</option>
-              <option value="15">15</option>
-              <option value="30">30</option>
-              <option value="45">45</option>
-            </select>
-            <!-- AM/PM Toggle -->
-            <button id="ampm-btn" class="text-[12px] text-[#ffa116] font-medium px-2 py-1 cursor-pointer">AM</button>
+          <span class="text-[12px] font-medium text-[#eff1f6]">30-Day Activity</span>
+          <span id="heatmap-count" class="text-[11px] text-[#2cbb5d] font-medium"></span>
+        </div>
+        <div class="flex items-center gap-2 text-[10px] text-[#eff1f699]">
+          <div class="flex items-center gap-1">
+            <svg class="w-2 h-2" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>
+            <span>Daily</span>
+          </div>
+          <span class="text-[#ffffff33]">|</span>
+          <div class="flex items-center gap-1">
+            <span>Less</span>
+            <div class="flex gap-0.5">
+              <div class="w-2.5 h-2.5 rounded-sm bg-[#ffffff0d]"></div>
+              <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d40]"></div>
+              <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d80]"></div>
+              <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d]"></div>
+            </div>
+            <span>More</span>
           </div>
         </div>
       </div>
+      <div id="heatmap" class="grid grid-cols-15 gap-[3px]">
+        <!-- Heatmap cells will be injected by JS -->
+      </div>
+      <div id="heatmap-dates" class="flex justify-between mt-2 text-[10px] text-[#eff1f666]">
+        <!-- Date labels will be injected by JS -->
+      </div>
+    </section>
+
+    <!-- List Progress -->
+    <section id="list-progress-section" class="mb-4 p-4 rounded-xl bg-[#282828]">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-[13px] font-semibold text-[#eff1f6]">Your Progress</span>
+        <span class="text-[10px] text-[#eff1f699]">Track curated lists</span>
+      </div>
+      <div class="space-y-5">
+        <!-- Blind 75 -->
+        <div id="blind75-card" class="cursor-pointer group mb-2">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#00b8a3] transition-colors">Blind 75</span>
+            <span class="text-[11px] text-[#eff1f699]"><span id="blind75-count" class="text-[#eff1f6]">0/74</span> <span id="blind75-percentage" class="text-[#00b8a3] font-semibold">0%</span></span>
+          </div>
+          <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+            <div id="blind75-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #00b8a3;"></div>
+          </div>
+        </div>
+
+        <!-- NeetCode 150 -->
+        <div id="neetcode150-card" class="cursor-pointer group mb-2">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#ffa116] transition-colors">NC 150</span>
+            <span class="text-[11px] text-[#eff1f699]"><span id="neetcode150-count" class="text-[#eff1f6]">0/158</span> <span id="neetcode150-percentage" class="text-[#ffa116] font-semibold">0%</span></span>
+          </div>
+          <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+            <div id="neetcode150-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ffa116;"></div>
+          </div>
+        </div>
+
+        <!-- LeetCode 75 -->
+        <div id="leetcode75-card" class="cursor-pointer group">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[13px] font-semibold text-[#eff1f6] group-hover:text-[#ff375f] transition-colors">LC 75</span>
+            <span class="text-[11px] text-[#eff1f699]"><span id="leetcode75-count" class="text-[#eff1f6]">0/75</span> <span id="leetcode75-percentage" class="text-[#ff375f] font-semibold">0%</span></span>
+          </div>
+          <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+            <div id="leetcode75-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ff375f;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tag Progress (shown when topic/company focus is enabled) -->
+    <section id="tag-progress-section" class="hidden mb-4 px-4 py-3 rounded-xl bg-[#282828]">
+      <div id="tag-progress-list">
+        <!-- rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Question Section -->
+    <section id="daily-challenge-section" class="p-4 rounded-xl bg-[#282828]">
+      <div id="question" class="mb-4 text-[#eff1f6]">Loading...</div>
+      <div class="flex gap-2">
+        <button id="open"
+          class="inline-flex items-center justify-center flex-1 rounded-lg bg-[#ffa116] text-[#1a1a1a] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#ffb84d] active:scale-[0.98] focus:outline-none">
+          Solve Challenge
+        </button>
+        <button id="explorer-btn"
+          class="inline-flex items-center justify-center rounded-lg bg-[#3a3a3a] text-[#eff1f6] text-[13px] font-semibold px-4 py-2.5 transition-all hover:bg-[#4a4a4a] active:scale-[0.98] focus:outline-none"
+          title="Browse all problems">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ─── SETTINGS VIEW ─────────────────────────────────────────── -->
+  <div id="settings-view" class="hidden p-5">
+    <!-- Settings Header -->
+    <header class="flex items-center gap-3 mb-6">
+      <button id="settings-back-btn" class="text-[#eff1f699] hover:text-[#eff1f6] transition-colors" title="Back">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <h2 class="text-[15px] font-semibold text-[#eff1f6]">Settings</h2>
+    </header>
+
+    <!-- Settings Content -->
+    <div class="space-y-3">
+      <!-- Notifications + Reminder Time (combined card) -->
+      <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d]">
+        <!-- Daily reminders row -->
+        <div class="flex items-center justify-between">
+          <span class="text-[13px] text-[#eff1f699]">Daily reminders</span>
+          <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications">
+            <span id="notif-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform"></span>
+          </button>
+        </div>
+        <!-- Reminder time row -->
+        <div id="reminder-time-section" class="flex items-center justify-between mt-3">
+          <span class="text-[13px] text-[#eff1f699]">Reminder time</span>
+          <div class="flex items-center gap-2">
+            <svg id="time-saved-check" class="w-4 h-4 opacity-0 transition-opacity" style="color: #4ade80;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <div class="flex items-center bg-[#1a1a1a] rounded border border-[#ffffff1a]">
+              <select id="hour-select" class="bg-transparent text-[#eff1f6] text-[12px] cursor-pointer focus:outline-none">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10" selected>10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+              </select>
+              <span class="text-[12px] text-[#eff1f699]">:</span>
+              <select id="minute-select" class="bg-transparent text-[#eff1f6] text-[12px] cursor-pointer focus:outline-none">
+                <option value="0" selected>00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+              <button id="ampm-btn" class="text-[12px] text-[#ffa116] font-medium px-2 py-1 cursor-pointer">AM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Badge Streak Toggle -->
-      <div class="flex items-center justify-between">
-        <span class="text-[12px] text-[#eff1f699]">Show streak in badge</span>
+      <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d]">
+        <span class="text-[13px] text-[#eff1f699]">Show streak in badge</span>
         <button id="toggle-badge-streak" class="relative w-9 h-5 rounded-full transition-colors bg-[#2cbb5d]" title="Toggle streak badge">
           <span id="badge-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform translate-x-4"></span>
         </button>
       </div>
+
+      <!-- Streak Mode -->
+      <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1">
+            <span class="text-[13px] text-[#eff1f699]">Streak mode</span>
+            <span id="streak-mode-description" class="text-[12px] text-[#eff1f666]">Solve any selected category</span>
+          </div>
+          <div class="flex items-center gap-2 bg-[#1a1a1a] rounded border border-[#ffffff1a] p-0.5">
+            <button id="mode-or-btn" class="text-[11px] font-medium px-3 py-1.5 rounded transition-colors bg-[#ffa116] text-[#1a1a1a]">OR</button>
+            <button id="mode-and-btn" class="text-[11px] font-medium px-3 py-1.5 rounded transition-colors text-[#eff1f699]">AND</button>
+          </div>
+        </div>
+
+        <!-- OR Mode Requirements -->
+        <div id="or-mode-requirements" class="pl-4 space-y-2.5 border-l-2 border-[#00b8a333]">
+          <p class="text-[11px] text-[#eff1f666]">Solve any of these (select at least one):</p>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="or-req-daily" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Daily Challenge</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="or-req-lc75" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">LeetCode 75</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="or-req-blind75" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Blind 75</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="or-req-nc150" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">NeetCode 150</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="or-req-company" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Company tags</span>
+          </label>
+          <div id="or-company-section" class="hidden ml-6 space-y-1.5">
+            <div id="or-company-tags" class="flex flex-wrap gap-1"></div>
+            <div class="relative">
+              <input type="text" id="or-company-text" class="tag-text-input w-full" placeholder="Search company...">
+              <div id="or-company-dropdown" class="combobox-dropdown hidden"></div>
+            </div>
+          </div>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="or-req-topic" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Topic tags</span>
+          </label>
+          <div id="or-topic-section" class="hidden ml-6 space-y-1.5">
+            <div id="or-topic-tags" class="flex flex-wrap gap-1"></div>
+            <div class="relative">
+              <input type="text" id="or-topic-text" class="tag-text-input w-full" placeholder="Search topic...">
+              <div id="or-topic-dropdown" class="combobox-dropdown hidden"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AND Mode Requirements -->
+        <div id="and-mode-requirements" class="hidden pl-4 space-y-2.5 border-l-2 border-[#ffa11633]">
+          <p class="text-[11px] text-[#eff1f666]">Solve all of these (select at least one):</p>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="and-req-daily" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Daily Challenge</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="and-req-lc75" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">LeetCode 75</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="and-req-blind75" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Blind 75</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="and-req-nc150" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">NeetCode 150</span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="and-req-company" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Company tags</span>
+          </label>
+          <div id="and-company-section" class="hidden ml-6 space-y-1.5">
+            <div id="and-company-tags" class="flex flex-wrap gap-1"></div>
+            <div class="relative">
+              <input type="text" id="and-company-text" class="tag-text-input w-full" placeholder="Search company...">
+              <div id="and-company-dropdown" class="combobox-dropdown hidden"></div>
+            </div>
+          </div>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="and-req-topic" class="flex-shrink-0 cursor-pointer">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Topic tags</span>
+          </label>
+          <div id="and-topic-section" class="hidden ml-6 space-y-1.5">
+            <div id="and-topic-tags" class="flex flex-wrap gap-1"></div>
+            <div class="relative">
+              <input type="text" id="and-topic-text" class="tag-text-input w-full" placeholder="Search topic...">
+              <div id="and-topic-dropdown" class="combobox-dropdown hidden"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 
   <!-- Custom Tooltip -->
   <div id="custom-tooltip" class="fixed z-50 px-2 py-1 text-[11px] bg-[#3a3a3a] text-[#eff1f6] rounded shadow-lg pointer-events-none opacity-0 transition-opacity whitespace-nowrap"></div>

@@ -2,6 +2,374 @@ function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// PHASE 3: Enhanced Storage & Streak Logic
+
+// Cache for curated lists
+let curatedListsCache = null;
+
+// Load curated lists (LeetCode 75, Blind 75, NeetCode 150)
+async function loadCuratedLists() {
+  if (curatedListsCache) return curatedListsCache;
+
+  try {
+    const [lc75Response, blind75Response, nc150Response] = await Promise.all([
+      fetch(chrome.runtime.getURL('data/leetcode75.json')),
+      fetch(chrome.runtime.getURL('data/blind75.json')),
+      fetch(chrome.runtime.getURL('data/neetcode150.json'))
+    ]);
+
+    const [lc75Data, blind75Data, nc150Data] = await Promise.all([
+      lc75Response.json(),
+      blind75Response.json(),
+      nc150Response.json()
+    ]);
+
+    // Extract all problem IDs from each list
+    const lc75Ids = new Set();
+    const blind75Ids = new Set();
+    const nc150Ids = new Set();
+
+    lc75Data.categories?.forEach(cat => cat.problemIds?.forEach(id => lc75Ids.add(id)));
+    blind75Data.categories?.forEach(cat => cat.problemIds?.forEach(id => blind75Ids.add(id)));
+    nc150Data.categories?.forEach(cat => cat.problemIds?.forEach(id => nc150Ids.add(id)));
+
+    curatedListsCache = { lc75Ids, blind75Ids, nc150Ids };
+    return curatedListsCache;
+  } catch (error) {
+    console.error('Failed to load curated lists:', error);
+    return { lc75Ids: new Set(), blind75Ids: new Set(), nc150Ids: new Set() };
+  }
+}
+
+// Check which lists a problem belongs to
+async function getProblemListMembership(problemId) {
+  const lists = await loadCuratedLists();
+  return {
+    leetcode75: lists.lc75Ids.has(problemId),
+    blind75: lists.blind75Ids.has(problemId),
+    neetcode150: lists.nc150Ids.has(problemId)
+  };
+}
+
+// Calculate streak based on mode (OR/AND)
+function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, andRequirements = null) {
+  if (!solvedProblems || Object.keys(solvedProblems).length === 0) {
+    return { currentStreak: 0, longestStreak: 0 };
+  }
+
+  // Group problems by date
+  const solvedByDate = {};
+  for (const [problemId, data] of Object.entries(solvedProblems)) {
+    const date = data.solvedAt.slice(0, 10); // YYYY-MM-DD
+    if (!solvedByDate[date]) {
+      solvedByDate[date] = [];
+    }
+    solvedByDate[date].push(data);
+  }
+
+  // Helper function to check if a day meets OR mode requirements
+  function meetsOrRequirements(problemsOnDay) {
+    if (!orRequirements) {
+      // Fallback: any problem counts
+      return problemsOnDay.length > 0;
+    }
+
+    // Check if ANY of the selected requirements are met
+    let anyRequirementMet = false;
+
+    if (orRequirements.dailyChallenge) {
+      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.isDailyChallenge);
+    }
+
+    if (orRequirements.leetcode75) {
+      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.inLists?.leetcode75);
+    }
+
+    if (orRequirements.blind75) {
+      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.inLists?.blind75);
+    }
+
+    if (orRequirements.neetcode150) {
+      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.inLists?.neetcode150);
+    }
+
+    if (orRequirements.companyFocus && orRequirements.selectedCompanies?.length > 0) {
+      const companies = orRequirements.selectedCompanies.map(c => c.toLowerCase());
+      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p =>
+        p.companies?.some(c => companies.includes(c.toLowerCase()))
+      );
+    }
+
+    if (orRequirements.topicFocus && orRequirements.selectedTopics?.length > 0) {
+      const topics = orRequirements.selectedTopics.map(t => t.toLowerCase());
+      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p =>
+        p.topics?.some(t => topics.includes(t.toLowerCase()))
+      );
+    }
+
+    return anyRequirementMet;
+  }
+
+  // Helper function to check if a day meets AND mode requirements
+  function meetsAndRequirements(problemsOnDay) {
+    if (!andRequirements) {
+      // Fallback to old behavior if requirements not provided
+      return problemsOnDay.some(p => p.isDailyChallenge);
+    }
+
+    // Check if ALL of the selected requirements are met
+    let allRequirementsMet = true;
+
+    if (andRequirements.dailyChallenge) {
+      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.isDailyChallenge);
+    }
+
+    if (andRequirements.leetcode75) {
+      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.inLists?.leetcode75);
+    }
+
+    if (andRequirements.blind75) {
+      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.inLists?.blind75);
+    }
+
+    if (andRequirements.neetcode150) {
+      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.inLists?.neetcode150);
+    }
+
+    if (andRequirements.companyFocus && andRequirements.selectedCompanies?.length > 0) {
+      const companies = andRequirements.selectedCompanies.map(c => c.toLowerCase());
+      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p =>
+        p.companies?.some(c => companies.includes(c.toLowerCase()))
+      );
+    }
+
+    if (andRequirements.topicFocus && andRequirements.selectedTopics?.length > 0) {
+      const topics = andRequirements.selectedTopics.map(t => t.toLowerCase());
+      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p =>
+        p.topics?.some(t => topics.includes(t.toLowerCase()))
+      );
+    }
+
+    return allRequirementsMet;
+  }
+
+  // Calculate current streak (going backwards from today)
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let tempStreak = 0;
+  let date = new Date();
+
+  // Check today and go backwards
+  while (true) {
+    const dateStr = date.toISOString().slice(0, 10);
+    const solvedToday = solvedByDate[dateStr] || [];
+
+    let countsForStreak = false;
+
+    if (mode === "OR") {
+      // OR mode: ANY of the selected categories counts
+      countsForStreak = meetsOrRequirements(solvedToday);
+    } else {
+      // AND mode: ALL of the selected categories must be met
+      countsForStreak = meetsAndRequirements(solvedToday);
+    }
+
+    if (countsForStreak) {
+      currentStreak++;
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      // If it's today and nothing solved yet, don't break the streak
+      if (dateStr === getTodayDate()) {
+        // Continue checking yesterday
+        date.setDate(date.getDate() - 1);
+        continue;
+      }
+      // Streak broken
+      break;
+    }
+
+    date.setDate(date.getDate() - 1);
+  }
+
+  // Calculate longest streak from all historical data
+  const allDates = Object.keys(solvedByDate).sort();
+  tempStreak = 0;
+
+  for (let i = 0; i < allDates.length; i++) {
+    const currentDate = allDates[i];
+    const solved = solvedByDate[currentDate];
+
+    let counts = false;
+    if (mode === "OR") {
+      counts = meetsOrRequirements(solved);
+    } else {
+      counts = meetsAndRequirements(solved);
+    }
+
+    if (counts) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+
+      // Check if next day is consecutive
+      if (i < allDates.length - 1) {
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(nextDate.getDate() + 1);
+        const nextDateStr = nextDate.toISOString().slice(0, 10);
+
+        if (allDates[i + 1] !== nextDateStr) {
+          tempStreak = 0;
+        }
+      }
+    } else {
+      tempStreak = 0;
+    }
+  }
+
+  return { currentStreak, longestStreak };
+}
+
+// Calculate topic-specific streaks
+function calculateTopicStreaks(solvedProblems) {
+  const topicStreaks = {};
+
+  for (const [problemId, data] of Object.entries(solvedProblems)) {
+    const topics = data.topics || [];
+
+    for (const topic of topics) {
+      if (!topicStreaks[topic]) {
+        topicStreaks[topic] = {
+          count: 0,
+          lastSolved: null,
+          problems: []
+        };
+      }
+
+      topicStreaks[topic].count++;
+      topicStreaks[topic].problems.push(problemId);
+
+      if (!topicStreaks[topic].lastSolved || data.solvedAt > topicStreaks[topic].lastSolved) {
+        topicStreaks[topic].lastSolved = data.solvedAt;
+      }
+    }
+  }
+
+  return topicStreaks;
+}
+
+// Calculate company-specific streaks
+function calculateCompanyStreaks(solvedProblems) {
+  const companyStreaks = {};
+
+  for (const [problemId, data] of Object.entries(solvedProblems)) {
+    const companies = data.companies || [];
+
+    for (const company of companies) {
+      if (!companyStreaks[company]) {
+        companyStreaks[company] = {
+          count: 0,
+          lastSolved: null,
+          problems: []
+        };
+      }
+
+      companyStreaks[company].count++;
+      companyStreaks[company].problems.push(problemId);
+
+      if (!companyStreaks[company].lastSolved || data.solvedAt > companyStreaks[company].lastSolved) {
+        companyStreaks[company].lastSolved = data.solvedAt;
+      }
+    }
+  }
+
+  return companyStreaks;
+}
+
+// Update all streaks and storage
+async function updateStreaksAndStorage(problemData) {
+  // Get list membership for this problem
+  const inLists = await getProblemListMembership(problemData.problemId);
+
+  return new Promise((resolve) => {
+    chrome.storage.local.get([
+      'solvedProblems',
+      'streakMode',
+      'orModeRequirements',
+      'andModeRequirements',
+      'completedProblemIds'
+    ], (result) => {
+      const solvedProblems = result.solvedProblems || {};
+      const streakMode = result.streakMode || 'OR';
+      const orRequirements = result.orModeRequirements || {
+        dailyChallenge: true,
+        leetcode75: true,
+        blind75: true,
+        neetcode150: true,
+        companyFocus: false,
+        selectedCompanies: [],
+        topicFocus: false,
+        selectedTopics: []
+      };
+      const andRequirements = result.andModeRequirements || {
+        dailyChallenge: true,
+        leetcode75: false,
+        blind75: false,
+        neetcode150: false,
+        companyFocus: false,
+        selectedCompanies: [],
+        topicFocus: false,
+        selectedTopics: []
+      };
+      const completedProblemIds = result.completedProblemIds || [];
+
+      // Add new problem to solved problems
+      solvedProblems[problemData.problemId] = {
+        solvedAt: problemData.solvedAt,
+        difficulty: problemData.difficulty,
+        topics: problemData.topics,
+        companies: problemData.companies,
+        companyFrequency: problemData.companyFrequency,
+        isDailyChallenge: problemData.isDailyChallenge || false,
+        inLists: inLists, // Store which lists this problem belongs to
+        titleSlug: problemData.titleSlug,
+        title: problemData.title
+      };
+
+      // Add to completedProblemIds if not already there
+      if (!completedProblemIds.includes(problemData.problemId)) {
+        completedProblemIds.push(problemData.problemId);
+      }
+
+      // Calculate streaks with current mode and requirements
+      const { currentStreak, longestStreak } = calculateStreak(
+        solvedProblems,
+        streakMode,
+        orRequirements,
+        andRequirements
+      );
+      const topicStreaks = calculateTopicStreaks(solvedProblems);
+      const companyStreaks = calculateCompanyStreaks(solvedProblems);
+
+      // Get last solved date
+      const lastSolvedDate = problemData.solvedAt.slice(0, 10);
+
+      // Update storage
+      chrome.storage.local.set({
+        solvedProblems,
+        completedProblemIds,
+        currentStreak,
+        longestStreak,
+        lastSolvedDate,
+        topicStreaks,
+        companyStreaks
+      }, () => {
+        console.log('✅ Streaks updated:', { currentStreak, longestStreak });
+        resolve({ currentStreak, longestStreak });
+      });
+    });
+  });
+}
+
 let blinkInterval = null;
 let blinkVisible = true;
 let currentBlinkText = "";
@@ -60,8 +428,8 @@ function startLoadingBlink() {
   }
 
   // Get current streak to display
-  chrome.storage.local.get(["streak"], (result) => {
-    const streak = String(result.streak || 0);
+  chrome.storage.local.get(["currentStreak"], (result) => {
+    const streak = String(result.currentStreak || 0);
     currentBlinkText = streak;
     blinkVisible = true;
     chrome.action.setBadgeTextColor({ color: loadingColor });
@@ -85,14 +453,19 @@ function stopLoadingBlink() {
 }
 
 function updateBadge() {
-  chrome.storage.local.get(["lastVisitedDate", "streak", "badgeStreakEnabled"], (result) => {
+  chrome.storage.local.get([
+    "lastSolvedDate",
+    "currentStreak",
+    "badgeStreakEnabled"
+  ], (result) => {
     if (!result) return;
 
     const badgeEnabled = result.badgeStreakEnabled !== false; // Default to true
     const today = getTodayDate();
     const timeLeft = getTimeUntilMidnightUTC();
     const twoHoursInMs = 2 * 60 * 60 * 1000;
-    const streak = result.streak || 0;
+    const streak = result.currentStreak || 0;
+    const lastSolved = result.lastSolvedDate || null;
 
     // Colors - bright text on dark bg
     const darkBg = "#1a1a1a"; // Dark background matching extension
@@ -100,8 +473,8 @@ function updateBadge() {
     const orangeColor = "#fbbf24"; // Bright amber/orange
     const redColor = "#f87171"; // Bright red
 
-    // If already visited today, show green (solved)
-    if (result.lastVisitedDate === today) {
+    // If solved today, show green (solved)
+    if (lastSolved === today) {
       stopBlinking();
       if (badgeEnabled) {
         // Dark bg with green text
@@ -112,7 +485,7 @@ function updateBadge() {
         chrome.action.setBadgeText({ text: "" }); // Hide when solved
       }
     }
-    // If not visited and less than 2 hours left, BLINK red
+    // If not solved and less than 2 hours left, BLINK red
     else if (timeLeft <= twoHoursInMs) {
       if (badgeEnabled) {
         // Dark bg with red text, blinking
@@ -122,7 +495,7 @@ function updateBadge() {
         startBlinking(" ", "#FFFFFF", redColor);
       }
     }
-    // If not visited but more than 2 hours left, show orange (pending)
+    // If not solved but more than 2 hours left, show orange (pending)
     else {
       stopBlinking();
       if (badgeEnabled) {
@@ -246,14 +619,14 @@ function checkUrgentReminder() {
   const twoHoursInMs = 2 * 60 * 60 * 1000;
 
   if (timeLeft <= twoHoursInMs && timeLeft > 0) {
-    chrome.storage.local.get(["lastVisitedDate", "lastUrgentNotification", "leetCodeUsername", "streak"], (result) => {
+    chrome.storage.local.get(["lastSolvedDate", "lastUrgentNotification", "leetCodeUsername", "currentStreak"], (result) => {
       const today = getTodayDate();
-      // Only show if not visited today and haven't shown urgent notification today
-      if (result.lastVisitedDate !== today && result.lastUrgentNotification !== today) {
+      // Only show if not solved today and haven't shown urgent notification today
+      if (result.lastSolvedDate !== today && result.lastUrgentNotification !== today) {
         const firstName = result.leetCodeUsername
           ? result.leetCodeUsername.split(/[^a-zA-Z]/)[0]
           : null;
-        const streak = result.streak || 0;
+        const streak = result.currentStreak || 0;
         const streakText = streak > 0 ? ` Don't lose your ${streak}-day streak!` : "";
         const greeting = firstName ? `${firstName}, ` : "";
 
@@ -321,9 +694,9 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 // Handle alarm triggers
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "dailyReminder") {
-    chrome.storage.local.get(["lastVisitedDate", "leetCodeUsername"], (result) => {
+    chrome.storage.local.get(["lastSolvedDate", "leetCodeUsername"], (result) => {
       const today = getTodayDate();
-      if (result.lastVisitedDate !== today) {
+      if (result.lastSolvedDate !== today) {
         const firstName = result.leetCodeUsername
           ? result.leetCodeUsername.split(/[^a-zA-Z]/)[0]
           : null;
@@ -385,6 +758,61 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       updateBadge();
     });
     sendResponse({ success: true });
+    return true;
+  }
+
+  // PHASE 3: Handle individual problem solution
+  if (request.action === "individualProblemSolved") {
+    (async () => {
+      try {
+        const problemData = request.data;
+        console.log('📝 Individual problem solved:', problemData.title);
+
+        // Check if this is today's daily challenge
+        const response = await fetch("https://leetcode.com/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: `
+              query questionOfToday {
+                activeDailyCodingChallengeQuestion {
+                  question {
+                    titleSlug
+                  }
+                }
+              }
+            `
+          })
+        });
+
+        const data = await response.json();
+        const dailySlug = data?.data?.activeDailyCodingChallengeQuestion?.question?.titleSlug;
+        problemData.isDailyChallenge = (problemData.titleSlug === dailySlug);
+
+        // Update streaks and storage
+        await updateStreaksAndStorage(problemData);
+
+        // Update badge
+        updateBadge();
+
+        console.log('✅ Problem tracked successfully');
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error('❌ Failed to track problem:', error);
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
+    return true; // Will respond asynchronously
+  }
+
+  // PHASE 3: Update AND mode requirements
+  // When requirements change, we DON'T recalculate to preserve streak
+  // Future problem solves will use the new requirements
+  if (request.action === "updateAndRequirements") {
+    chrome.storage.local.set({ andModeRequirements: request.requirements }, () => {
+      console.log('✅ AND mode requirements updated:', request.requirements);
+      sendResponse({ success: true });
+    });
     return true;
   }
 });
