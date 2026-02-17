@@ -28,6 +28,9 @@ import {
   Settings,
   ChevronDown,
   AlertTriangle,
+  BookOpen,
+  Search,
+  Database,
 } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -260,7 +263,7 @@ export default function LandingPage() {
                 ref={subtextRef}
                 className="text-sm sm:text-base text-white/60 max-w-sm sm:max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed"
               >
-                Free Chrome extension for daily LeetCode challenges, FAANG company tags, streak tracking & smart coding interview reminders — one click from your toolbar.
+                Free Chrome extension for daily LeetCode challenges, Blind 75 / NeetCode 150 tracking, FAANG company tags, problems explorer & smart coding interview reminders — one click from your toolbar.
               </p>
 
               {/* CTA Buttons */}
@@ -710,6 +713,27 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
               {
+                icon: Flame,
+                title: "Daily Challenge",
+                description:
+                  "Today's problem with difficulty, acceptance rate, topic tags, and company frequency data.",
+                gradient: "from-orange-500 to-red-500",
+              },
+              {
+                icon: BookOpen,
+                title: "Curated Study Lists",
+                description:
+                  "Track Blind 75, NeetCode 150, and LeetCode 75 with live progress bars and next-unsolved navigation.",
+                gradient: "from-cyan-500 to-blue-500",
+              },
+              {
+                icon: Search,
+                title: "Problems Explorer",
+                description:
+                  "Browse 2000+ problems with filters for difficulty, topics, companies, and curated lists.",
+                gradient: "from-indigo-500 to-purple-500",
+              },
+              {
                 icon: Trophy,
                 title: "Streak Milestones",
                 description:
@@ -727,50 +751,50 @@ export default function LandingPage() {
                 icon: Building2,
                 title: "Company Tags",
                 description:
-                  "See which FAANG companies ask each problem with frequency counts.",
+                  "See which FAANG companies ask each problem with frequency counts. Track company-specific progress.",
                 gradient: "from-blue-500 to-indigo-500",
+              },
+              {
+                icon: Tag,
+                title: "Topic & Company Progress",
+                description:
+                  "Track solved/total for your target topics and companies with intersection views.",
+                gradient: "from-amber-500 to-orange-500",
               },
               {
                 icon: Bell,
                 title: "Smart Reminders",
                 description:
-                  "Custom reminder times + urgent alert 2 hours before midnight reset.",
+                  "Custom reminder times + urgent alert 2 hours before midnight streak reset.",
                 gradient: "from-purple-500 to-pink-500",
+              },
+              {
+                icon: Settings,
+                title: "Flexible Streak Rules",
+                description:
+                  "Choose what counts: Daily Challenge, curated lists, topic/company problems, or any submission.",
+                gradient: "from-red-500 to-orange-500",
               },
               {
                 icon: BarChart3,
                 title: "Your Stats",
                 description:
-                  "Total solved, Easy/Medium/Hard breakdown. Syncs with your LeetCode account.",
+                  "Total solved, Easy/Medium/Hard breakdown. Syncs automatically with your LeetCode account.",
                 gradient: "from-cyan-500 to-blue-500",
               },
               {
-                icon: Clock,
-                title: "Yesterday's Problem",
+                icon: Database,
+                title: "Data Export & Import",
                 description:
-                  "Missed yesterday? Quick link to catch up without searching.",
-                gradient: "from-red-500 to-orange-500",
+                  "Backup and restore all your progress as JSON. Your data, your control.",
+                gradient: "from-emerald-500 to-teal-500",
               },
               {
-                icon: Tag,
-                title: "Topic Tags",
+                icon: Shield,
+                title: "Privacy-First",
                 description:
-                  "Clickable tags for Arrays, DP, Graphs. Jump to similar problems instantly.",
-                gradient: "from-amber-500 to-orange-500",
-              },
-              {
-                icon: Zap,
-                title: "Lightning Fast",
-                description:
-                  "One click to solve. Copy link to share. Zero ads, zero clutter.",
+                  "All data stored locally. No tracking, no ads, no account required. Free forever.",
                 gradient: "from-yellow-500 to-amber-500",
-              },
-              {
-                icon: Flame,
-                title: "Daily Challenge",
-                description:
-                  "Today's problem with difficulty, acceptance rate, and countdown timer.",
-                gradient: "from-orange-500 to-red-500",
               },
             ].map((feature, i) => (
               <div

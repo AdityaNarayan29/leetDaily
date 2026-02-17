@@ -73,6 +73,67 @@ async function getListStats(listName, completedIds = []) {
   return { total, completed, remaining, percentage };
 }
 
+async function getNextUnsolvedForList(listName) {
+  const [listData, master] = await Promise.all([loadListData(listName), loadMasterProblems()]);
+  if (!listData || !master) return null;
+  return new Promise(resolve => {
+    chrome.storage.local.get(['completedProblemIds'], (result) => {
+      const done = new Set((result.completedProblemIds || []).map(String));
+      const seen = new Set();
+      for (const cat of listData.categories || []) {
+        for (const id of cat.problemIds || []) {
+          if (seen.has(id)) continue;
+          seen.add(id);
+          if (!done.has(String(id))) {
+            const p = master.problemMap[id];
+            if (p) { resolve(p.url); return; }
+          }
+        }
+      }
+      resolve(null);
+    });
+  });
+}
+
+async function getNextUnsolvedForTag(name, type) {
+  const master = await loadMasterProblems();
+  if (!master) return null;
+  return new Promise(resolve => {
+    chrome.storage.local.get(['completedProblemIds'], (result) => {
+      const done = new Set((result.completedProblemIds || []).map(String));
+      for (const p of master.problems) {
+        if (done.has(String(p.id))) continue;
+        if (type === 'topic') {
+          const topics = (p.topics || []).map(t => typeof t === 'string' ? t : t.name);
+          if (topics.some(t => t.toLowerCase() === name.toLowerCase())) { resolve(p.url); return; }
+        } else {
+          if ((p.companies || []).some(c => c.toLowerCase() === name.toLowerCase())) { resolve(p.url); return; }
+        }
+      }
+      resolve(null);
+    });
+  });
+}
+
+async function getNextUnsolvedForIntersection(topics, companies) {
+  const master = await loadMasterProblems();
+  if (!master) return null;
+  return new Promise(resolve => {
+    chrome.storage.local.get(['completedProblemIds'], (result) => {
+      const done = new Set((result.completedProblemIds || []).map(String));
+      for (const p of master.problems) {
+        if (done.has(String(p.id))) continue;
+        const pt = (p.topics || []).map(t => typeof t === 'string' ? t : t.name);
+        const pc = p.companies || [];
+        const matchT = topics.some(t => pt.some(x => x.toLowerCase() === t.toLowerCase()));
+        const matchC = companies.some(c => pc.some(x => x.toLowerCase() === c.toLowerCase()));
+        if (matchT && matchC) { resolve(p.url); return; }
+      }
+      resolve(null);
+    });
+  });
+}
+
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -211,6 +272,54 @@ async function getDailyQuestionSlug() {
   return { ...challenge.question, date: challenge.date };
 }
 
+
+// Fetch all solved problem IDs from LeetCode and merge into chrome.storage
+async function syncCompletedProblemIds() {
+  try {
+    // Get existing IDs first
+    const existing = await new Promise(resolve => {
+      chrome.storage.local.get(['completedProblemIds'], r => resolve(r.completedProblemIds || []));
+    });
+
+    const response = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        query: `query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+          problemsetQuestionList: questionList(categorySlug: $categorySlug, limit: $limit, skip: $skip, filters: $filters) {
+            total
+            questions { frontendQuestionId status }
+          }
+        }`,
+        variables: { categorySlug: "", limit: 3000, skip: 0, filters: {} }
+      })
+    });
+
+    const data = await response.json();
+    const questions = data?.data?.problemsetQuestionList?.questions || [];
+    const apiIds = questions
+      .filter(q => q.status === "ac")
+      .map(q => parseInt(q.frontendQuestionId))
+      .filter(id => !isNaN(id));
+
+    console.log('🔄 Synced completed problem IDs:', apiIds.length, '(existing:', existing.length + ')');
+
+    if (apiIds.length > 0) {
+      // Merge: union of existing + API results
+      const merged = [...new Set([...existing.map(Number), ...apiIds])];
+      await new Promise(resolve => {
+        chrome.storage.local.set({ completedProblemIds: merged }, resolve);
+      });
+      return merged;
+    }
+
+    return existing;
+  } catch (err) {
+    console.error("Failed to sync completed problem IDs:", err);
+    return [];
+  }
+}
 
 async function fetchUserSolvedStats(username) {
   try {
@@ -365,6 +474,8 @@ function renderChipsWithOverflow(container, items, chipClass, moreClass, isTopic
       // Companies: item is { name, freq }
       const freqLabel = item.freq > 0 ? ` (${item.freq})` : '';
       chip.textContent = `${item.name}${freqLabel}`;
+      chip.dataset.company = item.name;
+      chip.style.cursor = 'pointer';
     }
 
     return chip;
@@ -433,15 +544,16 @@ function renderChipsWithOverflow(container, items, chipClass, moreClass, isTopic
     container.appendChild(moreBtn);
   }
 
-  // Add click handler for topic chips
-  if (isTopics) {
-    container.addEventListener('click', (event) => {
-      const target = event.target;
-      if (target.dataset.tag) {
-        window.open(`https://leetcode.com/tag/${target.dataset.tag}/`, '_blank');
-      }
-    });
-  }
+  // Add click handlers for chips → open explorer with filter
+  container.addEventListener('click', (event) => {
+    const target = event.target;
+    if (isTopics && target.dataset.tag) {
+      const topicName = target.textContent.trim();
+      chrome.tabs.create({ url: getExplorerUrl([topicName], []) });
+    } else if (!isTopics && target.dataset.company) {
+      chrome.tabs.create({ url: getExplorerUrl([], [target.dataset.company]) });
+    }
+  });
 }
 
 function renderQuestion(question, companyData = null) {
@@ -465,7 +577,7 @@ function renderQuestion(question, companyData = null) {
   // Consistent chip styling - same size/padding, different colors
   const baseChipClass = "inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium transition-colors whitespace-nowrap";
   const topicChipClass = `${baseChipClass} bg-[#ffffff0d] text-[#eff1f699] hover:bg-[#ffffff1a] hover:text-[#eff1f6] cursor-pointer`;
-  const companyChipClass = `${baseChipClass} bg-[#ffa1161a] text-[#ffa116] hover:bg-[#ffa11633] cursor-default`;
+  const companyChipClass = `${baseChipClass} bg-[#ffa1161a] text-[#ffa116] hover:bg-[#ffa11633] cursor-pointer`;
   const moreChipClass = `${baseChipClass} bg-[#ffffff0d] text-[#eff1f699] hover:bg-[#ffffff1a] hover:text-[#eff1f6] cursor-pointer`;
 
   const topicsArray = question.topicTags || [];
@@ -482,14 +594,11 @@ function renderQuestion(question, companyData = null) {
   document.getElementById("question").innerHTML = `
     <div class="mb-3 flex items-start gap-2">
       <div class="flex-1 text-[14px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}.</span> <span class="font-medium text-[#eff1f6]">${question.title}</span> <span style="white-space: nowrap; font-size: 11px; float: right;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span></div>
-      <button id="copy-link" class="text-[#eff1f666] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Copy problem link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
+      <button id="open-problem" class="text-[#eff1f6] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Open problem">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
       </button>
     </div>
-    <div class="border-t border-[#ffffff0d] pt-3">
+    <div>
       <!-- Topics row -->
       <div class="flex items-start gap-2 text-[#eff1f699] px-2.5 py-2 border border-[#ffffff1a]" style="border-radius: 8px 8px 0 0; border-bottom: none;">
         <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -533,18 +642,9 @@ function renderQuestion(question, companyData = null) {
     renderChipsWithOverflow(companiesRowEl, companyItems, companyChipClass, moreChipClass, false);
   }
 
-  // Copy link button
-  const copyBtn = document.getElementById("copy-link");
-  copyBtn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(problemUrl);
-      copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2cbb5d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-      setTimeout(() => {
-        copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
-      }, 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
+  // Open problem button
+  document.getElementById("open-problem").addEventListener("click", () => {
+    chrome.tabs.create({ url: problemUrl });
   });
 
   // Acceptance rate tooltip
@@ -597,8 +697,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "currentStreak",
       "longestStreak",
       "lastSolvedDate",
-      "leetCodeUsername",
-      "streakMode"
+      "leetCodeUsername"
     ], (result) => {
       const streak = result.currentStreak || 0;
       const longestStreak = result.longestStreak || 0;
@@ -607,7 +706,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const streakDisplay = document.getElementById("streakDisplay");
       const username = result.leetCodeUsername;
       const milestone = getStreakMilestone(streak);
-      const mode = result.streakMode || "OR";
 
       const solvedToday = lastSolved === today;
 
@@ -615,17 +713,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Solved today - show active streak
         const milestoneEmoji = milestone ? ` ${milestone.emoji}` : "";
         streakDisplay.textContent = `🔥 ${streak}${milestoneEmoji}`;
-        const modeText = mode === "OR" ? "any selected category" : "all selected categories";
         streakDisplay.title = milestone
           ? `${milestone.message} ${username ? `(${username})` : ""}`
-          : `Streak active! ${streak} day${streak !== 1 ? 's' : ''} (${modeText} mode)`;
+          : `Streak active! ${streak} day${streak !== 1 ? 's' : ''}`;
       } else {
         // Not solved today - show pending streak
         streakDisplay.textContent = `🔥 ${streak}`;
-        const modeText = mode === "OR" ? "any selected category" : "all selected categories";
         streakDisplay.title = streak > 0
-          ? `Streak at risk! Solve ${modeText} to continue your ${streak}-day streak.`
-          : `Start your streak by solving ${modeText}!`;
+          ? `Streak at risk! Keep solving to continue your ${streak}-day streak.`
+          : `Start your streak by solving a problem!`;
       }
 
       // Show milestone celebration banner if applicable
@@ -639,19 +735,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Update button state based on completion
-  function updateButtonState(completedToday) {
-    const btn = document.getElementById("open");
-    if (completedToday) {
-      btn.innerHTML = `<svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Solved`;
-      btn.classList.remove("bg-[#ffa116]", "hover:bg-[#ffb84d]");
-      btn.classList.add("bg-[#2cbb5d]", "hover:bg-[#34d668]");
-    } else {
-      btn.textContent = "Solve Challenge";
-      btn.classList.remove("bg-[#2cbb5d]", "hover:bg-[#34d668]");
-      btn.classList.add("bg-[#ffa116]", "hover:bg-[#ffb84d]");
-    }
-  }
 
   // Show/hide login prompt and stats panel based on login state
   function updateLoginState(isLoggedIn, userData = null) {
@@ -698,7 +781,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (userData) {
       const today = getTodayDate();
       updateLoginState(true, userData);
-      updateButtonState(userData.completedToday);
+
+      // Sync all solved problem IDs from LeetCode, then re-render progress
+      syncCompletedProblemIds().then(() => {
+        renderListProgress();
+        refreshTagProgress();
+      });
 
       chrome.storage.local.set({
         streak: userData.streak,
@@ -915,34 +1003,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Add click handlers for list cards
-  const blind75Card = document.getElementById('blind75-card');
-  const neetcode150Card = document.getElementById('neetcode150-card');
-  const leetcode75Card = document.getElementById('leetcode75-card');
-
-  if (blind75Card) {
-    blind75Card.addEventListener('click', () => {
-      chrome.tabs.create({
-        url: chrome.runtime.getURL('problems-explorer.html?list=blind75')
+  // Add click handlers for list labels
+  [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
+    const label = document.getElementById(labelId);
+    if (label) {
+      label.addEventListener('click', () => {
+        chrome.tabs.create({ url: chrome.runtime.getURL(`problems-explorer.html?list=${listName}`) });
       });
-    });
-  }
+    }
+  });
 
-  if (neetcode150Card) {
-    neetcode150Card.addEventListener('click', () => {
-      chrome.tabs.create({
-        url: chrome.runtime.getURL('problems-explorer.html?list=neetcode150')
+  // Next unsolved buttons for list cards
+  [['blind75-next', 'blind75'], ['neetcode150-next', 'neetcode150'], ['leetcode75-next', 'leetcode75']].forEach(([btnId, listName]) => {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const url = await getNextUnsolvedForList(listName);
+        if (url) chrome.tabs.create({ url });
       });
-    });
-  }
-
-  if (leetcode75Card) {
-    leetcode75Card.addEventListener('click', () => {
-      chrome.tabs.create({
-        url: chrome.runtime.getURL('problems-explorer.html?list=leetcode75')
-      });
-    });
-  }
+    }
+  });
 
   // Initialize in proper order
   async function initialize() {
@@ -969,12 +1050,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Still render heatmap without username (will only show daily challenges)
       render30DayHeatmap(null);
     }
-  });
-
-  document.getElementById("open").addEventListener("click", () => {
-    chrome.tabs.create({
-      url: `https://leetcode.com/problems/${question.titleSlug}`,
-    });
   });
 
   // Problems Explorer button
@@ -1139,103 +1214,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     ampmBtn.textContent = selectedAmPm;
   });
 
-  // PHASE 3: Streak Mode Toggle
-  const modeOrBtn = document.getElementById("mode-or-btn");
-  const modeAndBtn = document.getElementById("mode-and-btn");
-  const modeDescription = document.getElementById("streak-mode-description");
-  const orRequirementsSection = document.getElementById("or-mode-requirements");
-  const andRequirementsSection = document.getElementById("and-mode-requirements");
-
-  // OR mode requirement checkboxes
-  const orReqDaily = document.getElementById("or-req-daily");
-  const orReqLc75 = document.getElementById("or-req-lc75");
-  const orReqBlind75 = document.getElementById("or-req-blind75");
-  const orReqNc150 = document.getElementById("or-req-nc150");
-
-  // AND mode requirement checkboxes
-  const andReqDaily = document.getElementById("and-req-daily");
-  const andReqLc75 = document.getElementById("and-req-lc75");
-  const andReqBlind75 = document.getElementById("and-req-blind75");
-  const andReqNc150 = document.getElementById("and-req-nc150");
+  // Streak requirement checkboxes
+  const reqDaily = document.getElementById("req-daily");
+  const reqLc75 = document.getElementById("req-lc75");
+  const reqBlind75 = document.getElementById("req-blind75");
+  const reqNc150 = document.getElementById("req-nc150");
+  const reqAny = document.getElementById("req-any");
 
   // Tag input state (initialized after setupTagInput is defined)
-  let orCompanyTags = null;
-  let orTopicTags = null;
-  let andCompanyTags = null;
-  let andTopicTags = null;
+  let companyTags = null;
+  let topicTags = null;
 
-  function updateStreakModeUI(mode) {
-    if (mode === "OR") {
-      modeOrBtn.classList.add("bg-[#ffa116]", "text-[#1a1a1a]");
-      modeOrBtn.classList.remove("text-[#eff1f699]");
-      modeAndBtn.classList.remove("bg-[#ffa116]", "text-[#1a1a1a]");
-      modeAndBtn.classList.add("text-[#eff1f699]");
-      modeDescription.textContent = "Solve any selected category";
-      orRequirementsSection.classList.remove("hidden");
-      andRequirementsSection.classList.add("hidden");
-    } else {
-      modeAndBtn.classList.add("bg-[#ffa116]", "text-[#1a1a1a]");
-      modeAndBtn.classList.remove("text-[#eff1f699]");
-      modeOrBtn.classList.remove("bg-[#ffa116]", "text-[#1a1a1a]");
-      modeOrBtn.classList.add("text-[#eff1f699]");
-      modeDescription.textContent = "Solve all selected categories";
-      orRequirementsSection.classList.add("hidden");
-      andRequirementsSection.classList.remove("hidden");
-    }
-  }
-
-  function saveOrModeRequirements() {
-    // All requirements are shared — OR/AND only changes the logic, not the selection
-    const shared = {
-      dailyChallenge: orReqDaily.checked,
-      leetcode75: orReqLc75.checked,
-      blind75: orReqBlind75.checked,
-      neetcode150: orReqNc150.checked,
-      companyFocus: orCompanyTags ? orCompanyTags.isEnabled() : false,
-      selectedCompanies: orCompanyTags ? orCompanyTags.getTags() : [],
-      topicFocus: orTopicTags ? orTopicTags.isEnabled() : false,
-      selectedTopics: orTopicTags ? orTopicTags.getTags() : []
+  function saveRequirements() {
+    const req = {
+      dailyChallenge: reqDaily.checked,
+      leetcode75: reqLc75.checked,
+      blind75: reqBlind75.checked,
+      neetcode150: reqNc150.checked,
+      anySubmission: reqAny ? reqAny.checked : false,
+      companyFocus: companyTags ? companyTags.isEnabled() : false,
+      selectedCompanies: companyTags ? companyTags.getTags() : [],
+      topicFocus: topicTags ? topicTags.isEnabled() : false,
+      selectedTopics: topicTags ? topicTags.getTags() : []
     };
-    // Sync all state to AND mode inputs
-    andReqDaily.checked = shared.dailyChallenge;
-    andReqLc75.checked = shared.leetcode75;
-    andReqBlind75.checked = shared.blind75;
-    andReqNc150.checked = shared.neetcode150;
-    if (andCompanyTags) { andCompanyTags.setEnabled(shared.companyFocus); andCompanyTags.setTags(shared.selectedCompanies); }
-    if (andTopicTags) { andTopicTags.setEnabled(shared.topicFocus); andTopicTags.setTags(shared.selectedTopics); }
-    chrome.storage.local.set({ orModeRequirements: shared, andModeRequirements: shared });
-    updateProgressCardVisibility("OR");
+    chrome.storage.local.set({ requirements: req });
+    updateProgressCardVisibility();
     refreshTagProgress();
   }
 
-  function saveAndModeRequirements() {
-    // All requirements are shared — OR/AND only changes the logic, not the selection
-    const shared = {
-      dailyChallenge: andReqDaily.checked,
-      leetcode75: andReqLc75.checked,
-      blind75: andReqBlind75.checked,
-      neetcode150: andReqNc150.checked,
-      companyFocus: andCompanyTags ? andCompanyTags.isEnabled() : false,
-      selectedCompanies: andCompanyTags ? andCompanyTags.getTags() : [],
-      topicFocus: andTopicTags ? andTopicTags.isEnabled() : false,
-      selectedTopics: andTopicTags ? andTopicTags.getTags() : []
+  function updateProgressCardVisibility() {
+    const reqs = {
+      dailyChallenge: reqDaily.checked,
+      blind75: reqBlind75.checked,
+      neetcode150: reqNc150.checked,
+      leetcode75: reqLc75.checked
     };
-    // Sync all state to OR mode inputs
-    orReqDaily.checked = shared.dailyChallenge;
-    orReqLc75.checked = shared.leetcode75;
-    orReqBlind75.checked = shared.blind75;
-    orReqNc150.checked = shared.neetcode150;
-    if (orCompanyTags) { orCompanyTags.setEnabled(shared.companyFocus); orCompanyTags.setTags(shared.selectedCompanies); }
-    if (orTopicTags) { orTopicTags.setEnabled(shared.topicFocus); orTopicTags.setTags(shared.selectedTopics); }
-    chrome.storage.local.set({ andModeRequirements: shared, orModeRequirements: shared });
-    updateProgressCardVisibility("AND");
-    refreshTagProgress();
-  }
-
-  function updateProgressCardVisibility(mode) {
-    const reqs = mode === "OR"
-      ? { dailyChallenge: orReqDaily.checked, blind75: orReqBlind75.checked, neetcode150: orReqNc150.checked, leetcode75: orReqLc75.checked }
-      : { dailyChallenge: andReqDaily.checked, blind75: andReqBlind75.checked, neetcode150: andReqNc150.checked, leetcode75: andReqLc75.checked };
 
     const blind75Card = document.getElementById('blind75-card');
     const neetcode150Card = document.getElementById('neetcode150-card');
@@ -1265,13 +1278,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!tagProgressSection || !tagProgressList) return;
 
     const result = await new Promise(resolve => {
-      chrome.storage.local.get(['streakMode', 'orModeRequirements', 'andModeRequirements', 'completedProblemIds'], resolve);
+      chrome.storage.local.get(['requirements', 'orModeRequirements', 'completedProblemIds'], resolve);
     });
 
-    const mode = result.streakMode || 'OR';
-    const req = mode === 'OR'
-      ? (result.orModeRequirements || {})
-      : (result.andModeRequirements || {});
+    const req = result.requirements || result.orModeRequirements || {};
 
     const selectedTopics = req.topicFocus && req.selectedTopics?.length ? req.selectedTopics : [];
     const selectedCompanies = req.companyFocus && req.selectedCompanies?.length ? req.selectedCompanies : [];
@@ -1341,18 +1351,58 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `${topicPart} and ${companyPart}`;
     }
 
-    function makeProgressRow(label, solved, total, color) {
+    function getExplorerUrl(topics, companies) {
+      const base = chrome.runtime.getURL('problems-explorer.html');
+      const params = new URLSearchParams();
+      if (topics.length > 0) params.set('topics', topics.join(','));
+      if (companies.length > 0) params.set('companies', companies.join(','));
+      const qs = params.toString();
+      return qs ? `${base}?${qs}` : base;
+    }
+
+    function getTagUrl(name, type) {
+      return type === 'topic' ? getExplorerUrl([name], []) : getExplorerUrl([], [name]);
+    }
+
+    function getIntersectionUrl(topics, companies) {
+      return getExplorerUrl(topics, companies);
+    }
+
+    const CODE_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+
+    function makeProgressRow(label, solved, total, color, url, nextFn) {
       const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
       const el = document.createElement('div');
+      const labelEl = url
+        ? `<span class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ffa116] transition-colors" data-url="${url}">${label}</span>`
+        : `<span class="text-[13px] font-semibold text-[#eff1f6]">${label}</span>`;
+      const nextBtn = nextFn
+        ? `<button class="next-unsolved-btn cursor-pointer flex-shrink-0 flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all focus:outline-none" title="Next unsolved">${CODE_ICON}</button>`
+        : '';
       el.innerHTML = `
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[12px] font-medium text-[#eff1f6]">${label}</span>
-          <span class="text-[11px] text-[#eff1f699]">${solved} / ${total} <span class="font-semibold" style="color:${color}">${pct}%</span></span>
+        <div class="flex items-center justify-between mb-2.5">
+          ${labelEl}
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] text-[#eff1f699]"><span class="text-[#eff1f6]">${solved}/${total}</span> <span class="font-semibold" style="color:${color}">${pct}%</span></span>
+            ${nextBtn}
+          </div>
         </div>
-        <div class="w-full h-1.5 bg-[#ffffff1a] rounded-full overflow-hidden">
-          <div class="h-1.5 rounded-full transition-all duration-300" style="width:${pct}%;background-color:${color};"></div>
+        <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+          <div class="h-2 rounded-full transition-all duration-300" style="width:${pct}%;background-color:${color};"></div>
         </div>
       `;
+      if (url) {
+        el.querySelector('[data-url]').addEventListener('click', () => {
+          chrome.tabs.create({ url });
+        });
+      }
+      if (nextFn) {
+        el.querySelector('.next-unsolved-btn').addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const nextUrl = await nextFn();
+          if (nextUrl) chrome.tabs.create({ url: nextUrl });
+        });
+      }
       return el;
     }
 
@@ -1364,7 +1414,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       tagProgressList.appendChild(makeProgressRow(
         buildIntersectionLabel(selectedTopics, selectedCompanies),
         intersection.solved, intersection.total,
-        '#eff1f6'
+        '#eff1f6',
+        getIntersectionUrl(selectedTopics, selectedCompanies),
+        () => getNextUnsolvedForIntersection(selectedTopics, selectedCompanies)
       ));
 
       // Accordion toggle
@@ -1377,7 +1429,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const body = document.createElement('div');
       body.className = 'tag-accordion-body';
       allTags.forEach(({ name, type }, i) => {
-        const indRow = makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3');
+        const indRow = makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3', getTagUrl(name, type), () => getNextUnsolvedForTag(name, type));
         if (i < allTags.length - 1) indRow.style.marginBottom = '10px';
         body.appendChild(indRow);
       });
@@ -1393,7 +1445,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // No intersection — just show individual rows
       allTags.forEach(({ name, type }) => {
         tagProgressList.appendChild(
-          makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3')
+          makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3', getTagUrl(name, type), () => getNextUnsolvedForTag(name, type))
         );
       });
     }
@@ -1522,106 +1574,166 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Initialize tag inputs
-  orCompanyTags = setupTagInput(
-    document.getElementById('or-req-company'),
-    document.getElementById('or-company-section'),
-    document.getElementById('or-company-tags'),
-    document.getElementById('or-company-text'),
-    document.getElementById('or-company-dropdown'),
-    '#2cbb5d',
-    saveOrModeRequirements,
+  companyTags = setupTagInput(
+    document.getElementById('req-company'),
+    document.getElementById('company-section'),
+    document.getElementById('company-tags'),
+    document.getElementById('company-text'),
+    document.getElementById('company-dropdown'),
+    '#ffa116',
+    saveRequirements,
     VALID_COMPANIES
   );
-  orTopicTags = setupTagInput(
-    document.getElementById('or-req-topic'),
-    document.getElementById('or-topic-section'),
-    document.getElementById('or-topic-tags'),
-    document.getElementById('or-topic-text'),
-    document.getElementById('or-topic-dropdown'),
-    '#2cbb5d',
-    saveOrModeRequirements,
-    VALID_TOPICS
-  );
-  andCompanyTags = setupTagInput(
-    document.getElementById('and-req-company'),
-    document.getElementById('and-company-section'),
-    document.getElementById('and-company-tags'),
-    document.getElementById('and-company-text'),
-    document.getElementById('and-company-dropdown'),
+  topicTags = setupTagInput(
+    document.getElementById('req-topic'),
+    document.getElementById('topic-section'),
+    document.getElementById('topic-tags'),
+    document.getElementById('topic-text'),
+    document.getElementById('topic-dropdown'),
     '#ffa116',
-    saveAndModeRequirements,
-    VALID_COMPANIES
-  );
-  andTopicTags = setupTagInput(
-    document.getElementById('and-req-topic'),
-    document.getElementById('and-topic-section'),
-    document.getElementById('and-topic-tags'),
-    document.getElementById('and-topic-text'),
-    document.getElementById('and-topic-dropdown'),
-    '#ffa116',
-    saveAndModeRequirements,
+    saveRequirements,
     VALID_TOPICS
   );
 
-  modeOrBtn.addEventListener("click", () => {
-    chrome.storage.local.set({ streakMode: "OR" }, () => {
-      updateStreakModeUI("OR");
-      updateStreakDisplay();
-      updateProgressCardVisibility("OR");
-      refreshTagProgress();
-      // NOTE: We do NOT recalculate streaks to preserve current streak number
-    });
+  // Save requirements when checkboxes change
+  [reqDaily, reqLc75, reqBlind75, reqNc150, reqAny].filter(Boolean).forEach(checkbox => {
+    checkbox.addEventListener("change", saveRequirements);
   });
 
-  modeAndBtn.addEventListener("click", () => {
-    chrome.storage.local.set({ streakMode: "AND" }, () => {
-      updateStreakModeUI("AND");
-      updateStreakDisplay();
-      updateProgressCardVisibility("AND");
-      refreshTagProgress();
-      // NOTE: We do NOT recalculate streaks to preserve current streak number
-    });
-  });
-
-  // Save OR requirements when checkboxes change
-  [orReqDaily, orReqLc75, orReqBlind75, orReqNc150].forEach(checkbox => {
-    checkbox.addEventListener("change", saveOrModeRequirements);
-  });
-
-  // Save AND requirements when checkboxes change
-  [andReqDaily, andReqLc75, andReqBlind75, andReqNc150].forEach(checkbox => {
-    checkbox.addEventListener("change", saveAndModeRequirements);
-  });
-
-  // Load initial streak mode and requirements
-  // Requirements are shared — OR/AND only changes logic, not selection
-  chrome.storage.local.get(["streakMode", "orModeRequirements", "andModeRequirements"], (result) => {
-    const mode = result.streakMode || "OR";
-    updateStreakModeUI(mode);
-
-    // Use whichever mode's requirements exist, preferring the active mode
+  // Load initial requirements
+  chrome.storage.local.get(["requirements", "orModeRequirements"], (result) => {
     const defaults = { dailyChallenge: true, leetcode75: true, blind75: true, neetcode150: true };
-    const req = (mode === "OR" ? result.orModeRequirements : result.andModeRequirements)
-              || result.orModeRequirements
-              || result.andModeRequirements
-              || defaults;
+    const req = result.requirements || result.orModeRequirements || defaults;
 
-    // Apply to both OR and AND inputs (they're identical)
-    orReqDaily.checked = req.dailyChallenge;
-    orReqLc75.checked = req.leetcode75;
-    orReqBlind75.checked = req.blind75;
-    orReqNc150.checked = req.neetcode150;
-    andReqDaily.checked = req.dailyChallenge;
-    andReqLc75.checked = req.leetcode75;
-    andReqBlind75.checked = req.blind75;
-    andReqNc150.checked = req.neetcode150;
+    reqDaily.checked = req.dailyChallenge ?? true;
+    reqLc75.checked = req.leetcode75 ?? true;
+    reqBlind75.checked = req.blind75 ?? true;
+    reqNc150.checked = req.neetcode150 ?? true;
+    if (reqAny) reqAny.checked = req.anySubmission || false;
 
-    if (req.companyFocus) { orCompanyTags.setEnabled(true); andCompanyTags.setEnabled(true); }
-    if (req.selectedCompanies?.length) { orCompanyTags.setTags(req.selectedCompanies); andCompanyTags.setTags(req.selectedCompanies); }
-    if (req.topicFocus) { orTopicTags.setEnabled(true); andTopicTags.setEnabled(true); }
-    if (req.selectedTopics?.length) { orTopicTags.setTags(req.selectedTopics); andTopicTags.setTags(req.selectedTopics); }
+    if (req.companyFocus) companyTags.setEnabled(true);
+    if (req.selectedCompanies?.length) companyTags.setTags(req.selectedCompanies);
+    if (req.topicFocus) topicTags.setEnabled(true);
+    if (req.selectedTopics?.length) topicTags.setTags(req.selectedTopics);
 
-    updateProgressCardVisibility(mode);
+    updateProgressCardVisibility();
     refreshTagProgress();
   });
+
+  // ── Export / Import ────────────────────────────────────────────
+  const EXPORT_KEYS = [
+    'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
+    'completedProblemIds', 'requirements',
+    'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
+  ];
+
+  document.getElementById('export-btn').addEventListener('click', () => {
+    chrome.storage.local.get(EXPORT_KEYS, (data) => {
+      const json = JSON.stringify({ _leetdaily: true, exportedAt: new Date().toISOString(), ...data }, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `leetdaily-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  });
+
+  const importFileInput = document.getElementById('import-file');
+  document.getElementById('import-btn').addEventListener('click', () => importFileInput.click());
+
+  importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data._leetdaily) { alert('Invalid LeetDaily backup file.'); return; }
+        const { _leetdaily, exportedAt, ...toRestore } = data;
+        chrome.storage.local.set(toRestore, () => {
+          alert('Data imported! Reloading…');
+          location.reload();
+        });
+      } catch {
+        alert('Could not parse file. Make sure it is a valid LeetDaily export.');
+      }
+    };
+    reader.readAsText(file);
+    importFileInput.value = '';
+  });
+
+  // ── Streak Detail Modal ─────────────────────────────────────────
+  const streakModal = document.getElementById('streak-modal');
+  const STREAK_MILESTONES = [7, 14, 30, 60, 90, 180, 365];
+
+  async function openStreakModal() {
+    streakModal.classList.remove('hidden');
+
+    const result = await new Promise(resolve =>
+      chrome.storage.local.get(['currentStreak', 'longestStreak', 'leetCodeUsername'], resolve)
+    );
+
+    const streak = result.currentStreak || 0;
+    const longest = result.longestStreak || 0;
+    const nextMilestone = STREAK_MILESTONES.find(m => m > streak) || null;
+
+    document.getElementById('modal-streak-num').textContent = streak;
+    document.getElementById('modal-longest').textContent = longest;
+    document.getElementById('modal-next-milestone').textContent = nextMilestone ? `${nextMilestone} days` : '🏆';
+
+    // Milestone progress bar
+    const prevMilestone = [...STREAK_MILESTONES].reverse().find(m => m <= streak) || 0;
+    const pct = nextMilestone
+      ? Math.round(((streak - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
+      : 100;
+    document.getElementById('modal-milestone-bar').style.width = `${pct}%`;
+    document.getElementById('modal-milestone-pct').textContent = `${pct}%`;
+    document.getElementById('modal-milestone-label').textContent = nextMilestone
+      ? `${streak} / ${nextMilestone} days`
+      : 'All milestones reached!';
+
+    // Last 7 days
+    const last7El = document.getElementById('modal-last7');
+    last7El.innerHTML = '<span class="text-[11px] text-[#eff1f666]">Loading…</span>';
+
+    const { submissionMap } = await fetchLast30DaysHistory(result.leetCodeUsername || null);
+    last7El.innerHTML = '';
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().slice(0, 10);
+      const count = submissionMap.get(dateStr) || 0;
+      const isToday = i === 0;
+      const dayLabel = isToday ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
+
+      const col = document.createElement('div');
+      col.className = 'flex flex-col items-center gap-1';
+
+      const dot = document.createElement('div');
+      dot.className = `w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold`;
+      if (count > 0) {
+        dot.style.cssText = 'background:#2cbb5d22; color:#2cbb5d; border:1px solid #2cbb5d44;';
+        dot.textContent = count;
+      } else {
+        dot.style.cssText = 'background:rgba(255,255,255,0.05); color:rgba(239,241,246,0.2); border:1px solid rgba(255,255,255,0.07);';
+        dot.textContent = '–';
+      }
+      if (isToday) dot.style.outline = '2px solid #ffa116';
+
+      const label = document.createElement('span');
+      label.className = 'text-[10px] text-[#eff1f666]';
+      label.textContent = dayLabel;
+
+      col.appendChild(dot);
+      col.appendChild(label);
+      last7El.appendChild(col);
+    }
+  }
+
+  document.getElementById('streakDisplay').addEventListener('click', openStreakModal);
+  document.getElementById('streak-modal-close').addEventListener('click', () => streakModal.classList.add('hidden'));
+  streakModal.addEventListener('click', (e) => { if (e.target === streakModal) streakModal.classList.add('hidden'); });
 });

@@ -21,8 +21,8 @@
 
     body {
       min-height: 100vh;
-      background: #000;
-      color: rgba(255, 255, 255, 0.9);
+      background: #111111;
+      color: #eff1f6;
       font-size: 14px;
       line-height: 1.5;
     }
@@ -54,10 +54,9 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.8) 100%);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 161, 22, 0.15);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      background: #181818;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
     }
 
     .header-inner {
@@ -77,21 +76,18 @@
     .header-title {
       font-size: 16px;
       font-weight: 600;
-      background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #eff1f6;
       letter-spacing: -0.01em;
     }
 
     .header-subtitle {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(239, 241, 246, 0.5);
       margin-top: 2px;
     }
 
     .header-subtitle span {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(239, 241, 246, 0.7);
     }
 
     /* Buttons */
@@ -104,9 +100,9 @@
       padding: 0 12px;
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.7);
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(239, 241, 246, 0.8);
+      background: #222222;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -115,10 +111,9 @@
     }
 
     .btn:hover {
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(255, 161, 22, 0.08);
+      color: #eff1f6;
+      background: #2e2e2e;
       border-color: rgba(255, 161, 22, 0.3);
-      box-shadow: 0 0 12px rgba(255, 161, 22, 0.15);
     }
 
     .btn:active {
@@ -133,11 +128,12 @@
     .btn-icon {
       width: 32px;
       padding: 0;
+      background: transparent;
       border: none;
     }
 
     .btn-icon:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: #222222;
     }
 
     .btn svg {
@@ -197,13 +193,12 @@
       top: 100%;
       left: 0;
       margin-top: 4px;
-      background: rgba(20, 20, 20, 0.98);
-      border: 1px solid rgba(255, 161, 22, 0.2);
+      background: #1e1e1e;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       padding: 8px;
       min-width: 140px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 161, 22, 0.1);
-      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
       z-index: 1000;
     }
 
@@ -248,8 +243,8 @@
       height: 40px;
       padding: 0 12px 0 40px;
       font-size: 13px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.03);
+      color: #eff1f6;
+      background: #1a1a1a;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       outline: none;
@@ -257,18 +252,18 @@
     }
 
     .search-input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(239, 241, 246, 0.3);
     }
 
     .search-input:hover {
       border-color: rgba(255, 161, 22, 0.3);
-      background: rgba(255, 255, 255, 0.05);
+      background: #1e1e1e;
     }
 
     .search-input:focus {
-      background: rgba(255, 255, 255, 0.06);
+      background: #1e1e1e;
       border-color: rgba(255, 161, 22, 0.5);
-      box-shadow: 0 0 0 3px rgba(255, 161, 22, 0.1), 0 0 20px rgba(255, 161, 22, 0.15);
+      box-shadow: 0 0 0 3px rgba(255, 161, 22, 0.1);
     }
 
     /* Select */
@@ -276,21 +271,21 @@
       height: 40px;
       padding: 0 32px 0 12px;
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #eff1f6;
+      background: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       outline: none;
       cursor: pointer;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
       transition: all 0.15s ease;
     }
 
     .select:hover {
-      border-color: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 161, 22, 0.3);
     }
 
     .select:focus {
@@ -299,7 +294,7 @@
 
     .select option {
       background: #1a1a1a;
-      color: #fff;
+      color: #eff1f6;
     }
 
     /* Selected Filters Inline */
@@ -471,24 +466,20 @@
 
     /* Filters Section */
     .filters {
-      margin-bottom: 32px;
+      margin-bottom: 16px;
     }
 
     .filter-section {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(255, 255, 255, 0.01);
-      border-radius: 8px;
-      margin-bottom: 8px;
-      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: #181818;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      padding: 0 16px;
+      transition: border-color 0.2s ease;
     }
 
     .filter-section:hover {
-      background: rgba(255, 255, 255, 0.02);
-      border-color: rgba(255, 161, 22, 0.15);
-    }
-
-    .filter-section:last-child {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 161, 22, 0.2);
     }
 
     .filter-header {
@@ -506,13 +497,13 @@
     }
 
     .filter-header:hover .filter-label {
-      color: rgba(255, 255, 255, 0.9);
+      color: #eff1f6;
     }
 
     .filter-label {
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(239, 241, 246, 0.7);
       transition: color 0.15s ease;
       display: flex;
       align-items: center;
@@ -536,16 +527,16 @@
     }
 
     .filter-section[open] {
-      border-color: rgba(255, 161, 22, 0.2);
+      border-color: rgba(255, 161, 22, 0.25);
     }
 
     .filter-section[open] .filter-chevron {
       transform: rotate(180deg);
-      color: rgba(255, 161, 22, 0.8);
+      color: #ffa116;
     }
 
     .filter-section[open] .filter-label {
-      color: rgba(255, 161, 22, 0.9);
+      color: #ffa116;
     }
 
     .filter-content {
@@ -566,18 +557,18 @@
       padding: 0 10px;
       font-size: 12px;
       font-weight: 450;
-      color: rgba(255, 255, 255, 0.5);
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(239, 241, 246, 0.6);
+      background: #222222;
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .chip:hover {
-      color: rgba(255, 255, 255, 0.7);
-      background: rgba(255, 255, 255, 0.03);
-      border-color: rgba(255, 255, 255, 0.12);
+      color: #eff1f6;
+      background: #2a2a2a;
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .chip.active {
@@ -658,30 +649,29 @@
       padding: 0 12px;
       margin-bottom: 12px;
       font-size: 12px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #eff1f6;
+      background: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 6px;
       outline: none;
       transition: all 0.15s ease;
     }
 
     .company-search::placeholder {
-      color: rgba(255, 255, 255, 0.25);
+      color: rgba(239, 241, 246, 0.3);
     }
 
     .company-search:focus {
       border-color: rgba(255, 161, 22, 0.4);
-      background: rgba(255, 255, 255, 0.03);
+      background: #1e1e1e;
     }
 
     /* Table */
     .table-wrapper {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 161, 22, 0.1);
+      background: #181818;
+      border: 1px solid rgba(255, 255, 255, 0.07);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .table {
@@ -696,9 +686,9 @@
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: rgba(255, 255, 255, 0.4);
-      background: rgba(255, 161, 22, 0.03);
-      border-bottom: 1px solid rgba(255, 161, 22, 0.1);
+      color: rgba(239, 241, 246, 0.4);
+      background: #1e1e1e;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
     .table th .header-content {
@@ -744,8 +734,8 @@
     .table td {
       padding: 14px 16px;
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.8);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: rgba(239, 241, 246, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       transition: all 0.2s ease;
     }
 
@@ -754,15 +744,15 @@
     }
 
     .table tbody tr:hover {
-      border-left-color: rgba(255, 161, 22, 0.6);
-      background: rgba(255, 161, 22, 0.03);
+      border-left-color: rgba(255, 161, 22, 0.7);
+      background: rgba(255, 161, 22, 0.05);
     }
 
     .table tbody tr:hover td {
       background: transparent;
     }
 
-    .table .col-id { width: 60px; color: rgba(255, 255, 255, 0.4); }
+    .table .col-id { width: 60px; color: rgba(239, 241, 246, 0.4); }
     .table .col-title { min-width: 250px; }
     .table .col-difficulty { width: 100px; }
     .table .col-acceptance { width: 100px; text-align: center; }
@@ -796,7 +786,7 @@
     .frequency-bar {
       width: 60px;
       height: 4px;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 2px;
       overflow: hidden;
     }
@@ -904,7 +894,6 @@
       gap: 8px;
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     .pagination-info {
@@ -968,12 +957,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.25);
     }
 
     /* Responsive */
@@ -1088,7 +1077,7 @@
                       <circle cx="11" cy="11" r="8"></circle>
                       <path d="m21 21-4.35-4.35"></path>
                     </svg>
-                    <input id="search-input" type="text" class="search-input" placeholder="Search problem..." style="height: 28px; padding: 0 32px 0 32px; font-size: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);" />
+                    <input id="search-input" type="text" class="search-input" placeholder="Search problem..." style="height: 28px; padding: 0 32px 0 32px; font-size: 12px; background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.1);" />
                     <button id="clear-search" class="hidden" title="Clear search" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; color: rgba(255, 255, 255, 0.4); border-radius: 4px;">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
                         <line x1="18" y1="6" x2="6" y2="18"></line>

@@ -51,8 +51,8 @@ async function getProblemListMembership(problemId) {
   };
 }
 
-// Calculate streak based on mode (OR/AND)
-function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, andRequirements = null) {
+// Calculate streak based on requirements (any selected requirement counts)
+function calculateStreak(solvedProblems, requirements = null) {
   if (!solvedProblems || Object.keys(solvedProblems).length === 0) {
     return { currentStreak: 0, longestStreak: 0 };
   }
@@ -67,90 +67,29 @@ function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, and
     solvedByDate[date].push(data);
   }
 
-  // Helper function to check if a day meets OR mode requirements
-  function meetsOrRequirements(problemsOnDay) {
-    if (!orRequirements) {
-      // Fallback: any problem counts
+  // Check if a day meets requirements (any selected requirement counts)
+  function meetsRequirements(problemsOnDay) {
+    if (!requirements) {
       return problemsOnDay.length > 0;
     }
 
-    // Check if ANY of the selected requirements are met
-    let anyRequirementMet = false;
+    if (requirements.anySubmission && problemsOnDay.length > 0) return true;
+    if (requirements.dailyChallenge && problemsOnDay.some(p => p.isDailyChallenge)) return true;
+    if (requirements.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
+    if (requirements.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
+    if (requirements.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
 
-    if (orRequirements.dailyChallenge) {
-      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.isDailyChallenge);
+    if (requirements.companyFocus && requirements.selectedCompanies?.length > 0) {
+      const companies = requirements.selectedCompanies.map(c => c.toLowerCase());
+      if (problemsOnDay.some(p => p.companies?.some(c => companies.includes(c.toLowerCase())))) return true;
     }
 
-    if (orRequirements.leetcode75) {
-      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.inLists?.leetcode75);
+    if (requirements.topicFocus && requirements.selectedTopics?.length > 0) {
+      const topics = requirements.selectedTopics.map(t => t.toLowerCase());
+      if (problemsOnDay.some(p => p.topics?.some(t => topics.includes(t.toLowerCase())))) return true;
     }
 
-    if (orRequirements.blind75) {
-      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.inLists?.blind75);
-    }
-
-    if (orRequirements.neetcode150) {
-      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p => p.inLists?.neetcode150);
-    }
-
-    if (orRequirements.companyFocus && orRequirements.selectedCompanies?.length > 0) {
-      const companies = orRequirements.selectedCompanies.map(c => c.toLowerCase());
-      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p =>
-        p.companies?.some(c => companies.includes(c.toLowerCase()))
-      );
-    }
-
-    if (orRequirements.topicFocus && orRequirements.selectedTopics?.length > 0) {
-      const topics = orRequirements.selectedTopics.map(t => t.toLowerCase());
-      anyRequirementMet = anyRequirementMet || problemsOnDay.some(p =>
-        p.topics?.some(t => topics.includes(t.toLowerCase()))
-      );
-    }
-
-    return anyRequirementMet;
-  }
-
-  // Helper function to check if a day meets AND mode requirements
-  function meetsAndRequirements(problemsOnDay) {
-    if (!andRequirements) {
-      // Fallback to old behavior if requirements not provided
-      return problemsOnDay.some(p => p.isDailyChallenge);
-    }
-
-    // Check if ALL of the selected requirements are met
-    let allRequirementsMet = true;
-
-    if (andRequirements.dailyChallenge) {
-      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.isDailyChallenge);
-    }
-
-    if (andRequirements.leetcode75) {
-      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.inLists?.leetcode75);
-    }
-
-    if (andRequirements.blind75) {
-      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.inLists?.blind75);
-    }
-
-    if (andRequirements.neetcode150) {
-      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p => p.inLists?.neetcode150);
-    }
-
-    if (andRequirements.companyFocus && andRequirements.selectedCompanies?.length > 0) {
-      const companies = andRequirements.selectedCompanies.map(c => c.toLowerCase());
-      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p =>
-        p.companies?.some(c => companies.includes(c.toLowerCase()))
-      );
-    }
-
-    if (andRequirements.topicFocus && andRequirements.selectedTopics?.length > 0) {
-      const topics = andRequirements.selectedTopics.map(t => t.toLowerCase());
-      allRequirementsMet = allRequirementsMet && problemsOnDay.some(p =>
-        p.topics?.some(t => topics.includes(t.toLowerCase()))
-      );
-    }
-
-    return allRequirementsMet;
+    return false;
   }
 
   // Calculate current streak (going backwards from today)
@@ -163,16 +102,7 @@ function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, and
   while (true) {
     const dateStr = date.toISOString().slice(0, 10);
     const solvedToday = solvedByDate[dateStr] || [];
-
-    let countsForStreak = false;
-
-    if (mode === "OR") {
-      // OR mode: ANY of the selected categories counts
-      countsForStreak = meetsOrRequirements(solvedToday);
-    } else {
-      // AND mode: ALL of the selected categories must be met
-      countsForStreak = meetsAndRequirements(solvedToday);
-    }
+    const countsForStreak = meetsRequirements(solvedToday);
 
     if (countsForStreak) {
       currentStreak++;
@@ -181,7 +111,6 @@ function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, and
     } else {
       // If it's today and nothing solved yet, don't break the streak
       if (dateStr === getTodayDate()) {
-        // Continue checking yesterday
         date.setDate(date.getDate() - 1);
         continue;
       }
@@ -200,14 +129,7 @@ function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, and
     const currentDate = allDates[i];
     const solved = solvedByDate[currentDate];
 
-    let counts = false;
-    if (mode === "OR") {
-      counts = meetsOrRequirements(solved);
-    } else {
-      counts = meetsAndRequirements(solved);
-    }
-
-    if (counts) {
+    if (meetsRequirements(solved)) {
       tempStreak++;
       longestStreak = Math.max(longestStreak, tempStreak);
 
@@ -216,7 +138,6 @@ function calculateStreak(solvedProblems, mode = "OR", orRequirements = null, and
         const nextDate = new Date(currentDate);
         nextDate.setDate(nextDate.getDate() + 1);
         const nextDateStr = nextDate.toISOString().slice(0, 10);
-
         if (allDates[i + 1] !== nextDateStr) {
           tempStreak = 0;
         }
@@ -293,28 +214,16 @@ async function updateStreaksAndStorage(problemData) {
   return new Promise((resolve) => {
     chrome.storage.local.get([
       'solvedProblems',
-      'streakMode',
+      'requirements',
       'orModeRequirements',
-      'andModeRequirements',
       'completedProblemIds'
     ], (result) => {
       const solvedProblems = result.solvedProblems || {};
-      const streakMode = result.streakMode || 'OR';
-      const orRequirements = result.orModeRequirements || {
+      const requirements = result.requirements || result.orModeRequirements || {
         dailyChallenge: true,
         leetcode75: true,
         blind75: true,
         neetcode150: true,
-        companyFocus: false,
-        selectedCompanies: [],
-        topicFocus: false,
-        selectedTopics: []
-      };
-      const andRequirements = result.andModeRequirements || {
-        dailyChallenge: true,
-        leetcode75: false,
-        blind75: false,
-        neetcode150: false,
         companyFocus: false,
         selectedCompanies: [],
         topicFocus: false,
@@ -330,7 +239,7 @@ async function updateStreaksAndStorage(problemData) {
         companies: problemData.companies,
         companyFrequency: problemData.companyFrequency,
         isDailyChallenge: problemData.isDailyChallenge || false,
-        inLists: inLists, // Store which lists this problem belongs to
+        inLists: inLists,
         titleSlug: problemData.titleSlug,
         title: problemData.title
       };
@@ -340,12 +249,10 @@ async function updateStreaksAndStorage(problemData) {
         completedProblemIds.push(problemData.problemId);
       }
 
-      // Calculate streaks with current mode and requirements
+      // Calculate streaks with current requirements
       const { currentStreak, longestStreak } = calculateStreak(
         solvedProblems,
-        streakMode,
-        orRequirements,
-        andRequirements
+        requirements
       );
       const topicStreaks = calculateTopicStreaks(solvedProblems);
       const companyStreaks = calculateCompanyStreaks(solvedProblems);
@@ -805,14 +712,4 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true; // Will respond asynchronously
   }
 
-  // PHASE 3: Update AND mode requirements
-  // When requirements change, we DON'T recalculate to preserve streak
-  // Future problem solves will use the new requirements
-  if (request.action === "updateAndRequirements") {
-    chrome.storage.local.set({ andModeRequirements: request.requirements }, () => {
-      console.log('✅ AND mode requirements updated:', request.requirements);
-      sendResponse({ success: true });
-    });
-    return true;
-  }
 });

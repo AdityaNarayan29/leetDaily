@@ -34,6 +34,19 @@ function getListFromURL() {
   return null;
 }
 
+// Pre-populate topic/company filters from URL params (?topics=Hash Table&companies=Airbnb)
+function applyFiltersFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const topicsParam = urlParams.get('topics');
+  const companiesParam = urlParams.get('companies');
+  if (topicsParam) {
+    topicsParam.split(',').map(t => t.trim()).filter(Boolean).forEach(t => filters.topics.add(t));
+  }
+  if (companiesParam) {
+    companiesParam.split(',').map(c => c.trim()).filter(Boolean).forEach(c => filters.companies.add(c));
+  }
+}
+
 // Load list data (Blind 75, NeetCode 150, or LeetCode 75)
 async function loadListData(listName) {
   try {
@@ -150,6 +163,9 @@ async function loadProblems() {
       const listInfo = selectedList ? `<br>📋 Filtering: ${selectedList}` : '';
       document.getElementById('js-status').innerHTML = `✅ JavaScript loaded!<br>✅ Loaded ${allProblems.length} problems${listInfo}<br>🔄 Rendering...`;
     }
+
+    // Apply topic/company filters from URL params before rendering chips
+    applyFiltersFromURL();
 
     // Extract unique topics and companies
     extractFilters();

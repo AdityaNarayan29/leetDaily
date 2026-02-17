@@ -1,8 +1,8 @@
 # LeetDaily
 
-**Stay consistent with your LeetCode practice.**
+**The all-in-one Chrome extension for LeetCode interview prep.**
 
-LeetDaily is a Chrome extension that brings the LeetCode Daily Challenge directly to your browser toolbar — helping you build consistent coding habits effortlessly.
+LeetDaily brings your daily LeetCode challenge, curated study lists, company tags, streak tracking, and a full problems explorer — all one click from your browser toolbar.
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/kpmmlpoonleloofchbbfnmicchmhehcf?style=flat-square)](https://chromewebstore.google.com/detail/leetcode-daily-challenge/kpmmlpoonleloofchbbfnmicchmhehcf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
@@ -11,12 +11,42 @@ LeetDaily is a Chrome extension that brings the LeetCode Daily Challenge directl
 
 ## Features
 
-- **Daily Challenge at a Glance** — Instantly see today's LeetCode problem without opening a new tab
-- **Problem Details** — View difficulty level, acceptance rate, and topic tags
-- **Streak Tracking** — Monitor your solving streak and stay motivated
-- **One-Click Access** — Jump directly to the problem on LeetCode
-- **Smart Reminders** — Get notified to solve your daily challenge
-- **Offline Support** — Access problem metadata even without internet
+### Dashboard
+- **Daily Challenge** — Today's problem with difficulty, acceptance rate, topic tags, and company tags
+- **Your Stats** — Total solved with Easy/Medium/Hard breakdown, synced from your LeetCode account
+- **30-Day Heatmap** — Activity visualization with color intensity showing daily solve counts
+- **Streak Tracking** — Current streak with fire badge on the extension icon, milestone celebrations at 7, 14, 30, 50, 100, and 365 days
+- **Streak Detail Modal** — Click your streak to see last 7 days history, longest streak, and progress to next milestone
+
+### Curated Study Lists
+- **Blind 75** — Track progress across the classic 75 interview problems
+- **NeetCode 150** — Follow the NeetCode 150 roadmap with live progress bars
+- **LeetCode 75** — LeetCode's own curated 75-problem study plan
+- **Next Unsolved** — One-click jump to the next unsolved problem in any list
+
+### Tag & Company Progress
+- **Topic Progress** — Track solved/total for selected topics (Arrays, DP, Graphs, etc.)
+- **Company Progress** — Track solved/total for target companies (Google, Meta, Amazon, etc.)
+- **Intersection View** — See problems that match both your selected topics AND companies
+- **Accordion Breakdown** — Expand to see individual tag progress with color-coded bars
+
+### Problems Explorer
+- **Full Problem Database** — Browse and search all 2000+ LeetCode problems
+- **Advanced Filters** — Filter by difficulty, topics, companies, and curated lists
+- **Sortable Columns** — Sort by ID, title, difficulty, acceptance rate, or frequency
+- **Company Frequency** — See how often each company asks a specific problem
+- **Clickable Chips** — Click any topic or company tag to jump straight to the explorer with that filter
+
+### Smart Reminders
+- **Daily Reminder** — Configurable notification at your chosen time
+- **Streak at Risk** — Urgent alert 2 hours before midnight reset
+- **Badge Counter** — Extension icon shows your current streak number
+
+### Settings & Data
+- **Flexible Streak Rules** — Choose what counts toward your streak: Daily Challenge, curated lists, topic/company problems, or any submission
+- **Topic & Company Selection** — Combobox inputs to pick which topics and companies to track
+- **Data Export/Import** — Backup and restore all your progress as JSON
+- **Privacy-First** — All data stored locally in your browser, no external tracking
 
 ---
 
@@ -36,7 +66,7 @@ LeetDaily is a Chrome extension that brings the LeetCode Daily Challenge directl
 2. Install dependencies and build:
    ```bash
    npm install
-   npm run build
+   npm run build:css
    ```
 3. Open Chrome and navigate to `chrome://extensions/`
 4. Enable "Developer mode" (top right)
@@ -47,52 +77,41 @@ LeetDaily is a Chrome extension that brings the LeetCode Daily Challenge directl
 ## Usage
 
 1. Click the LeetDaily icon in your browser toolbar
-2. View today's daily challenge with all relevant details
-3. Click "Solve Now" to open the problem on LeetCode
-4. Track your progress and maintain your streak
-
----
-
-## Privacy
-
-LeetDaily respects your privacy:
-- No personal data is collected or transmitted
-- All data is stored locally in your browser
-- Only connects to LeetCode to fetch problem data
-
-See our full [Privacy Policy](privacy.html) for details.
-
----
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. View today's daily challenge with topic tags and company tags
+3. Track your progress across Blind 75, NeetCode 150, and LeetCode 75
+4. Use the Problems Explorer to browse, filter, and find problems by company or topic
+5. Configure streak rules and reminders in Settings
+6. Maintain your streak and hit milestones
 
 ---
 
 ## Project Structure
 
-This repository contains both the Chrome extension and the landing page:
-
 ```
 leetDaily/
-├── landing/          # Landing page (React + Vite + TypeScript)
-│   ├── src/
-│   ├── package.json
-│   └── ...
-├── src/              # Extension styles
-├── data/             # Problem metadata
-├── popup.html        # Extension UI
-├── popup.js          # Extension logic
-├── background.js     # Service worker
-├── manifest.json     # Extension manifest
-└── ...
+├── landing/              # Landing page (Next.js + TypeScript)
+│   ├── app/              # App router pages (blog, OG images)
+│   ├── components/       # React components (LandingPage, Navbar, MDX)
+│   ├── content/blog/     # MDX blog posts
+│   └── lib/              # Utilities (blog helpers)
+├── data/                 # Problem metadata
+│   ├── leetcode-problems.json
+│   ├── blind75.json
+│   ├── neetcode150.json
+│   └── leetcode75.json
+├── styles/               # Tailwind CSS
+│   ├── input.css
+│   └── output.css
+├── utils/                # Shared utilities
+│   └── list-helpers.js
+├── popup.html            # Extension popup UI
+├── popup.js              # Extension popup logic
+├── background.js         # Service worker (streak calc, alarms, notifications)
+├── content.js            # Content script (LeetCode page integration)
+├── problems-explorer.html # Full-page problems browser
+├── problems-explorer.js   # Problems explorer logic
+├── manifest.json         # Chrome extension manifest (MV3)
+└── tailwind.config.js    # Tailwind configuration
 ```
 
 ### Running the Landing Page
@@ -113,6 +132,29 @@ npm run build:css    # Compile Tailwind CSS
 
 ---
 
+## Privacy
+
+LeetDaily respects your privacy:
+- No personal data is collected or transmitted
+- All data is stored locally in your browser
+- Only connects to LeetCode to fetch problem data and sync your solved status
+
+See our full [Privacy Policy](privacy.html) for details.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/adityanarayan/leetdaily/issues)
@@ -126,4 +168,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with determination for consistent coders everywhere.**
+**Built for developers who grind LeetCode daily.**
