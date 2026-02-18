@@ -1,10 +1,4 @@
 // Problems Explorer - Main Logic
-console.log('problems-explorer.js loaded successfully');
-
-// Update debug status immediately
-if (document.getElementById('js-status')) {
-  document.getElementById('js-status').textContent = '✅ JavaScript loaded!';
-}
 
 let allProblems = [];
 let filteredProblems = [];
@@ -60,7 +54,7 @@ async function loadListData(listName) {
       url = `data/${listName}.json`;
     }
 
-    console.log(`Loading list data from: ${url}`);
+    // Load list data
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -68,7 +62,7 @@ async function loadListData(listName) {
     }
 
     const data = await response.json();
-    console.log(`Loaded ${listName} data:`, data);
+    // Data loaded
 
     // Extract all problem IDs from all categories (deduplicate)
     const problemIds = [];
@@ -136,7 +130,6 @@ async function loadProblems() {
       url = 'data/leetcode-problems.json';
     }
 
-    console.log('Attempting to load from:', url);
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -144,25 +137,20 @@ async function loadProblems() {
     }
 
     const data = await response.json();
-    console.log('Raw data received:', data);
 
     if (!data || !data.problems || !Array.isArray(data.problems)) {
       throw new Error('Invalid data format: expected { problems: [...] }');
     }
 
     allProblems = data.problems;
-    console.log('Loaded problems:', allProblems.length);
-    console.log('First problem sample:', allProblems[0]);
 
     // Check if a list filter is specified in URL
     selectedList = getListFromURL();
     if (selectedList) {
-      console.log(`📋 List filter detected: ${selectedList}`);
       const listData = await loadListData(selectedList);
       if (listData) {
         listProblemIds = listData.problemIds;
         filters.list = selectedList;
-        console.log(`✅ Loaded ${listData.name}: ${listProblemIds.length} problems`);
 
         // Update header to show list name and add badge
         const headerTitle = document.querySelector('h1');
@@ -191,12 +179,6 @@ async function loadProblems() {
       document.getElementById('total-problems').textContent = allProblems.length;
     }
 
-    // Update debug status
-    if (document.getElementById('js-status')) {
-      const listInfo = selectedList ? `<br>📋 Filtering: ${selectedList}` : '';
-      document.getElementById('js-status').innerHTML = `✅ JavaScript loaded!<br>✅ Loaded ${allProblems.length} problems${listInfo}<br>🔄 Rendering...`;
-    }
-
     // Load list membership and solved status
     await loadListMembership();
     await loadCompletedIds();
@@ -212,19 +194,8 @@ async function loadProblems() {
     renderProblems();
     hideLoading();
 
-    // Final status update
-    if (document.getElementById('js-status')) {
-      document.getElementById('js-status').innerHTML = `✅ All systems operational!<br>📊 ${allProblems.length} problems loaded<br>🎯 ${filteredProblems.length} problems displayed`;
-    }
   } catch (error) {
     console.error('Failed to load problems:', error);
-    console.error('Error details:', error.message, error.stack);
-
-    // Update debug status with error
-    if (document.getElementById('js-status')) {
-      document.getElementById('js-status').innerHTML = `❌ Error loading data!<br>📛 ${error.message}<br>💡 Check console (F12)`;
-    }
-
     showError();
   }
 }
@@ -643,19 +614,12 @@ function expandTopics(moreBtn) {
 
 // Render problems table
 function renderProblems() {
-  console.log('renderProblems called, filteredProblems.length:', filteredProblems.length);
   const tableBody = document.getElementById('problems-table');
-
-  if (!tableBody) {
-    console.error('Table body element not found!');
-    return;
-  }
+  if (!tableBody) return;
 
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
   const end = start + ITEMS_PER_PAGE;
   const pageProblems = filteredProblems.slice(start, end);
-
-  console.log('Rendering problems from', start, 'to', end, '- count:', pageProblems.length);
 
   if (filteredProblems.length === 0) {
     showEmptyState();
@@ -670,14 +634,17 @@ function renderProblems() {
     const moreTopics = problem.topics?.length > 2 ? problem.topics.length - 2 : 0;
     const allTopicsJson = JSON.stringify((problem.topics || []).map(t => t.name)).replace(/"/g, '&quot;');
     const isSolved = completedProblemIds.has(problem.id);
+    const isPremium = problem.isPaidOnly;
     const badges = listMembership[problem.id];
     const badgeHtml = badges ? `<span class="list-badges">${badges.has('B75') ? '<span class="list-badge list-badge-b75">B75</span>' : ''}${badges.has('NC') ? '<span class="list-badge list-badge-nc">NC</span>' : ''}${badges.has('LC') ? '<span class="list-badge list-badge-lc">LC</span>' : ''}</span>` : '';
+    const lockHtml = isPremium ? `<span class="premium-lock" title="Premium"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg></span>` : '';
+    const rowClass = [isSolved ? 'solved' : '', isPremium ? 'premium' : ''].filter(Boolean).join(' ');
 
     return `
-      <tr data-url="${problem.url}" style="cursor: pointer;"${isSolved ? ' class="solved"' : ''}>
+      <tr data-url="${problem.url}" style="cursor: pointer;"${rowClass ? ` class="${rowClass}"` : ''}>
         <td class="col-id">${problem.id}${isSolved ? ' <span class="solved-check">✓</span>' : ''}</td>
         <td class="col-title">
-          <a href="${problem.url}" target="_blank" class="problem-link">${problem.title}</a>${badgeHtml}
+          <a href="${problem.url}" target="_blank" class="problem-link">${problem.title}</a>${lockHtml}${badgeHtml}
         </td>
         <td class="col-difficulty">
           <span class="difficulty ${difficultyClass}">${problem.difficulty}</span>
@@ -878,15 +845,6 @@ function resetFilters() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOMContentLoaded fired');
-  console.log('chrome object:', typeof chrome !== 'undefined' ? 'available' : 'not available');
-  console.log('chrome.runtime:', typeof chrome !== 'undefined' && chrome.runtime ? 'available' : 'not available');
-
-  // Update debug status
-  if (document.getElementById('js-status')) {
-    document.getElementById('js-status').innerHTML = '✅ JavaScript loaded!<br>🔄 Loading problem data...';
-  }
-
   loadProblems();
 
   // Initialize default sort column (frequency desc)

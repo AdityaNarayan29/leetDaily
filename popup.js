@@ -73,6 +73,11 @@ async function getListStats(listName, completedIds = []) {
   return { total, completed, remaining, percentage };
 }
 
+// Pick a random element from an array
+function pickRandom(arr) {
+  return arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null;
+}
+
 async function getNextUnsolvedForList(listName) {
   const [listData, master] = await Promise.all([loadListData(listName), loadMasterProblems()]);
   if (!listData || !master) return null;
@@ -80,17 +85,18 @@ async function getNextUnsolvedForList(listName) {
     chrome.storage.local.get(['completedProblemIds'], (result) => {
       const done = new Set((result.completedProblemIds || []).map(String));
       const seen = new Set();
+      const candidates = [];
       for (const cat of listData.categories || []) {
         for (const id of cat.problemIds || []) {
           if (seen.has(id)) continue;
           seen.add(id);
           if (!done.has(String(id))) {
             const p = master.problemMap[id];
-            if (p) { resolve(p.url); return; }
+            if (p && !p.isPaidOnly) candidates.push(p.url);
           }
         }
       }
-      resolve(null);
+      resolve(pickRandom(candidates));
     });
   });
 }
@@ -101,16 +107,17 @@ async function getNextUnsolvedForTag(name, type) {
   return new Promise(resolve => {
     chrome.storage.local.get(['completedProblemIds'], (result) => {
       const done = new Set((result.completedProblemIds || []).map(String));
+      const candidates = [];
       for (const p of master.problems) {
-        if (done.has(String(p.id))) continue;
+        if (done.has(String(p.id)) || p.isPaidOnly) continue;
         if (type === 'topic') {
           const topics = (p.topics || []).map(t => typeof t === 'string' ? t : t.name);
-          if (topics.some(t => t.toLowerCase() === name.toLowerCase())) { resolve(p.url); return; }
+          if (topics.some(t => t.toLowerCase() === name.toLowerCase())) candidates.push(p.url);
         } else {
-          if ((p.companies || []).some(c => c.toLowerCase() === name.toLowerCase())) { resolve(p.url); return; }
+          if ((p.companies || []).some(c => c.toLowerCase() === name.toLowerCase())) candidates.push(p.url);
         }
       }
-      resolve(null);
+      resolve(pickRandom(candidates));
     });
   });
 }
@@ -121,15 +128,16 @@ async function getNextUnsolvedForIntersection(topics, companies) {
   return new Promise(resolve => {
     chrome.storage.local.get(['completedProblemIds'], (result) => {
       const done = new Set((result.completedProblemIds || []).map(String));
+      const candidates = [];
       for (const p of master.problems) {
-        if (done.has(String(p.id))) continue;
+        if (done.has(String(p.id)) || p.isPaidOnly) continue;
         const pt = (p.topics || []).map(t => typeof t === 'string' ? t : t.name);
         const pc = p.companies || [];
         const matchT = topics.some(t => pt.some(x => x.toLowerCase() === t.toLowerCase()));
         const matchC = companies.some(c => pc.some(x => x.toLowerCase() === c.toLowerCase()));
-        if (matchT && matchC) { resolve(p.url); return; }
+        if (matchT && matchC) candidates.push(p.url);
       }
-      resolve(null);
+      resolve(pickRandom(candidates));
     });
   });
 }
@@ -303,7 +311,7 @@ async function syncCompletedProblemIds() {
       .map(q => parseInt(q.frontendQuestionId))
       .filter(id => !isNaN(id));
 
-    console.log('🔄 Synced completed problem IDs:', apiIds.length, '(existing:', existing.length + ')');
+    // Synced completed IDs from LeetCode
 
     if (apiIds.length > 0) {
       // Merge: union of existing + API results
@@ -595,7 +603,7 @@ function renderQuestion(question, companyData = null) {
     <div class="mb-3 flex items-start gap-2">
       <div class="flex-1 text-[14px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}.</span> <span class="font-medium text-[#eff1f6]">${question.title}</span> <span style="white-space: nowrap; font-size: 11px; float: right;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span></div>
       <button id="open-problem" class="text-[#eff1f6] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Open problem">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </button>
     </div>
     <div>
@@ -671,11 +679,18 @@ function renderQuestion(question, companyData = null) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const question = await getDailyQuestionSlug();
-
-  // Fetch company data from local JSON and render question with it
-  const companyData = await getProblemCompanyData(question.titleSlug);
-  renderQuestion(question, companyData);
+  let question;
+  try {
+    question = await getDailyQuestionSlug();
+    const companyData = await getProblemCompanyData(question.titleSlug);
+    renderQuestion(question, companyData);
+  } catch (err) {
+    console.error('Failed to load daily challenge:', err);
+    const questionEl = document.getElementById("question");
+    if (questionEl) {
+      questionEl.innerHTML = `<div class="text-[12px] text-[#eff1f699]">Could not load daily challenge. <a href="https://leetcode.com/problemset/" target="_blank" class="text-[#ffa116] hover:underline">Open LeetCode</a></div>`;
+    }
+  }
 
   updateTimerDisplay();
   setInterval(updateTimerDisplay, 60 * 1000);
@@ -712,10 +727,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (solvedToday) {
         // Solved today - show active streak
         const milestoneEmoji = milestone ? ` ${milestone.emoji}` : "";
+        const prev = streakDisplay.textContent;
         streakDisplay.textContent = `🔥 ${streak}${milestoneEmoji}`;
         streakDisplay.title = milestone
           ? `${milestone.message} ${username ? `(${username})` : ""}`
           : `Streak active! ${streak} day${streak !== 1 ? 's' : ''}`;
+        // Pulse animation when streak value changes
+        if (prev && prev !== streakDisplay.textContent) {
+          streakDisplay.classList.add('streak-pulse');
+          setTimeout(() => streakDisplay.classList.remove('streak-pulse'), 300);
+        }
       } else {
         // Not solved today - show pending streak
         streakDisplay.textContent = `🔥 ${streak}`;
@@ -782,10 +803,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const today = getTodayDate();
       updateLoginState(true, userData);
 
-      // Sync all solved problem IDs from LeetCode, then re-render progress
+      // Sync all solved problem IDs from LeetCode, then re-render list progress
       syncCompletedProblemIds().then(() => {
         renderListProgress();
-        refreshTagProgress();
+        // Tag progress already rendered from storage load; list progress
+        // updates in-place (no flash), but tag progress rebuilds DOM so skip it
       });
 
       chrome.storage.local.set({
@@ -818,6 +840,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("medium-count").textContent = stats.medium;
       document.getElementById("hard-count").textContent = stats.hard;
       document.getElementById("total-count").textContent = stats.total;
+      // Swap skeleton for real content
+      const skeleton = document.getElementById("stats-skeleton");
+      const content = document.getElementById("stats-content");
+      if (skeleton) skeleton.classList.add("hidden");
+      if (content) content.classList.remove("hidden");
     }
   }
 
@@ -930,14 +957,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Render list progress cards
   async function renderListProgress() {
     try {
-      console.log('🔄 Starting renderListProgress...');
-
       // Get list of completed problem IDs from user's LeetCode history
       const { completedProblemIds = [] } = await new Promise(resolve => {
         chrome.storage.local.get(['completedProblemIds'], resolve);
       });
-
-      console.log('📊 Completed problems:', completedProblemIds.length, completedProblemIds);
 
       // Get stats for each list
       const [blind75Stats, neetcode150Stats, leetcode75Stats] = await Promise.all([
@@ -946,21 +969,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         getListStats('leetcode75', completedProblemIds)
       ]);
 
-      console.log('📈 List stats:', { blind75Stats, neetcode150Stats, leetcode75Stats });
-
-      // Update Blind 75 card
-      console.log('Updating Blind 75:', blind75Stats);
       updateProgressCard('blind75', blind75Stats.completed, blind75Stats.total, blind75Stats.percentage);
-
-      // Update NeetCode 150 card
-      console.log('Updating NC 150:', neetcode150Stats);
       updateProgressCard('neetcode150', neetcode150Stats.completed, neetcode150Stats.total, neetcode150Stats.percentage);
-
-      // Update LeetCode 75 card
-      console.log('Updating LC 75:', leetcode75Stats);
       updateProgressCard('leetcode75', leetcode75Stats.completed, leetcode75Stats.total, leetcode75Stats.percentage);
-
-      console.log('✅ List progress rendering complete!');
 
     } catch (error) {
       console.error('❌ Failed to render list progress:', error);
@@ -974,33 +985,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Update a single progress card (horizontal bar)
   function updateProgressCard(listName, completed, total, percentage) {
-    console.log(`🎨 Updating ${listName}: ${completed}/${total} = ${percentage}%`);
-
     const progressBar = document.getElementById(`${listName}-progress`);
     const percentageText = document.getElementById(`${listName}-percentage`);
     const countText = document.getElementById(`${listName}-count`);
 
-    // Update progress bar width
     if (progressBar) {
       progressBar.style.width = `${percentage}%`;
-      console.log(`  ✅ Set bar width to ${percentage}%`);
-    } else {
-      console.error(`  ❌ Progress bar not found: ${listName}-progress`);
+      progressBar.classList.add('progress-animate');
     }
-
-    // Update percentage text
-    if (percentageText) {
-      percentageText.textContent = `${percentage}%`;
-    } else {
-      console.error(`  ❌ Percentage text not found: ${listName}-percentage`);
-    }
-
-    // Update count text
-    if (countText) {
-      countText.textContent = `${completed}/${total}`;
-    } else {
-      console.error(`  ❌ Count text not found: ${listName}-count`);
-    }
+    if (percentageText) percentageText.textContent = `${percentage}%`;
+    if (countText) countText.textContent = `${completed}/${total}`;
   }
 
   // Add click handlers for list labels
@@ -1030,7 +1024,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     await renderListProgress();
     syncFromLeetCode();
     updateStreakDisplay();
-    refreshTagProgress();
+    // refreshTagProgress is called by the storage load callback below
+    // and again after syncCompletedProblemIds resolves with fresh data
   }
 
   // Start initialization
@@ -1064,13 +1059,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const settingsView = document.getElementById("settings-view");
 
   document.getElementById("settings-btn").addEventListener("click", () => {
+    mainView.style.display = 'none';
     mainView.classList.add("hidden");
     settingsView.classList.remove("hidden");
+    settingsView.style.display = '';
   });
 
   document.getElementById("settings-back-btn").addEventListener("click", () => {
+    settingsView.style.display = 'none';
     settingsView.classList.add("hidden");
     mainView.classList.remove("hidden");
+    mainView.style.display = '';
   });
 
   // Notification toggle
@@ -1225,6 +1224,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let companyTags = null;
   let topicTags = null;
 
+  let _saveReqTimer = null;
   function saveRequirements() {
     const req = {
       dailyChallenge: reqDaily.checked,
@@ -1237,9 +1237,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       topicFocus: topicTags ? topicTags.isEnabled() : false,
       selectedTopics: topicTags ? topicTags.getTags() : []
     };
-    chrome.storage.local.set({ requirements: req });
+    // Throttle storage writes (150ms)
+    clearTimeout(_saveReqTimer);
+    _saveReqTimer = setTimeout(() => {
+      chrome.storage.local.set({ requirements: req });
+    }, 150);
+    // UI updates are immediate
     updateProgressCardVisibility();
-    refreshTagProgress();
+    refreshTagProgress(req);
   }
 
   function updateProgressCardVisibility() {
@@ -1272,16 +1277,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Render tag progress bars for selected topics/companies in main view
-  async function refreshTagProgress() {
+  let _tagProgressGen = 0;
+  async function refreshTagProgress(reqOverride) {
+    const gen = ++_tagProgressGen;
     const tagProgressSection = document.getElementById('tag-progress-section');
     const tagProgressList = document.getElementById('tag-progress-list');
     if (!tagProgressSection || !tagProgressList) return;
 
-    const result = await new Promise(resolve => {
-      chrome.storage.local.get(['requirements', 'orModeRequirements', 'completedProblemIds'], resolve);
-    });
-
-    const req = result.requirements || result.orModeRequirements || {};
+    let req;
+    let completedProblemIds;
+    if (reqOverride) {
+      req = reqOverride;
+      const result = await new Promise(resolve => {
+        chrome.storage.local.get(['completedProblemIds'], resolve);
+      });
+      if (gen !== _tagProgressGen) return;
+      completedProblemIds = result.completedProblemIds || [];
+    } else {
+      const result = await new Promise(resolve => {
+        chrome.storage.local.get(['requirements', 'orModeRequirements', 'completedProblemIds'], resolve);
+      });
+      if (gen !== _tagProgressGen) return;
+      req = result.requirements || result.orModeRequirements || {};
+      completedProblemIds = result.completedProblemIds || [];
+    }
 
     const selectedTopics = req.topicFocus && req.selectedTopics?.length ? req.selectedTopics : [];
     const selectedCompanies = req.companyFocus && req.selectedCompanies?.length ? req.selectedCompanies : [];
@@ -1292,9 +1311,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     tagProgressSection.classList.remove('hidden');
+    tagProgressSection.classList.add('section-fadein');
 
-    const completedProblemIds = result.completedProblemIds || [];
     const master = await loadMasterProblems();
+    if (gen !== _tagProgressGen) return;
 
     if (!master || !master.problems) {
       tagProgressList.innerHTML = '';
@@ -1368,7 +1388,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return getExplorerUrl(topics, companies);
     }
 
-    const CODE_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+    const CODE_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
     function makeProgressRow(label, solved, total, color, url, nextFn) {
       const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
@@ -1388,7 +1408,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
         </div>
         <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
-          <div class="h-2 rounded-full transition-all duration-300" style="width:${pct}%;background-color:${color};"></div>
+          <div class="h-2 rounded-full transition-all duration-300 progress-animate" style="width:${pct}%;background-color:${color};"></div>
         </div>
       `;
       if (url) {
@@ -1425,14 +1445,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       toggle.className = 'tag-accordion-toggle';
       toggle.innerHTML = `<span class="tag-accordion-chevron">▾</span><span>${totalTags} individual tag${totalTags !== 1 ? 's' : ''}</span>`;
 
-      // Accordion body with individual rows
+      // Accordion body with individual rows (inner wrapper for grid animation)
       const body = document.createElement('div');
       body.className = 'tag-accordion-body';
+      const bodyInner = document.createElement('div');
       allTags.forEach(({ name, type }, i) => {
         const indRow = makeProgressRow(name, stats[name].solved, stats[name].total, type === 'topic' ? '#ffa116' : '#00b8a3', getTagUrl(name, type), () => getNextUnsolvedForTag(name, type));
         if (i < allTags.length - 1) indRow.style.marginBottom = '10px';
-        body.appendChild(indRow);
+        bodyInner.appendChild(indRow);
       });
+      body.appendChild(bodyInner);
 
       toggle.addEventListener('click', () => {
         const isOpen = body.classList.toggle('open');
@@ -1646,18 +1668,43 @@ document.addEventListener("DOMContentLoaded", async () => {
   importFileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (!file.name.endsWith('.json')) {
+      alert('Please select a .json file.');
+      importFileInput.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File too large. Maximum 10 MB.');
+      importFileInput.value = '';
+      return;
+    }
     const reader = new FileReader();
+    reader.onerror = () => {
+      alert('Failed to read file. Please try again.');
+      importFileInput.value = '';
+    };
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (!data._leetdaily) { alert('Invalid LeetDaily backup file.'); return; }
+        if (!data._leetdaily) { alert('Invalid LeetDaily backup file. Missing _leetdaily marker.'); return; }
+        // Validate expected keys
         const { _leetdaily, exportedAt, ...toRestore } = data;
+        const validKeys = new Set(EXPORT_KEYS);
+        const unknownKeys = Object.keys(toRestore).filter(k => !validKeys.has(k));
+        if (unknownKeys.length > 0) {
+          console.warn('Import: ignoring unknown keys:', unknownKeys);
+          unknownKeys.forEach(k => delete toRestore[k]);
+        }
         chrome.storage.local.set(toRestore, () => {
+          if (chrome.runtime.lastError) {
+            alert('Failed to save imported data: ' + chrome.runtime.lastError.message);
+            return;
+          }
           alert('Data imported! Reloading…');
           location.reload();
         });
-      } catch {
-        alert('Could not parse file. Make sure it is a valid LeetDaily export.');
+      } catch (err) {
+        alert('Could not parse file. Make sure it is a valid LeetDaily JSON export.');
       }
     };
     reader.readAsText(file);

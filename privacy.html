@@ -35,44 +35,65 @@
       margin-bottom: 1rem;
     }
 
-    .emoji {
-      margin-right: 0.5rem;
+    ul {
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
     }
   </style>
 </head>
 
 <body>
-  <h1>🛡️ LeetDaily Privacy Policy</h1>
-  <p><strong>Effective Date:</strong> December 13th, 2025</p>
+  <h1>LeetDaily Privacy Policy</h1>
+  <p><strong>Effective Date:</strong> February 18th, 2026</p>
 
-  <h2>📌 Overview</h2>
-  <p>LeetDaily is a simple Chrome extension that displays the current LeetCode Daily Challenge and tracks whether you've
-    viewed it for the day.</p>
+  <h2>Overview</h2>
+  <p>LeetDaily is a Chrome extension that helps you track your LeetCode progress, daily challenges, curated study lists
+    (Blind 75, NeetCode 150, LeetCode 75), streak milestones, and coding interview preparation.</p>
 
-  <h2>🔒 What Data We Collect</h2>
-  <p>LeetDaily does <strong>not</strong> collect, store, or transmit any personally identifiable information (PII) or
-    sensitive data.</p>
-  <p>The extension only uses local browser storage to:</p>
+  <h2>What Data We Store</h2>
+  <p>LeetDaily does <strong>not</strong> collect, transmit, or share any personally identifiable information (PII).</p>
+  <p>All data is stored <strong>locally on your device</strong> using Chrome's built-in storage API. This includes:</p>
   <ul>
-    <li>Track if you have viewed the daily problem for today</li>
+    <li>Your LeetCode username and avatar (synced from your logged-in session)</li>
+    <li>Streak count, solved problem IDs, and daily challenge completion status</li>
+    <li>Streak requirement preferences (which lists, topics, and companies you track)</li>
+    <li>Notification settings and reminder times</li>
   </ul>
-  <p>This data remains entirely on your device and is <strong>not transmitted or shared</strong> with any third parties.
-  </p>
+  <p>This data remains entirely on your device and is <strong>never transmitted to any server</strong> other than
+    LeetCode itself.</p>
 
-  <h2>📡 API Usage</h2>
-  <p>LeetDaily fetches public data from LeetCode's API (e.g., daily problem title, difficulty) to display inside the
-    extension popup. No user account, login, or private data is accessed.</p>
+  <h2>API Usage</h2>
+  <p>LeetDaily communicates only with <strong>leetcode.com</strong> to:</p>
+  <ul>
+    <li>Fetch the daily challenge question</li>
+    <li>Sync your solved problems and submission history</li>
+    <li>Read your profile stats (total solved, streak count)</li>
+    <li>Fetch daily challenge completion status for the 30-day heatmap</li>
+  </ul>
+  <p>These requests use your existing LeetCode browser session cookies. LeetDaily does not access or store your LeetCode
+    password.</p>
 
-  <h2>🔐 Data Sharing</h2>
+  <h2>Data Sharing</h2>
   <p>We do <strong>not</strong> share, sell, or transfer any data to third parties.</p>
   <p>We do <strong>not</strong> use data for advertising, tracking, or analytics.</p>
 
-  <h2>🧠 Your Control</h2>
-  <p>You may remove all stored data at any time by uninstalling the extension.</p>
+  <h2>Data Export & Import</h2>
+  <p>You can export all your LeetDaily data as a JSON file and import it on another device. This is a local file
+    transfer — no data passes through our servers.</p>
 
-  <h2>📫 Contact</h2>
+  <h2>Your Control</h2>
+  <p>You may remove all stored data at any time by:</p>
+  <ul>
+    <li>Uninstalling the extension</li>
+    <li>Clearing extension storage via Chrome settings</li>
+  </ul>
+
+  <h2>Contact</h2>
   <p>If you have questions or concerns about this policy, contact us at:</p>
-  <p>📧 <a href="mailto:masst.dev@gmail.com">masst.dev@gmail.com</a></p>
+  <p><a href="mailto:masst.dev@gmail.com">masst.dev@gmail.com</a></p>
 </body>
 
 </html>

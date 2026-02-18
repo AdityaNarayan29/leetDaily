@@ -150,17 +150,133 @@
     }
     .tag-accordion-toggle:hover { color: rgba(239,241,246,0.6); }
     .tag-accordion-chevron {
-      transition: transform 0.2s;
+      transition: transform 0.25s ease;
       display: inline-block;
     }
     .tag-accordion-toggle.open .tag-accordion-chevron { transform: rotate(180deg); }
     .tag-accordion-body {
-      display: none;
+      display: grid;
+      grid-template-rows: 0fr;
+      overflow: hidden;
+      transition: grid-template-rows 0.25s ease, opacity 0.25s ease, margin-top 0.25s ease, padding-top 0.25s ease;
+      opacity: 0;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 1px solid transparent;
+    }
+    .tag-accordion-body > * { overflow: hidden; }
+    .tag-accordion-body.open {
+      grid-template-rows: 1fr;
+      opacity: 1;
       margin-top: 8px;
       padding-top: 8px;
-      border-top: 1px solid rgba(255,255,255,0.07);
+      border-top-color: rgba(255,255,255,0.07);
     }
-    .tag-accordion-body.open { display: block; }
+
+    /* Touch-friendly targets */
+    .tag-chip { min-height: 24px; }
+    .tag-chip-x { min-width: 20px; min-height: 20px; display: inline-flex; align-items: center; justify-content: center; }
+
+    /* View transitions */
+    #main-view, #settings-view {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    #main-view.hidden, #settings-view.hidden {
+      opacity: 0;
+      transform: translateX(0);
+      pointer-events: none;
+      position: absolute;
+      width: 100%;
+    }
+    #settings-view:not(.hidden) {
+      animation: slideInRight 0.2s ease;
+    }
+    #main-view:not(.hidden) {
+      animation: slideInLeft 0.2s ease;
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Modal transitions */
+    #streak-modal {
+      transition: opacity 0.2s ease;
+    }
+    #streak-modal.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #streak-modal:not(.hidden) {
+      animation: fadeIn 0.2s ease;
+    }
+    #streak-modal:not(.hidden) > div {
+      animation: scaleIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Milestone banner animation */
+    #milestone-banner:not(.hidden) {
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Progress bar animation on load */
+    @keyframes fillBar {
+      from { width: 0%; }
+    }
+    .progress-animate {
+      animation: fillBar 0.6s ease-out;
+    }
+
+    /* Streak pulse on update */
+    @keyframes streakPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .streak-pulse {
+      animation: streakPulse 0.3s ease;
+    }
+
+    /* Section fade-in on load */
+    .section-fadein {
+      animation: fadeInUp 0.3s ease;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, #ffffff0a 25%, #ffffff14 50%, #ffffff0a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-text { height: 12px; }
+    .skeleton-text-lg { height: 16px; }
+    .skeleton-bar { height: 8px; border-radius: 9999px; }
+    .skeleton-cell { border-radius: 3px; }
   </style>
 </head>
 
@@ -209,7 +325,20 @@
 
     <!-- Stats Panel -->
     <section id="stats-panel" class="mb-4 px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d]">
-      <div class="flex items-center justify-between">
+      <!-- Skeleton (shown while loading) -->
+      <div id="stats-skeleton" class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <span class="text-[12px] text-[#eff1f699]">Solved</span>
+          <div class="skeleton skeleton-text-lg" style="width:28px"></div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="skeleton skeleton-text" style="width:40px"></div>
+          <div class="skeleton skeleton-text" style="width:40px"></div>
+          <div class="skeleton skeleton-text" style="width:40px"></div>
+        </div>
+      </div>
+      <!-- Real content (hidden until loaded) -->
+      <div id="stats-content" class="flex items-center justify-between hidden">
         <div class="flex items-center gap-4">
           <span class="text-[12px] text-[#eff1f699]">Solved</span>
           <span id="total-count" class="text-[14px] font-semibold text-[#eff1f6]">-</span>
@@ -248,7 +377,8 @@
         </div>
       </div>
       <div id="heatmap" class="grid grid-cols-15 gap-[3px]">
-        <!-- Heatmap cells will be injected by JS -->
+        <!-- Skeleton heatmap cells (replaced by JS) -->
+        <div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div><div class="skeleton skeleton-cell w-full aspect-square"></div>
       </div>
       <div id="heatmap-dates" class="flex justify-between mt-2 text-[10px] text-[#eff1f666]">
         <!-- Date labels will be injected by JS -->
@@ -268,7 +398,7 @@
             <span id="blind75-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#00b8a3] transition-colors" title="Blind 75">Blind 75</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-[#eff1f699]"><span id="blind75-count" class="text-[#eff1f6]">0/74</span> <span id="blind75-percentage" class="text-[#00b8a3] font-semibold">0%</span></span>
-              <button id="blind75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#00b8a3] hover:bg-[#00b8a31a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
+              <button id="blind75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#00b8a3] hover:bg-[#00b8a31a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             </div>
           </div>
           <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
@@ -282,7 +412,7 @@
             <span id="neetcode150-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ffa116] transition-colors" title="NeetCode 150">NC 150</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-[#eff1f699]"><span id="neetcode150-count" class="text-[#eff1f6]">0/158</span> <span id="neetcode150-percentage" class="text-[#ffa116] font-semibold">0%</span></span>
-              <button id="neetcode150-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
+              <button id="neetcode150-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             </div>
           </div>
           <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
@@ -296,7 +426,7 @@
             <span id="leetcode75-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ff375f] transition-colors" title="LeetCode 75">LC 75</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-[#eff1f699]"><span id="leetcode75-count" class="text-[#eff1f6]">0/75</span> <span id="leetcode75-percentage" class="text-[#ff375f] font-semibold">0%</span></span>
-              <button id="leetcode75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ff375f] hover:bg-[#ff375f1a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
+              <button id="leetcode75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ff375f] hover:bg-[#ff375f1a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             </div>
           </div>
           <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
@@ -315,7 +445,18 @@
 
     <!-- Question Section -->
     <section id="daily-challenge-section" class="mb-4 p-4 rounded-xl bg-[#282828] border border-[#ffffff0d]">
-      <div id="question" class="text-[#eff1f6]">Loading...</div>
+      <div id="question" class="text-[#eff1f6]">
+        <!-- Skeleton for daily challenge -->
+        <div class="mb-3 flex items-start gap-2">
+          <div class="flex-1">
+            <div class="skeleton skeleton-text-lg" style="width:75%;margin-bottom:6px"></div>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="skeleton skeleton-text" style="width:100%;height:34px;border-radius:8px"></div>
+          <div class="skeleton skeleton-text" style="width:100%;height:34px;border-radius:8px"></div>
+        </div>
+      </div>
     </section>
 
     <!-- Problems Explorer Card -->

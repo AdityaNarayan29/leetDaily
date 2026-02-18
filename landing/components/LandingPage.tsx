@@ -19,14 +19,11 @@ import {
   Bell,
   Calendar,
   Trophy,
-  Clock,
   ArrowRight,
   Sparkles,
   Shield,
   Check,
-  Copy,
   Settings,
-  ChevronDown,
   AlertTriangle,
   BookOpen,
   Search,
@@ -75,7 +72,9 @@ export default function LandingPage() {
         .from(".popup-header", { opacity: 0, x: -20, duration: 0.5 })
         .from(".popup-stats", { opacity: 0, y: 20, duration: 0.5 }, "-=0.3")
         .from(".popup-heatmap", { opacity: 0, y: 20, duration: 0.5 }, "-=0.3")
-        .from(".popup-problem", { opacity: 0, y: 20, duration: 0.5 }, "-=0.3");
+        .from(".popup-lists", { opacity: 0, y: 20, duration: 0.5 }, "-=0.3")
+        .from(".popup-problem", { opacity: 0, y: 20, duration: 0.5 }, "-=0.3")
+        .from(".popup-explorer", { opacity: 0, y: 20, duration: 0.5 }, "-=0.3");
 
       // Heatmap cells stagger animation
       gsap.fromTo(".heatmap-cell",
@@ -128,14 +127,17 @@ export default function LandingPage() {
         }
       );
 
-      // Pulse animation for solve button
-      gsap.to(".solve-btn", {
-        boxShadow: "0 0 20px rgba(249, 115, 22, 0.5)",
-        duration: 1,
-        repeat: -1,
-        yoyo: true,
-        delay: 3,
-      });
+      // Study list progress bars fill animation
+      gsap.fromTo(".list-progress-bar",
+        { width: "0%" },
+        {
+          width: (i: number) => ["70%", "56%", "55%"][i] || "50%",
+          duration: 0.8,
+          stagger: 0.15,
+          delay: 2.8,
+          ease: "power2.out",
+        }
+      );
 
       // Extension icon badge blink animation (in hero)
       gsap.to(".icon-badge-blink", {
@@ -450,71 +452,53 @@ export default function LandingPage() {
                   className="sm:absolute sm:top-4 sm:right-4 mt-4 sm:mt-0 bg-[#1a1a1a] rounded-2xl border border-white/10 shadow-2xl overflow-hidden z-10 w-full sm:w-[360px]"
                 >
               {/* Popup Header */}
-              <div className="popup-header p-4 border-b border-white/5">
+              <div className="popup-header px-4 py-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {/* Avatar */}
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-sm font-bold">
-                        A
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#1a1a1a]" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-xs font-bold">
+                      A
                     </div>
                     <div className="text-left">
-                      <div className="font-medium">AdityaNarayan29</div>
-                      <div className="text-xs text-white/50">
-                        Daily LeetCode Kro
-                      </div>
+                      <div className="text-[13px] font-semibold leading-tight">AdityaNarayan29</div>
+                      <div className="text-[11px] text-white/40 leading-tight">Daily LeetCode Kro</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-[10px] text-white/40">New in: 5h 23m</div>
-                    <div className="streak-counter flex items-center gap-0.5">
-                      <span className="text-sm leading-none">&#x1F525;</span>
-                      <span className="text-sm font-bold text-orange-400">7</span>
-                    </div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[11px] text-white/40 tabular-nums">5h 23m</span>
+                    <div className="streak-counter text-[13px] font-semibold text-[#ffa116]">&#x1F525; 7</div>
+                    <span className="text-white/10">|</span>
+                    <Settings className="w-3.5 h-3.5 text-white/40" />
                   </div>
                 </div>
               </div>
 
               {/* Stats Panel */}
-              <div className="popup-stats p-4">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <div className="popup-stats px-4 pb-3">
+                <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-white/50">Solved</span>
-                    <span className="text-lg font-bold">473</span>
+                    <span className="text-[11px] text-white/40">Solved</span>
+                    <span className="text-[13px] font-semibold">473</span>
                   </div>
-                  <div className="flex gap-4 text-sm">
-                    <div className="text-center">
-                      <span className="font-semibold text-emerald-400">118</span>
-                      <span className="text-white/40 ml-1">Easy</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="font-semibold text-orange-400">289</span>
-                      <span className="text-white/40 ml-1">Med</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="font-semibold text-red-400">66</span>
-                      <span className="text-white/40 ml-1">Hard</span>
-                    </div>
+                  <div className="flex items-center gap-3 text-[11px]">
+                    <span><span className="font-semibold text-[#00b8a3]">118</span> <span className="text-white/40">Easy</span></span>
+                    <span><span className="font-semibold text-[#ffa116]">289</span> <span className="text-white/40">Med</span></span>
+                    <span><span className="font-semibold text-[#ff375f]">66</span> <span className="text-white/40">Hard</span></span>
                   </div>
                 </div>
               </div>
 
               {/* 30-Day Heatmap */}
-              <div className="popup-heatmap px-4 pb-4">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                  <div className="flex items-center justify-between mb-3">
+              <div className="popup-heatmap px-4 pb-3">
+                <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium">30-Day Activity</span>
-                      <span className="text-xs text-emerald-400 font-medium">
-                        27/30 daily
-                      </span>
+                      <span className="text-[12px] font-semibold">30-Day Activity</span>
+                      <span className="text-[10px] text-emerald-400 font-medium">27/30 daily</span>
                     </div>
-                    <div className="flex items-center gap-1 text-[10px] text-white/40">
+                    <div className="flex items-center gap-1 text-[9px] text-white/40">
                       <span>Less</span>
                       <div className="flex gap-0.5">
-                        <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }} />
+                        <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }} />
                         <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: 'rgba(44,187,93,0.25)' }} />
                         <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: 'rgba(44,187,93,0.5)' }} />
                         <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: 'rgba(44,187,93,1)' }} />
@@ -522,20 +506,19 @@ export default function LandingPage() {
                       <span>More</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-15 gap-1 w-full">
+                  <div className="grid grid-cols-15 gap-[3px] w-full">
                     {[...Array(30)].map((_, i) => {
-                      // Predefined pattern for realistic heatmap look
                       const pattern = [
                         3, 2, 3, 1, 3, 2, 0, 3, 3, 2, 1, 3, 2, 3, 1,
                         2, 3, 1, 3, 2, 3, 0, 2, 3, 3, 1, 2, 3, 2, 4,
                       ];
                       const level = pattern[i];
                       const colors = [
-                        { bg: 'rgba(255,255,255,0.1)' }, // 0 - empty
-                        { bg: 'rgba(44,187,93,0.25)' }, // 1 - low
-                        { bg: 'rgba(44,187,93,0.5)' }, // 2 - medium
-                        { bg: 'rgba(44,187,93,1)' }, // 3 - high
-                        { bg: 'rgba(249,115,22,0.5)', ring: true }, // 4 - today
+                        { bg: 'rgba(255,255,255,0.05)' },
+                        { bg: 'rgba(44,187,93,0.25)' },
+                        { bg: 'rgba(44,187,93,0.5)' },
+                        { bg: 'rgba(44,187,93,1)' },
+                        { bg: 'rgba(249,115,22,0.5)', ring: true },
                       ];
                       const color = colors[level];
                       return (
@@ -550,137 +533,121 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Problem Section */}
-              <div className="popup-problem px-4 pb-4">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                  {/* Problem Title */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-white/50 text-sm">3417.</span>
-                        <span className="font-medium">Zigzag Grid Traversal</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-emerald-400 font-medium">Easy</span>
-                        <span className="text-white/30">·</span>
-                        <span className="text-white/50">78.2% acceptance</span>
-                      </div>
-                    </div>
-                    <button className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white">
-                      <Copy className="w-4 h-4" />
-                    </button>
+              {/* Your Progress — List Progress */}
+              <div className="popup-lists px-4 pb-3">
+                <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
+                  <div className="flex items-center justify-between mb-3.5">
+                    <span className="text-[12px] font-semibold">Your Progress</span>
+                    <span className="text-[10px] text-white/40">Track curated lists</span>
                   </div>
-
-                  {/* Topics & Companies */}
-                  <div className="space-y-2 mb-4">
-                    {/* Topics Row */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1.5 text-white/50 shrink-0">
-                        <svg
-                          className="w-3 h-3"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                        </svg>
-                        <span className="text-[10px] font-medium">Topics</span>
-                        <span className="text-white/20">&rsaquo;</span>
+                  <div className="space-y-3.5">
+                    {/* Blind 75 */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[12px] font-semibold text-white hover:text-[#00b8a3] cursor-pointer transition-colors">Blind 75</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-white/40"><span className="text-white/70">52/74</span> <span className="text-[#00b8a3] font-semibold">70%</span></span>
+                          <div className="w-4 h-4 rounded flex items-center justify-center text-white/25 hover:text-[#00b8a3] hover:bg-[#00b8a3]/10 cursor-pointer transition-all">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1">
-                        <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-white/10 text-white/70 hover:bg-white/20 cursor-pointer transition-colors">
-                          Array
-                        </span>
-                        <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-white/10 text-white/70 hover:bg-white/20 cursor-pointer transition-colors">
-                          Matrix
-                        </span>
-                        <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-white/10 text-white/70 hover:bg-white/20 cursor-pointer transition-colors">
-                          Simulation
-                        </span>
+                      <div className="h-[7px] rounded-full bg-white/10 overflow-hidden">
+                        <div className="list-progress-bar h-full rounded-full bg-[#00b8a3]" style={{ width: '70%' }} />
                       </div>
                     </div>
-
-                    {/* Companies Row */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1.5 text-white/50 shrink-0">
-                        <Building2 className="w-3 h-3" />
-                        <span className="text-[10px] font-medium">Companies</span>
-                        <span className="text-white/20">&rsaquo;</span>
+                    {/* NeetCode 150 */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[12px] font-semibold text-white hover:text-[#ffa116] cursor-pointer transition-colors">NC 150</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-white/40"><span className="text-white/70">89/158</span> <span className="text-[#ffa116] font-semibold">56%</span></span>
+                          <div className="w-4 h-4 rounded flex items-center justify-center text-white/25 hover:text-[#ffa116] hover:bg-[#ffa116]/10 cursor-pointer transition-all">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1">
-                        <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 cursor-pointer transition-colors">
-                          Google (12)
-                        </span>
-                        <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 cursor-pointer transition-colors">
-                          Meta (8)
-                        </span>
-                        <span className="tag-chip px-2 py-0.5 rounded text-[10px] bg-orange-500/20 text-orange-300 hover:bg-orange-500/30 cursor-pointer transition-colors">
-                          +3
-                        </span>
+                      <div className="h-[7px] rounded-full bg-white/10 overflow-hidden">
+                        <div className="list-progress-bar h-full rounded-full bg-[#ffa116]" style={{ width: '56%' }} />
+                      </div>
+                    </div>
+                    {/* LeetCode 75 */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[12px] font-semibold text-white hover:text-[#ff375f] cursor-pointer transition-colors">LC 75</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-white/40"><span className="text-white/70">41/75</span> <span className="text-[#ff375f] font-semibold">55%</span></span>
+                          <div className="w-4 h-4 rounded flex items-center justify-center text-white/25 hover:text-[#ff375f] hover:bg-[#ff375f]/10 cursor-pointer transition-all">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-[7px] rounded-full bg-white/10 overflow-hidden">
+                        <div className="list-progress-bar h-full rounded-full bg-[#ff375f]" style={{ width: '55%' }} />
                       </div>
                     </div>
                   </div>
-
-                  {/* Solve Button */}
-                  <button className="solve-btn w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 font-semibold text-sm flex items-center justify-center gap-2 hover:from-orange-600 hover:to-red-600 transition-all">
-                    <Check className="w-4 h-4" />
-                    Solve Challenge
-                  </button>
                 </div>
               </div>
 
-              {/* Yesterday's Problem */}
-              <div className="px-4 pb-4">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+              {/* Daily Challenge */}
+              <div className="popup-problem px-4 pb-3">
+                <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
+                  {/* Title row */}
+                  <div className="flex items-start gap-2 mb-3">
+                    <div className="flex-1 text-[13px] leading-snug">
+                      <span className="text-white/40">1.</span>{" "}
+                      <span className="font-medium">Two Sum</span>{" "}
+                      <span className="float-right text-[10px] whitespace-nowrap">
+                        <span className="font-medium text-[#00b8a3]">Easy</span>
+                        <span className="text-white/40">&nbsp;·&nbsp;</span>
+                        <span className="text-white/40">54.1%</span>
+                      </span>
+                    </div>
+                    <div className="text-white/60 hover:text-[#ffa116] cursor-pointer transition-colors shrink-0 mt-0.5">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </div>
+                  </div>
+
+                  {/* Topics row */}
+                  <div className="flex items-start gap-2 text-white/40 px-2.5 py-2 border border-white/10 rounded-t-lg">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+                      <span className="text-[10px] font-medium">Topics</span>
+                      <span className="text-white/20 text-[10px]">&rsaquo;</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      <span className="tag-chip px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-white/60 hover:bg-white/10 cursor-pointer transition-colors">Array</span>
+                      <span className="tag-chip px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-white/60 hover:bg-white/10 cursor-pointer transition-colors">Hash Table</span>
+                    </div>
+                  </div>
+                  {/* Companies row */}
+                  <div className="flex items-start gap-2 text-white/40 px-2.5 py-2 border border-white/10 border-t-0 rounded-b-lg">
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Building2 className="w-3 h-3" />
+                      <span className="text-[10px] font-medium">Companies</span>
+                      <span className="text-white/20 text-[10px]">&rsaquo;</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      <span className="tag-chip px-1.5 py-0.5 rounded text-[10px] bg-[#ffa116]/10 text-[#ffa116] hover:bg-[#ffa116]/20 cursor-pointer transition-colors">Google (45)</span>
+                      <span className="tag-chip px-1.5 py-0.5 rounded text-[10px] bg-[#ffa116]/10 text-[#ffa116] hover:bg-[#ffa116]/20 cursor-pointer transition-colors">Amazon (38)</span>
+                      <span className="tag-chip px-1.5 py-0.5 rounded text-[10px] bg-white/5 text-white/60 hover:bg-white/10 cursor-pointer transition-colors">+5</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Problems Explorer Card */}
+              <div className="popup-explorer px-4 pb-4">
+                <div className="px-3 py-2.5 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center justify-between">
-                    <div className="text-left">
-                      <span className="text-[10px] text-white/40 block mb-0.5">
-                        Missed yesterday?
-                      </span>
-                      <span className="text-xs text-white/70 hover:text-orange-400 cursor-pointer transition-colors">
-                        3416. Count Substrings With K-Frequency
-                      </span>
+                    <div>
+                      <span className="text-[12px] font-semibold">Problems Explorer</span>
+                      <p className="text-[10px] text-white/40 mt-0.5">Browse &amp; filter all LeetCode problems</p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-white/30 shrink-0" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Settings - Expanded */}
-              <div className="px-4 pb-4">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                  <div className="flex items-center justify-between text-xs text-white/50 pb-2 border-b border-white/10">
-                    <div className="flex items-center gap-2">
-                      <Settings className="w-3 h-3" />
-                      <span>Settings</span>
-                    </div>
-                    <ChevronDown className="w-3 h-3 rotate-180" />
-                  </div>
-                  {/* Daily Reminder Toggle */}
-                  <div className="flex items-center justify-between py-2.5 border-b border-white/10">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-3 h-3 text-white/50" />
-                      <span className="text-xs text-white/70">Daily Reminder</span>
-                    </div>
-                    <div className="w-8 h-4 bg-orange-500 rounded-full relative">
-                      <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
-                    </div>
-                  </div>
-                  {/* Reminder Time */}
-                  <div className="flex items-center justify-between py-2.5 border-b border-white/10">
-                    <span className="text-xs text-white/50">Reminder Time</span>
-                    <span className="text-xs text-white/70">9:00 AM</span>
-                  </div>
-                  {/* Show Badge */}
-                  <div className="flex items-center justify-between pt-2.5">
-                    <div className="flex items-center gap-2">
-                      <Trophy className="w-3 h-3 text-white/50" />
-                      <span className="text-xs text-white/70">Show Streak Badge</span>
-                    </div>
-                    <div className="w-8 h-4 bg-orange-500 rounded-full relative">
-                      <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/8 text-[11px] font-medium hover:bg-white/12 cursor-pointer transition-colors">
+                      <Search className="w-3 h-3" />
+                      Browse
                     </div>
                   </div>
                 </div>

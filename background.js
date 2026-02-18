@@ -554,13 +554,17 @@ function showNotification(title, message, type = "reminder") {
     if (result.notificationsEnabled === false) return;
 
     const notificationId = `leetdaily-${type}-${Date.now()}`;
-    chrome.notifications.create(notificationId, {
-      type: "basic",
-      iconUrl: "icon.png",
-      title,
-      message,
-      priority: type === "urgent" ? 2 : 1
-    });
+    try {
+      chrome.notifications.create(notificationId, {
+        type: "basic",
+        iconUrl: "icon.png",
+        title,
+        message,
+        priority: type === "urgent" ? 2 : 1
+      });
+    } catch (err) {
+      console.warn('Failed to create notification:', err.message);
+    }
   });
 }
 

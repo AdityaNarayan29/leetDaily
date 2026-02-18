@@ -4,14 +4,23 @@
 let lastCheck = 0;
 const CHECK_COOLDOWN = 5000; // 5 seconds between checks
 
+// Safe sendMessage wrapper (extension context may be invalidated on update)
+function safeSendMessage(msg) {
+  try {
+    chrome.runtime.sendMessage(msg);
+  } catch (err) {
+    // Extension context invalidated (e.g. after update) - silently ignore
+  }
+}
+
 // Notify background to start loading blink
 function notifyLoading() {
-  chrome.runtime.sendMessage({ action: "startLoadingBlink" });
+  safeSendMessage({ action: "startLoadingBlink" });
 }
 
 // Notify background to stop loading blink
 function notifyLoadingDone() {
-  chrome.runtime.sendMessage({ action: "stopLoadingBlink" });
+  safeSendMessage({ action: "stopLoadingBlink" });
 }
 
 // isLoadingActive tracks if we started a loading blink that needs cleanup
@@ -23,14 +32,22 @@ function getProblemSlugFromURL() {
   return match ? match[1] : null;
 }
 
-// Load problem metadata from local JSON
+// Cached problem data map (loaded once, reused)
+let _problemDataMap = null;
+
+// Load problem metadata from local JSON (with cache)
 async function getProblemMetadata(titleSlug) {
   try {
-    const response = await fetch(chrome.runtime.getURL('data/leetcode-problems.json'));
-    const data = await response.json();
+    if (!_problemDataMap) {
+      const response = await fetch(chrome.runtime.getURL('data/leetcode-problems.json'));
+      const data = await response.json();
+      _problemDataMap = new Map();
+      for (const p of data.problems) {
+        _problemDataMap.set(p.titleSlug, p);
+      }
+    }
 
-    // Find problem by titleSlug
-    const problem = data.problems.find(p => p.titleSlug === titleSlug);
+    const problem = _problemDataMap.get(titleSlug);
     if (!problem) {
       console.log(`Problem not found in local data: ${titleSlug}`);
       return null;
@@ -97,7 +114,7 @@ async function checkAndNotifyCompletion() {
 
     if (completedToday) {
       // Send message to background script to update badge (this also stops loading)
-      chrome.runtime.sendMessage({
+      safeSendMessage({
         action: "problemSolved",
         data: {
           streak: streakData?.streakCount || 0,
@@ -136,7 +153,7 @@ async function notifyIndividualProblemSolved() {
   }
 
   // Send to background script
-  chrome.runtime.sendMessage({
+  safeSendMessage({
     action: "individualProblemSolved",
     data: {
       problemId: metadata.id,

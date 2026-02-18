@@ -9,6 +9,20 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ---
 
+## What's New in v2.0
+
+- **Curated List Tracking** — Blind 75, NeetCode 150, and LeetCode 75 with live progress bars and next-unsolved shortcuts
+- **Tag & Company Progress** — Track solved/total for selected topics and companies with intersection view
+- **Problems Explorer** — Full-page browser for 2000+ problems with filters, sorting, list badges, and solved indicators
+- **Configurable Streak Rules** — Choose what counts toward your streak: daily challenge, curated lists, topic/company tags, or any submission
+- **30-Day Activity Heatmap** — Color-coded daily activity with submission counts and daily challenge checkmarks
+- **Streak Detail Modal** — Click your streak to see 7-day history, longest streak, and milestone progress
+- **Data Export/Import** — Backup and restore all your progress as JSON
+- **Smooth Animations** — View transitions, accordion expand/collapse, progress bar fills, and milestone celebrations
+- **2000+ Problems with Company Data** — Problem database with company frequency tags fetched from LeetCode
+
+---
+
 ## Features
 
 ### Dashboard
@@ -89,29 +103,27 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ```
 leetDaily/
-├── landing/              # Landing page (Next.js + TypeScript)
-│   ├── app/              # App router pages (blog, OG images)
-│   ├── components/       # React components (LandingPage, Navbar, MDX)
-│   ├── content/blog/     # MDX blog posts
-│   └── lib/              # Utilities (blog helpers)
-├── data/                 # Problem metadata
-│   ├── leetcode-problems.json
-│   ├── blind75.json
-│   ├── neetcode150.json
-│   └── leetcode75.json
-├── styles/               # Tailwind CSS
+├── data/                  # Problem metadata
+│   ├── leetcode-problems.json   # 2000+ problems with company tags
+│   ├── blind75.json             # Blind 75 list by category
+│   ├── neetcode150.json         # NeetCode 150 list by category
+│   └── leetcode75.json          # LeetCode 75 list by category
+├── scripts/               # Dev tooling
+│   └── fetch-problems.js  # Fetch/update problem data from LeetCode API
+├── styles/                # Tailwind CSS
 │   ├── input.css
 │   └── output.css
-├── utils/                # Shared utilities
+├── utils/                 # Shared utilities
 │   └── list-helpers.js
-├── popup.html            # Extension popup UI
-├── popup.js              # Extension popup logic
-├── background.js         # Service worker (streak calc, alarms, notifications)
-├── content.js            # Content script (LeetCode page integration)
+├── landing/               # Landing page (Next.js + TypeScript)
+├── popup.html             # Extension popup UI
+├── popup.js               # Extension popup logic
+├── background.js          # Service worker (streak calc, alarms, notifications)
+├── content.js             # Content script (LeetCode page integration)
 ├── problems-explorer.html # Full-page problems browser
 ├── problems-explorer.js   # Problems explorer logic
-├── manifest.json         # Chrome extension manifest (MV3)
-└── tailwind.config.js    # Tailwind configuration
+├── manifest.json          # Chrome extension manifest (MV3)
+└── tailwind.config.js     # Tailwind configuration
 ```
 
 ### Running the Landing Page
@@ -129,6 +141,17 @@ npm run build    # Build for production
 npm install
 npm run build:css    # Compile Tailwind CSS
 ```
+
+### Updating Problem Data
+
+The problem database can be refreshed from the LeetCode API:
+
+```bash
+npm run fetch-problems          # Fetch all problems (basic data)
+npm run fetch-problems:full     # Fetch with company frequency tags (slower, rate-limited)
+```
+
+This updates `data/leetcode-problems.json` with the latest problems, difficulty, topics, acceptance rates, and company tags.
 
 ---
 

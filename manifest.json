@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LeetDaily - Daily LeetCode Challenge",
-  "version": "1.2.1.2",
+  "version": "2.0.0",
   "description": "Daily LeetCode challenges, Blind 75/NeetCode 150/LC 75 tracking, FAANG company tags, problems explorer, streak milestones, 30-day heatmap & smart reminders.",
   "icons": {
     "16": "icon.png",

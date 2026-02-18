@@ -897,6 +897,15 @@
     .solved-check { color: #2cbb5d; font-size: 11px; font-weight: 700; margin-left: 4px; }
     .table tbody tr.solved { border-left-color: #2cbb5d; }
 
+    /* Premium Indicator */
+    .premium-lock {
+      display: inline-flex; align-items: center; margin-left: 5px; vertical-align: middle;
+      color: #ffa116; opacity: 0.7; font-size: 11px;
+    }
+    .premium-lock svg { width: 11px; height: 11px; }
+    .table tbody tr.premium { opacity: 0.65; }
+    .table tbody tr.premium:hover { opacity: 0.85; }
+
     /* Loading State */
     .loading {
       display: flex;
@@ -1026,9 +1035,29 @@
       background: rgba(255, 255, 255, 0.25);
     }
 
+    /* Filter section open/close animation */
+    .filter-section .filter-content {
+      animation: expandIn 0.2s ease;
+    }
+    @keyframes expandIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Table row fade-in */
+    .table tbody tr {
+      animation: rowFadeIn 0.15s ease;
+    }
+    @keyframes rowFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
-      .container { padding: 0 16px; }
+      .container { padding: 0 12px; }
+      .header-inner { flex-wrap: wrap; gap: 8px; padding: 12px 0; min-height: auto; }
+      .badge-legend { font-size: 10px; gap: 8px; }
       .col-title > div {
         flex-direction: column;
         align-items: flex-start !important;
@@ -1037,6 +1066,18 @@
         width: 100%;
         margin-top: 8px;
       }
+      .table td { padding: 10px 8px; font-size: 12px; }
+      .table th { padding: 10px 8px; }
+      .col-topics { display: none; }
+      .col-frequency { display: none; }
+      .chip { min-height: 36px; padding: 0 12px; }
+      .btn { min-height: 36px; }
+      .page-btn { min-width: 36px; min-height: 36px; }
+    }
+
+    @media (max-width: 480px) {
+      .col-acceptance { display: none; }
+      .table .col-id { width: 50px; }
     }
   </style>
 </head>
@@ -1071,11 +1112,6 @@
       </a>
     </div>
   </header>
-
-  <!-- Debug Info (hidden) -->
-  <div id="debug-info" class="hidden">
-    <div id="js-status">Loading...</div>
-  </div>
 
   <!-- Main Content -->
   <main class="main">

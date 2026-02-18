@@ -1,8 +1,8 @@
 {
   "name": "leetdaily",
   "displayName": "LeetDaily",
-  "version": "1.1.1",
-  "description": "A Chrome extension that brings the LeetCode Daily Challenge to your browser toolbar. Track daily challenges, sync your stats & streak, get smart reminders, and build consistent coding habits.",
+  "version": "2.0.0",
+  "description": "Chrome extension for LeetCode daily challenges, Blind 75/NeetCode 150/LC 75 tracking, FAANG company tags, 2000+ problems explorer, streak milestones, 30-day heatmap & smart reminders.",
   "main": "popup.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,7 +18,12 @@
     "daily-challenge",
     "coding-practice",
     "productivity",
-    "streak-tracker"
+    "streak-tracker",
+    "blind-75",
+    "neetcode-150",
+    "problems-explorer",
+    "company-tags",
+    "coding-interview"
   ],
   "author": "Aditya Narayan <masst.dev@gmail.com>",
   "license": "MIT",
