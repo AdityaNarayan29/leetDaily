@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css --minify",
     "dev:css": "tailwindcss -i ./styles/input.css -o ./styles/output.css -w",
-    "build": "npm run build:css"
+    "build": "npm run build:css",
+    "fetch-problems": "node scripts/fetch-problems.js",
+    "fetch-problems:full": "node scripts/fetch-problems.js --with-companies"
   },
   "keywords": [
     "leetcode",

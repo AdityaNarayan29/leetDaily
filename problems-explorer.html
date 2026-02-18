@@ -21,7 +21,7 @@
 
     body {
       min-height: 100vh;
-      background: #111111;
+      background: #0a0a0a;
       color: #eff1f6;
       font-size: 14px;
       line-height: 1.5;
@@ -54,7 +54,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: #181818;
+      background: #111111;
       border-bottom: 1px solid rgba(255, 255, 255, 0.07);
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
     }
@@ -90,6 +90,52 @@
       color: rgba(239, 241, 246, 0.7);
     }
 
+    .badge-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: rgba(239, 241, 246, 0.45);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .legend-filter {
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .legend-filter:hover {
+      color: rgba(239, 241, 246, 0.7);
+    }
+
+    .legend-filter.active {
+      color: #eff1f6;
+    }
+
+    .legend-filter.active .list-badge-b75 {
+      color: #fff;
+      background: #00b8a3;
+      border-color: #00b8a3;
+    }
+
+    .legend-filter.active .list-badge-nc {
+      color: #fff;
+      background: #ffa116;
+      border-color: #ffa116;
+    }
+
+    .legend-filter.active .list-badge-lc {
+      color: #fff;
+      background: #ff375f;
+      border-color: #ff375f;
+    }
+
     /* Buttons */
     .btn {
       display: inline-flex;
@@ -113,7 +159,7 @@
     .btn:hover {
       color: #eff1f6;
       background: #2e2e2e;
-      border-color: rgba(255, 161, 22, 0.3);
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     .btn:active {
@@ -154,8 +200,8 @@
     }
 
     #clear-search:hover {
-      color: rgba(255, 161, 22, 0.9);
-      background: rgba(255, 161, 22, 0.08);
+      color: rgba(239, 241, 246, 0.9);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     #clear-search:active {
@@ -178,13 +224,13 @@
     }
 
     .filter-toggle-btn:hover {
-      color: rgba(255, 161, 22, 0.8);
-      background: rgba(255, 161, 22, 0.08);
+      color: rgba(239, 241, 246, 0.8);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .filter-toggle-btn.active {
-      color: rgba(255, 161, 22, 1);
-      background: rgba(255, 161, 22, 0.12);
+      color: rgba(239, 241, 246, 1);
+      background: rgba(255, 255, 255, 0.12);
     }
 
     /* Filter Dropdown */
@@ -193,7 +239,7 @@
       top: 100%;
       left: 0;
       margin-top: 4px;
-      background: #1e1e1e;
+      background: #181818;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       padding: 8px;
@@ -220,7 +266,7 @@
       width: 14px;
       height: 14px;
       cursor: pointer;
-      accent-color: #ffa116;
+      accent-color: #eff1f6;
     }
 
     .filter-checkbox-item .difficulty {
@@ -244,7 +290,7 @@
       padding: 0 12px 0 40px;
       font-size: 13px;
       color: #eff1f6;
-      background: #1a1a1a;
+      background: #141414;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       outline: none;
@@ -256,14 +302,14 @@
     }
 
     .search-input:hover {
-      border-color: rgba(255, 161, 22, 0.3);
-      background: #1e1e1e;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: #181818;
     }
 
     .search-input:focus {
-      background: #1e1e1e;
-      border-color: rgba(255, 161, 22, 0.5);
-      box-shadow: 0 0 0 3px rgba(255, 161, 22, 0.1);
+      background: #181818;
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
     }
 
     /* Select */
@@ -272,7 +318,7 @@
       padding: 0 32px 0 12px;
       font-size: 13px;
       color: #eff1f6;
-      background: #1a1a1a;
+      background: #141414;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       outline: none;
@@ -285,15 +331,15 @@
     }
 
     .select:hover {
-      border-color: rgba(255, 161, 22, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .select:focus {
-      border-color: rgba(255, 161, 22, 0.5);
+      border-color: rgba(255, 255, 255, 0.35);
     }
 
     .select option {
-      background: #1a1a1a;
+      background: #141414;
       color: #eff1f6;
     }
 
@@ -346,8 +392,8 @@
       justify-content: space-between;
       margin-bottom: 16px;
       padding: 10px 14px;
-      background: rgba(255, 161, 22, 0.05);
-      border: 1px solid rgba(255, 161, 22, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
     }
 
@@ -361,7 +407,7 @@
 
     .active-filters-count {
       font-weight: 600;
-      color: #ffa116;
+      color: rgba(239, 241, 246, 0.9);
     }
 
     .clear-all-btn {
@@ -388,10 +434,10 @@
       height: 28px;
       padding: 0 8px 0 10px;
       font-size: 12px;
-      font-weight: 450;
-      color: #ffa116;
-      background: rgba(255, 161, 22, 0.1);
-      border: 1px solid rgba(255, 161, 22, 0.2);
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 6px;
       cursor: default;
     }
@@ -409,7 +455,7 @@
       justify-content: center;
       width: 16px;
       height: 16px;
-      color: rgba(255, 161, 22, 0.6);
+      color: rgba(255, 255, 255, 0.4);
       background: none;
       border: none;
       border-radius: 4px;
@@ -419,7 +465,7 @@
 
     .selected-chip-remove:hover {
       color: #fff;
-      background: rgba(255, 161, 22, 0.3);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .selected-chip-remove svg {
@@ -471,7 +517,7 @@
 
     .filter-section {
       border: 1px solid rgba(255, 255, 255, 0.07);
-      background: #181818;
+      background: #111111;
       border-radius: 10px;
       margin-bottom: 16px;
       padding: 0 16px;
@@ -479,7 +525,7 @@
     }
 
     .filter-section:hover {
-      border-color: rgba(255, 161, 22, 0.2);
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .filter-header {
@@ -513,8 +559,8 @@
     .filter-count {
       font-size: 11px;
       font-weight: 500;
-      color: #ffa116;
-      background: rgba(255, 161, 22, 0.1);
+      color: rgba(239, 241, 246, 0.8);
+      background: rgba(255, 255, 255, 0.08);
       padding: 2px 6px;
       border-radius: 4px;
     }
@@ -527,16 +573,16 @@
     }
 
     .filter-section[open] {
-      border-color: rgba(255, 161, 22, 0.25);
+      border-color: rgba(255, 255, 255, 0.18);
     }
 
     .filter-section[open] .filter-chevron {
       transform: rotate(180deg);
-      color: #ffa116;
+      color: rgba(239, 241, 246, 0.7);
     }
 
     .filter-section[open] .filter-label {
-      color: #ffa116;
+      color: #eff1f6;
     }
 
     .filter-content {
@@ -572,15 +618,16 @@
     }
 
     .chip.active {
-      color: #ffa116;
-      background: rgba(255, 161, 22, 0.1);
-      border-color: rgba(255, 161, 22, 0.25);
+      color: #fff;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     .chip.active:hover {
-      color: #ffa116;
-      background: rgba(255, 161, 22, 0.15);
-      border-color: rgba(255, 161, 22, 0.4);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.35);
     }
 
     /* Difficulty Chips */
@@ -650,7 +697,7 @@
       margin-bottom: 12px;
       font-size: 12px;
       color: #eff1f6;
-      background: #1a1a1a;
+      background: #141414;
       border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 6px;
       outline: none;
@@ -662,13 +709,13 @@
     }
 
     .company-search:focus {
-      border-color: rgba(255, 161, 22, 0.4);
-      background: #1e1e1e;
+      border-color: rgba(255, 255, 255, 0.3);
+      background: #181818;
     }
 
     /* Table */
     .table-wrapper {
-      background: #181818;
+      background: #111111;
       border: 1px solid rgba(255, 255, 255, 0.07);
       border-radius: 12px;
       overflow: hidden;
@@ -687,7 +734,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: rgba(239, 241, 246, 0.4);
-      background: #1e1e1e;
+      background: #181818;
       border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
@@ -699,11 +746,11 @@
     }
 
     .table th.sortable:hover .header-content {
-      color: rgba(255, 161, 22, 0.8);
+      color: rgba(239, 241, 246, 0.8);
     }
 
     .table th.sortable.active .header-content {
-      color: rgba(255, 161, 22, 1);
+      color: rgba(239, 241, 246, 1);
     }
 
     .sort-indicator {
@@ -744,15 +791,15 @@
     }
 
     .table tbody tr:hover {
-      border-left-color: rgba(255, 161, 22, 0.7);
-      background: rgba(255, 161, 22, 0.05);
+      border-left-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.03);
     }
 
     .table tbody tr:hover td {
       background: transparent;
     }
 
-    .table .col-id { width: 60px; color: rgba(239, 241, 246, 0.4); }
+    .table .col-id { width: 70px; color: rgba(239, 241, 246, 0.5); font-weight: 600; white-space: nowrap; }
     .table .col-title { min-width: 250px; }
     .table .col-difficulty { width: 100px; }
     .table .col-acceptance { width: 100px; text-align: center; }
@@ -768,8 +815,8 @@
     }
 
     .problem-link:hover {
-      color: #ffa116;
-      text-shadow: 0 0 12px rgba(255, 161, 22, 0.3);
+      color: #fff;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
     }
 
     /* Difficulty Badge */
@@ -807,23 +854,23 @@
 
     .topic-tag {
       font-size: 11px;
-      color: rgba(255, 161, 22, 0.8);
-      background: rgba(255, 161, 22, 0.08);
-      border: 1px solid rgba(255, 161, 22, 0.15);
+      color: rgba(239, 241, 246, 0.6);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       padding: 2px 6px;
       border-radius: 4px;
       transition: all 0.2s ease;
     }
 
     .topic-tag:hover {
-      color: rgba(255, 161, 22, 1);
-      background: rgba(255, 161, 22, 0.12);
-      border-color: rgba(255, 161, 22, 0.3);
+      color: rgba(239, 241, 246, 0.9);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .topic-more {
       font-size: 11px;
-      color: rgba(255, 161, 22, 0.6);
+      color: rgba(239, 241, 246, 0.4);
       cursor: pointer;
       padding: 2px 6px;
       border-radius: 4px;
@@ -832,9 +879,23 @@
     }
 
     .topic-more:hover {
-      color: rgba(255, 161, 22, 1);
-      background: rgba(255, 161, 22, 0.08);
+      color: rgba(239, 241, 246, 0.8);
+      background: rgba(255, 255, 255, 0.06);
     }
+
+    /* List Badges */
+    .list-badges { display: inline-flex; gap: 3px; margin-left: 6px; vertical-align: middle; }
+    .list-badge {
+      font-size: 9px; font-weight: 600; padding: 1px 4px; border-radius: 3px;
+      letter-spacing: 0.3px; line-height: 1.4;
+    }
+    .list-badge-b75 { color: #00b8a3; background: rgba(0,184,163,0.12); border: 1px solid rgba(0,184,163,0.2); }
+    .list-badge-nc { color: #ffa116; background: rgba(255,161,22,0.12); border: 1px solid rgba(255,161,22,0.2); }
+    .list-badge-lc { color: #ff375f; background: rgba(255,55,95,0.12); border: 1px solid rgba(255,55,95,0.2); }
+
+    /* Solved Indicator */
+    .solved-check { color: #2cbb5d; font-size: 11px; font-weight: 700; margin-left: 4px; }
+    .table tbody tr.solved { border-left-color: #2cbb5d; }
 
     /* Loading State */
     .loading {
@@ -848,8 +909,8 @@
     .spinner {
       width: 24px;
       height: 24px;
-      border: 2px solid rgba(255, 161, 22, 0.2);
-      border-top-color: #ffa116;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-top-color: rgba(239, 241, 246, 0.8);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -936,8 +997,8 @@
     }
 
     .page-btn.active {
-      color: #000;
-      background: #ffa116;
+      color: #0a0a0a;
+      background: #eff1f6;
       font-weight: 500;
     }
 
@@ -996,6 +1057,11 @@
             <span id="filtered-count">0</span><span id="count-separator"> / </span><span id="total-problems">0</span> problems
           </p>
         </div>
+      </div>
+      <div class="badge-legend">
+        <span class="legend-item legend-filter" data-list="B75"><span class="list-badge list-badge-b75">B75</span> Blind 75</span>
+        <span class="legend-item legend-filter" data-list="NC"><span class="list-badge list-badge-nc">NC</span> NeetCode 150</span>
+        <span class="legend-item legend-filter" data-list="LC"><span class="list-badge list-badge-lc">LC</span> LeetCode 75</span>
       </div>
       <a href="https://leetcode.com/problemset/" target="_blank" class="btn">
         LeetCode
@@ -1077,7 +1143,7 @@
                       <circle cx="11" cy="11" r="8"></circle>
                       <path d="m21 21-4.35-4.35"></path>
                     </svg>
-                    <input id="search-input" type="text" class="search-input" placeholder="Search problem..." style="height: 28px; padding: 0 32px 0 32px; font-size: 12px; background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.1);" />
+                    <input id="search-input" type="text" class="search-input" placeholder="Search problem..." style="height: 28px; padding: 0 32px 0 32px; font-size: 12px; background: #141414; border: 1px solid rgba(255, 255, 255, 0.1);" />
                     <button id="clear-search" class="hidden" title="Clear search" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; color: rgba(255, 255, 255, 0.4); border-radius: 4px;">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
                         <line x1="18" y1="6" x2="6" y2="18"></line>

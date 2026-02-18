@@ -12,6 +12,8 @@ let currentPage = 1;
 const ITEMS_PER_PAGE = 20;
 let selectedList = null; // 'blind75', 'neetcode150', 'leetcode75', or null
 let listProblemIds = []; // Problem IDs from the selected list
+let listMembership = {};    // { problemId: Set<'B75','NC','LC'> }
+let completedProblemIds = new Set();
 
 // Filters state
 const filters = {
@@ -21,7 +23,8 @@ const filters = {
   companies: new Set(),
   sortColumn: 'frequency',
   sortDirection: 'desc',
-  list: null // Selected list filter
+  list: null, // Selected list filter
+  listBadges: new Set() // B75, NC, LC badge filters from navbar
 };
 
 // Check URL parameters for list filter
@@ -88,6 +91,36 @@ async function loadListData(listName) {
   } catch (error) {
     console.error(`Failed to load ${listName} data:`, error);
     return null;
+  }
+}
+
+// Load list membership for all 3 curated lists
+async function loadListMembership() {
+  const lists = [
+    { name: 'blind75', badge: 'B75' },
+    { name: 'neetcode150', badge: 'NC' },
+    { name: 'leetcode75', badge: 'LC' }
+  ];
+  for (const { name, badge } of lists) {
+    const data = await loadListData(name);
+    if (data) {
+      for (const id of data.problemIds) {
+        if (!listMembership[id]) listMembership[id] = new Set();
+        listMembership[id].add(badge);
+      }
+    }
+  }
+}
+
+// Load completed problem IDs from storage
+async function loadCompletedIds() {
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+    return new Promise(resolve => {
+      chrome.storage.local.get(['completedProblemIds'], result => {
+        completedProblemIds = new Set((result.completedProblemIds || []).map(Number));
+        resolve();
+      });
+    });
   }
 }
 
@@ -163,6 +196,10 @@ async function loadProblems() {
       const listInfo = selectedList ? `<br>📋 Filtering: ${selectedList}` : '';
       document.getElementById('js-status').innerHTML = `✅ JavaScript loaded!<br>✅ Loaded ${allProblems.length} problems${listInfo}<br>🔄 Rendering...`;
     }
+
+    // Load list membership and solved status
+    await loadListMembership();
+    await loadCompletedIds();
 
     // Apply topic/company filters from URL params before rendering chips
     applyFiltersFromURL();
@@ -497,6 +534,14 @@ function applyFilters() {
       }
     }
 
+    // List badge filter (B75, NC, LC from navbar)
+    if (filters.listBadges.size > 0) {
+      const membership = listMembership[problem.id];
+      if (!membership) return false;
+      const hasMatch = Array.from(filters.listBadges).some(b => membership.has(b));
+      if (!hasMatch) return false;
+    }
+
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -624,12 +669,15 @@ function renderProblems() {
     const topics = problem.topics?.slice(0, 2).map(t => t.name) || [];
     const moreTopics = problem.topics?.length > 2 ? problem.topics.length - 2 : 0;
     const allTopicsJson = JSON.stringify((problem.topics || []).map(t => t.name)).replace(/"/g, '&quot;');
+    const isSolved = completedProblemIds.has(problem.id);
+    const badges = listMembership[problem.id];
+    const badgeHtml = badges ? `<span class="list-badges">${badges.has('B75') ? '<span class="list-badge list-badge-b75">B75</span>' : ''}${badges.has('NC') ? '<span class="list-badge list-badge-nc">NC</span>' : ''}${badges.has('LC') ? '<span class="list-badge list-badge-lc">LC</span>' : ''}</span>` : '';
 
     return `
-      <tr data-url="${problem.url}" style="cursor: pointer;">
-        <td class="col-id">${problem.id}</td>
+      <tr data-url="${problem.url}" style="cursor: pointer;"${isSolved ? ' class="solved"' : ''}>
+        <td class="col-id">${problem.id}${isSolved ? ' <span class="solved-check">✓</span>' : ''}</td>
         <td class="col-title">
-          <a href="${problem.url}" target="_blank" class="problem-link">${problem.title}</a>
+          <a href="${problem.url}" target="_blank" class="problem-link">${problem.title}</a>${badgeHtml}
         </td>
         <td class="col-difficulty">
           <span class="difficulty ${difficultyClass}">${problem.difficulty}</span>
@@ -789,6 +837,7 @@ function resetFilters() {
   filters.difficulty.clear();
   filters.topics.clear();
   filters.companies.clear();
+  filters.listBadges.clear();
   filters.sortColumn = 'frequency';
   filters.sortDirection = 'desc';
 
@@ -817,6 +866,9 @@ function resetFilters() {
 
   document.querySelectorAll('.chip').forEach(chip => {
     chip.classList.remove('active');
+  });
+  document.querySelectorAll('.legend-filter').forEach(item => {
+    item.classList.remove('active');
   });
 
   updateFilterCounts();
@@ -999,6 +1051,21 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCompanyDisplay();
     updateFilterCounts();
     applyFiltersAndRender();
+  });
+
+  // List badge filters in navbar
+  document.querySelectorAll('.legend-filter').forEach(item => {
+    item.addEventListener('click', () => {
+      const list = item.dataset.list;
+      if (filters.listBadges.has(list)) {
+        filters.listBadges.delete(list);
+        item.classList.remove('active');
+      } else {
+        filters.listBadges.add(list);
+        item.classList.add('active');
+      }
+      applyFiltersAndRender();
+    });
   });
 
 });
