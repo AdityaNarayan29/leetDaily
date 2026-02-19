@@ -197,9 +197,10 @@ async function getListsForProblem(problemId) {
  */
 async function getListStats(listName, completedIds = []) {
   const problems = await getAllProblems(listName);
+  const completedSet = new Set(completedIds.map(String));
 
   const total = problems.length;
-  const completed = problems.filter(p => completedIds.includes(p.id)).length;
+  const completed = problems.filter(p => completedSet.has(String(p.id))).length;
   const remaining = total - completed;
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
@@ -221,7 +222,7 @@ async function getListStats(listName, completedIds = []) {
       byDifficulty[diff]++;
     }
 
-    if (completedIds.includes(problem.id)) {
+    if (completedSet.has(String(problem.id))) {
       if (completedByDifficulty[diff] !== undefined) {
         completedByDifficulty[diff]++;
       }
@@ -246,10 +247,11 @@ async function getListStats(listName, completedIds = []) {
  */
 async function getCategoryStats(listName, completedIds = []) {
   const categories = await getCategoriesForList(listName);
+  const completedSet = new Set(completedIds.map(String));
 
   return categories.map(category => {
     const total = category.problems.length;
-    const completed = category.problems.filter(p => completedIds.includes(p.id)).length;
+    const completed = category.problems.filter(p => completedSet.has(String(p.id))).length;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return {
@@ -270,7 +272,8 @@ async function getCategoryStats(listName, completedIds = []) {
  */
 async function getNextUnsolvedProblem(listName, completedIds = []) {
   const problems = await getAllProblems(listName);
-  return problems.find(p => !completedIds.includes(p.id)) || null;
+  const completedSet = new Set(completedIds.map(String));
+  return problems.find(p => !completedSet.has(String(p.id))) || null;
 }
 
 /**

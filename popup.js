@@ -3,6 +3,16 @@ const VALID_TOPICS = ['Array','Backtracking','Biconnected Component','Binary Ind
 
 const VALID_COMPANIES = ['1Kosmos','23&me','6sense','AMD','APT Portfolio','AQR Capital Management','ASUS','AT&T','Accelya','Accenture','Accolite','Acko','Activevideo','Activision','Addepar','Adobe','Aetion','Affinity','Affirm','Agoda','Airbnb','Airbus SE','Airtel','Ajira','Akamai','Akuna','Akuna Capital','Alibaba','AllinCall','Alphonso','Altimetrik','Amazon','Amadeus','American Express','Amplitude','Anaplan','Ancestry','Anduril','Angi','Ant Group','Apple','Applied Intuition','Arcesium','Arclight','Ares Management','Arista Networks','Asana','Ascend Learning','Atlassian','Aurora','Autodesk','Avalara','Avito','Axon','Baidu','Barclays','Benchling','BitGo','Bloomberg','Bolt','Box','Brex','Bristol-Myers Squibb','Broadcom','C3.AI','Cadence','Capital One','Careem','Carta','Cashfree','Chime','Citadel','Citrix','Cisco','Cloudera','Cloudflare','Clover Health','Codenation','Coinbase','Comcast','Coupang','Cruise','Databricks','Datadog','Dataminr','De Shaw','Dell','Deutsche Bank','DoorDash','Dropbox','DRW','Duolingo','eBay','Electronic Arts','Expedia','Expensify','Facebook','Fidelity','Figma','FlipKart','Flipkart','Foursquare','GE Healthcare','GoDaddy','Goldman Sachs','Google','Grab','Groupon','HRT','HackerRank','HashiCorp','Hims & Hers','Houzz','Huawei','IBM','IIT','IXL','Indeed','Infosys','Instagram','Instacart','Intel','Intuit','Jio','JP Morgan','Jane Street','Johnson & Johnson','Jpmorgan','Kakao','Karat','Kargo','Klarna','Kustomer','LinkedIn','Loft','Looker','Lyft','MakeMyTrip','Mathworks','Media.net','Meta','Microsoft','Mindtickle','Miro','Morgan Stanley','Myntra','Nagarro','NCR','Netflix','Niantic','Nvidia','Nykaa','OKX','Oracle','Oyo','Paytm','Paypal','Palo Alto Networks','Palantir Technologies','Pinterest','Pocket Gems','Pony.ai','Postmates','PwC','Qualcomm','Qualtrics','Quora','Razorpay','Redfin','Roblox','Robinhood','Salesforce','Samsung','SAP','Seagate','ServiceNow','Shopee','Shopify','Siemens','Slack','Snapchat','Snowflake','SpaceX','Splunk','Spotify','Square','Stripe','Swiggy','Synopsys','TCS','TikTok','Twitter','Two Sigma','Twitch','Twilio','Uber','Unity','Veritas','VMware','Visa','Walmart','Wayfair','Waymo','Wells Fargo','Wish','Wolfe Research','Workday','Yahoo','Yandex','Yelp','Zenefits','Zendesk','Zillow','Zomato','Zoom','Zscaler','eBay','FactSet','Groupon','Hulu','Kaspersky','NerdWallet','Okta','Plaid','Ramp','Scale AI','Sentry','Squarespace','Stitch Fix','Taboola','TaskUs','ThoughtWorks','Twitch','Yatra','Zuora'];
 
+// Helper for LeetCode GraphQL requests
+async function leetcodeFetch(body) {
+  return fetch("https://leetcode.com/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(body)
+  });
+}
+
 // List helpers - inlined for Chrome extension compatibility
 const listDataCache = {};
 
@@ -53,6 +63,7 @@ async function getListStats(listName, completedIds = []) {
     return { total: 0, completed: 0, remaining: 0, percentage: 0 };
   }
 
+  const completedSet = new Set(completedIds.map(String));
   let total = 0;
   let completed = 0;
 
@@ -61,7 +72,7 @@ async function getListStats(listName, completedIds = []) {
 
     for (const problemId of category.problemIds) {
       total++;
-      if (completedIds.includes(problemId)) {
+      if (completedSet.has(String(problemId))) {
         completed++;
       }
     }
@@ -189,11 +200,7 @@ async function getProblemCompanyData(titleSlug) {
 
 async function fetchLeetCodeUserData() {
   try {
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
+    const response = await leetcodeFetch({
         query: `
           query globalData {
             userStatus {
@@ -209,7 +216,6 @@ async function fetchLeetCodeUserData() {
             }
           }
         `
-      })
     });
 
     const data = await response.json();
@@ -269,11 +275,7 @@ async function getDailyQuestionSlug() {
     `
   };
 
-  const response = await fetch("https://leetcode.com/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(query),
-  });
+  const response = await leetcodeFetch(query);
 
   const data = await response.json();
   const challenge = data.data.activeDailyCodingChallengeQuestion;
@@ -289,26 +291,21 @@ async function syncCompletedProblemIds() {
       chrome.storage.local.get(['completedProblemIds'], r => resolve(r.completedProblemIds || []));
     });
 
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
+    const response = await leetcodeFetch({
         query: `query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
           problemsetQuestionList: questionList(categorySlug: $categorySlug, limit: $limit, skip: $skip, filters: $filters) {
-            total
-            questions { frontendQuestionId status }
+            totalNum
+            data { questionFrontendId status }
           }
         }`,
         variables: { categorySlug: "", limit: 3000, skip: 0, filters: {} }
-      })
     });
 
     const data = await response.json();
-    const questions = data?.data?.problemsetQuestionList?.questions || [];
+    const questions = data?.data?.problemsetQuestionList?.data || [];
     const apiIds = questions
       .filter(q => q.status === "ac")
-      .map(q => parseInt(q.frontendQuestionId))
+      .map(q => parseInt(q.questionFrontendId))
       .filter(id => !isNaN(id));
 
     // Synced completed IDs from LeetCode
@@ -331,11 +328,7 @@ async function syncCompletedProblemIds() {
 
 async function fetchUserSolvedStats(username) {
   try {
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
+    const response = await leetcodeFetch({
         query: `
           query userProblemsSolved($username: String!) {
             matchedUser(username: $username) {
@@ -349,7 +342,6 @@ async function fetchUserSolvedStats(username) {
           }
         `,
         variables: { username }
-      })
     });
 
     const data = await response.json();
@@ -375,11 +367,7 @@ async function fetchLast30DaysHistory(username) {
 
     // Fetch daily challenge status for current and last month
     const fetchDailyChallenges = async (y, m) => {
-      const response = await fetch("https://leetcode.com/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      const response = await leetcodeFetch({
           query: `
             query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
               dailyCodingChallengeV2(year: $year, month: $month) {
@@ -391,7 +379,6 @@ async function fetchLast30DaysHistory(username) {
             }
           `,
           variables: { year: y, month: m }
-        })
       });
       const data = await response.json();
       return data?.data?.dailyCodingChallengeV2?.challenges || [];
@@ -400,11 +387,7 @@ async function fetchLast30DaysHistory(username) {
     // Fetch submission calendar (problems solved per day)
     const fetchSubmissionCalendar = async () => {
       if (!username) return {};
-      const response = await fetch("https://leetcode.com/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
+      const response = await leetcodeFetch({
           query: `
             query userProfileCalendar($username: String!) {
               matchedUser(username: $username) {
@@ -415,7 +398,6 @@ async function fetchLast30DaysHistory(username) {
             }
           `,
           variables: { username }
-        })
       });
       const data = await response.json();
       const calendarStr = data?.data?.matchedUser?.userCalendar?.submissionCalendar;

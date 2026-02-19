@@ -201,36 +201,43 @@ async function loadProblems() {
 }
 
 // Extract unique topics and companies for filter chips
+let topicCounts = new Map();    // topic name → problem count
+let companyCounts = new Map();  // company name → problem count
+
 function extractFilters() {
-  const topicsSet = new Set();
-  const companiesMap = new Map(); // Track company frequency
+  topicCounts = new Map();
+  companyCounts = new Map();
 
   allProblems.forEach(problem => {
-    // Extract topics
-    problem.topics?.forEach(topic => topicsSet.add(topic.name));
+    // Extract topics with counts
+    problem.topics?.forEach(topic => {
+      const name = topic.name;
+      topicCounts.set(name, (topicCounts.get(name) || 0) + 1);
+    });
 
-    // Extract companies
+    // Extract companies with counts
     problem.companies?.forEach(company => {
-      const count = companiesMap.get(company) || 0;
-      companiesMap.set(company, count + 1);
+      companyCounts.set(company, (companyCounts.get(company) || 0) + 1);
     });
   });
 
-  // Render topics (sorted alphabetically)
-  const topics = Array.from(topicsSet).sort();
+  // Render topics (sorted by count descending, then alphabetically)
+  const topics = Array.from(topicCounts.keys()).sort((a, b) => {
+    const diff = topicCounts.get(b) - topicCounts.get(a);
+    return diff !== 0 ? diff : a.localeCompare(b);
+  });
   renderTopics(topics);
 
   // Render companies (sorted by frequency)
-  const companies = Array.from(companiesMap.entries())
-    .sort((a, b) => b[1] - a[1]) // Sort by frequency descending
-    .map(([company]) => company);
+  const companies = Array.from(companyCounts.keys())
+    .sort((a, b) => companyCounts.get(b) - companyCounts.get(a));
   renderCompanies(companies);
 }
 
 // Render topic filter chips
 let allTopics = [];
 let topicsExpanded = false;
-const TOPICS_INITIAL_LIMIT = 20;
+const TOPICS_INITIAL_LIMIT = 30;
 
 function renderTopics(topics) {
   allTopics = topics;
@@ -240,6 +247,7 @@ function renderTopics(topics) {
 function updateTopicDisplay() {
   const container = document.getElementById('topics-container');
   const showMoreBtn = document.getElementById('topics-show-more');
+  const infoDiv = document.getElementById('topics-info');
   const searchTerm = document.getElementById('topic-search')?.value.toLowerCase() || '';
   const clearAllBtn = document.getElementById('topics-clear-all');
 
@@ -258,14 +266,22 @@ function updateTopicDisplay() {
   // Limit display if not expanded
   const displayTopics = (topicsExpanded || searchTerm) ? sortedTopics : sortedTopics.slice(0, TOPICS_INITIAL_LIMIT);
 
-  // Render chips with selected styling (orange like LeetCode)
+  // Update info text
+  if (infoDiv) {
+    const selectedCount = filters.topics.size;
+    infoDiv.textContent = selectedCount > 0
+      ? `${selectedCount} selected · ${allTopics.length} available`
+      : `${allTopics.length} topics · sorted by problem count`;
+  }
+
+  // Render chips with counts
   container.innerHTML = displayTopics.map(topic => {
     const isSelected = filters.topics.has(topic);
-    const chipClass = isSelected ? 'chip topic-filter active' : 'chip topic-filter';
-    const style = isSelected ? 'background: rgba(255, 161, 22, 0.15); border-color: rgba(255, 161, 22, 0.5); color: #ffa116;' : '';
+    const count = topicCounts.get(topic) || 0;
+    const chipClass = isSelected ? 'chip topic-filter topic-active' : 'chip topic-filter';
     return `
-      <button class="${chipClass}" data-topic="${topic}" style="${style}">
-        ${topic}${isSelected ? ' ×' : ''}
+      <button class="${chipClass}" data-topic="${topic}">
+        ${topic}${isSelected ? ' ×' : ''}<span class="chip-count">${count}</span>
       </button>
     `;
   }).join('');
@@ -295,7 +311,7 @@ function updateTopicDisplay() {
 let allCompanies = [];
 let companiesExpanded = false;
 let filteredCompanies = [];
-const COMPANIES_INITIAL_LIMIT = 15;
+const COMPANIES_INITIAL_LIMIT = 24;
 
 function renderCompanies(companies) {
   allCompanies = companies;
@@ -306,6 +322,7 @@ function renderCompanies(companies) {
 function updateCompanyDisplay() {
   const container = document.getElementById('companies-container');
   const showMoreBtn = document.getElementById('companies-show-more');
+  const infoDiv = document.getElementById('companies-info');
   const searchTerm = document.getElementById('company-search')?.value.toLowerCase() || '';
   const clearAllBtn = document.getElementById('companies-clear-all');
 
@@ -325,14 +342,22 @@ function updateCompanyDisplay() {
   filteredCompanies = sortedCompanies;
   const displayCompanies = (companiesExpanded || searchTerm) ? sortedCompanies : sortedCompanies.slice(0, COMPANIES_INITIAL_LIMIT);
 
-  // Render chips with selected styling (orange like LeetCode)
+  // Update info text
+  if (infoDiv) {
+    const selectedCount = filters.companies.size;
+    infoDiv.textContent = selectedCount > 0
+      ? `${selectedCount} selected · ${allCompanies.length} available`
+      : `${allCompanies.length} companies · sorted by frequency`;
+  }
+
+  // Render chips with counts
   container.innerHTML = displayCompanies.map(company => {
     const isSelected = filters.companies.has(company);
-    const chipClass = isSelected ? 'chip company-filter active' : 'chip company-filter';
-    const style = isSelected ? 'background: rgba(255, 161, 22, 0.15); border-color: rgba(255, 161, 22, 0.5); color: #ffa116;' : '';
+    const count = companyCounts.get(company) || 0;
+    const chipClass = isSelected ? 'chip company-filter company-active' : 'chip company-filter';
     return `
-      <button class="${chipClass}" data-company="${company}" style="${style}">
-        ${company}${isSelected ? ' ×' : ''}
+      <button class="${chipClass}" data-company="${company}">
+        ${company}${isSelected ? ' ×' : ''}<span class="chip-count">${count}</span>
       </button>
     `;
   }).join('');

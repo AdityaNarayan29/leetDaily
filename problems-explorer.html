@@ -82,12 +82,13 @@
 
     .header-subtitle {
       font-size: 12px;
-      color: rgba(239, 241, 246, 0.5);
+      color: rgba(239, 241, 246, 0.6);
       margin-top: 2px;
     }
 
     .header-subtitle span {
-      color: rgba(239, 241, 246, 0.7);
+      color: rgba(239, 241, 246, 0.9);
+      font-weight: 600;
     }
 
     .badge-legend {
@@ -95,7 +96,7 @@
       align-items: center;
       gap: 12px;
       font-size: 11px;
-      color: rgba(239, 241, 246, 0.45);
+      color: rgba(239, 241, 246, 0.6);
     }
 
     .legend-item {
@@ -548,8 +549,8 @@
 
     .filter-label {
       font-size: 13px;
-      font-weight: 500;
-      color: rgba(239, 241, 246, 0.7);
+      font-weight: 600;
+      color: rgba(239, 241, 246, 0.85);
       transition: color 0.15s ease;
       display: flex;
       align-items: center;
@@ -599,21 +600,22 @@
     .chip {
       display: inline-flex;
       align-items: center;
+      gap: 5px;
       height: 28px;
       padding: 0 10px;
       font-size: 12px;
-      font-weight: 450;
-      color: rgba(239, 241, 246, 0.6);
-      background: #222222;
-      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-weight: 600;
+      color: #eff1f6;
+      background: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
 
     .chip:hover {
-      color: #eff1f6;
-      background: #2a2a2a;
+      color: #fff;
+      background: #222222;
       border-color: rgba(255, 255, 255, 0.15);
     }
 
@@ -628,6 +630,29 @@
       color: #fff;
       background: rgba(255, 255, 255, 0.14);
       border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .chip-count {
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.1);
+      padding: 1px 5px;
+      border-radius: 4px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .chip.active .chip-count {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .filter-info {
+      font-size: 11px;
+      color: rgba(239, 241, 246, 0.35);
+      margin-bottom: 10px;
     }
 
     /* Difficulty Chips */
@@ -671,6 +696,37 @@
       color: #ff375f;
       background: rgba(255, 55, 95, 0.15);
       border-color: rgba(255, 55, 95, 0.5);
+    }
+
+    /* Topic/Company Active Chips */
+    .chip.topic-active {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.12);
+      border-color: rgba(255, 161, 22, 0.4);
+      font-weight: 600;
+    }
+    .chip.topic-active:hover {
+      background: rgba(255, 161, 22, 0.18);
+      border-color: rgba(255, 161, 22, 0.5);
+    }
+    .chip.topic-active .chip-count {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.15);
+    }
+
+    .chip.company-active {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.12);
+      border-color: rgba(255, 161, 22, 0.4);
+      font-weight: 600;
+    }
+    .chip.company-active:hover {
+      background: rgba(255, 161, 22, 0.18);
+      border-color: rgba(255, 161, 22, 0.5);
+    }
+    .chip.company-active .chip-count {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.15);
     }
 
     /* Show More Button */
@@ -730,10 +786,10 @@
       text-align: left;
       padding: 12px 16px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: rgba(239, 241, 246, 0.4);
+      color: rgba(239, 241, 246, 0.6);
       background: #181818;
       border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
@@ -781,7 +837,7 @@
     .table td {
       padding: 14px 16px;
       font-size: 13px;
-      color: rgba(239, 241, 246, 0.85);
+      color: rgba(239, 241, 246, 0.9);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       transition: all 0.2s ease;
     }
@@ -799,7 +855,7 @@
       background: transparent;
     }
 
-    .table .col-id { width: 70px; color: rgba(239, 241, 246, 0.5); font-weight: 600; white-space: nowrap; }
+    .table .col-id { width: 70px; color: rgba(239, 241, 246, 0.7); font-weight: 600; white-space: nowrap; }
     .table .col-title { min-width: 250px; }
     .table .col-difficulty { width: 100px; }
     .table .col-acceptance { width: 100px; text-align: center; }
@@ -808,7 +864,8 @@
 
     /* Problem Link */
     .problem-link {
-      color: rgba(255, 255, 255, 0.9);
+      color: #eff1f6;
+      font-weight: 500;
       text-decoration: none;
       transition: all 0.2s ease;
       position: relative;
@@ -822,12 +879,12 @@
     /* Difficulty Badge */
     .difficulty {
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .difficulty-easy { color: #2cbb5d; font-weight: 500; }
-    .difficulty-medium { color: #ffa116; font-weight: 500; }
-    .difficulty-hard { color: #ff375f; font-weight: 500; }
+    .difficulty-easy { color: #2cbb5d; font-weight: 600; }
+    .difficulty-medium { color: #ffa116; font-weight: 600; }
+    .difficulty-hard { color: #ff375f; font-weight: 600; }
 
     /* Frequency Bar */
     .frequency-bar {
@@ -854,9 +911,9 @@
 
     .topic-tag {
       font-size: 11px;
-      color: rgba(239, 241, 246, 0.6);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(239, 241, 246, 0.75);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 2px 6px;
       border-radius: 4px;
       transition: all 0.2s ease;
@@ -870,7 +927,7 @@
 
     .topic-more {
       font-size: 11px;
-      color: rgba(239, 241, 246, 0.4);
+      color: rgba(239, 241, 246, 0.55);
       cursor: pointer;
       padding: 2px 6px;
       border-radius: 4px;
@@ -968,7 +1025,7 @@
 
     .pagination-info {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.6);
       order: 2;
     }
 
@@ -1134,6 +1191,7 @@
           </summary>
           <div class="filter-content">
             <input id="topic-search" type="text" class="company-search" placeholder="🔍 Search topics..." style="margin-bottom: 12px;" />
+            <div id="topics-info" class="filter-info"></div>
             <div id="topics-container" class="chip-group"></div>
             <button id="topics-show-more" class="show-more-btn hidden">Show more</button>
           </div>
@@ -1155,6 +1213,7 @@
           </summary>
           <div class="filter-content">
             <input id="company-search" type="text" class="company-search" placeholder="🔍 Search companies..." />
+            <div id="companies-info" class="filter-info"></div>
             <div id="companies-container" class="chip-group"></div>
             <button id="companies-show-more" class="show-more-btn hidden">Show more</button>
           </div>

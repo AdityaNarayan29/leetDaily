@@ -1,3 +1,16 @@
+// Set uninstall feedback URL
+chrome.runtime.setUninstallURL('https://leetdaily.masst.dev/uninstall');
+
+// Helper for LeetCode GraphQL requests
+async function leetcodeFetch(body) {
+  return fetch("https://leetcode.com/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(body)
+  });
+}
+
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -433,11 +446,7 @@ async function checkLeetCodeCompletion() {
     }
 
     // Fetch from LeetCode API
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
+    const response = await leetcodeFetch({
         query: `
           query globalData {
             userStatus {
@@ -453,7 +462,6 @@ async function checkLeetCodeCompletion() {
             }
           }
         `
-      })
     });
 
     const data = await response.json();
@@ -573,10 +581,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
   // Clear the notification immediately
   chrome.notifications.clear(notificationId);
   // Fetch today's problem and open it
-  fetch("https://leetcode.com/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  leetcodeFetch({
       query: `
         query questionOfToday {
           activeDailyCodingChallengeQuestion {
@@ -586,7 +591,6 @@ chrome.notifications.onClicked.addListener((notificationId) => {
           }
         }
       `
-    })
   })
     .then(response => response.json())
     .then(data => {
@@ -627,7 +631,7 @@ setInterval(checkUrgentReminder, 30 * 60 * 1000);
 
 // Setup reminders on extension load with stored time
 chrome.storage.local.get(["reminderTime"], (result) => {
-  const time = result.reminderTime || "10:00";
+  const time = (result && result.reminderTime) || "10:00";
   setupDailyReminder(time);
 });
 
@@ -680,10 +684,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         console.log('📝 Individual problem solved:', problemData.title);
 
         // Check if this is today's daily challenge
-        const response = await fetch("https://leetcode.com/graphql", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const response = await leetcodeFetch({
             query: `
               query questionOfToday {
                 activeDailyCodingChallengeQuestion {
@@ -693,7 +694,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
                 }
               }
             `
-          })
         });
 
         const data = await response.json();
