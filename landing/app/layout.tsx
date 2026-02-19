@@ -6,9 +6,9 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://leetdaily.masst.dev"),
-  title: "LeetDaily - Daily LeetCode Challenge Reminder & Streak Tracker",
+  title: "LeetDaily - Daily LeetCode Challenge, Blind 75 & NeetCode 150 Tracker",
   description:
-    "LeetDaily is a free Chrome extension for LeetCode daily challenges. Track your streak, see FAANG company tags, 30-day heatmap & smart reminders for coding interview prep.",
+    "Free Chrome extension for LeetCode daily challenges. Track Blind 75, NeetCode 150 & LC 75 progress, browse 2000+ problems, FAANG company tags, 30-day heatmap, streak milestones & smart reminders.",
   keywords: [
     "LeetCode",
     "daily challenge",
@@ -20,14 +20,22 @@ export const metadata: Metadata = {
     "FAANG interview prep",
     "coding practice",
     "heatmap",
+    "Blind 75",
+    "NeetCode 150",
+    "LeetCode 75",
+    "problems explorer",
+    "study lists",
+    "streak milestones",
+    "LeetCode tracker",
+    "coding interview prep",
   ],
   alternates: {
     canonical: "https://leetdaily.masst.dev",
   },
   openGraph: {
-    title: "LeetDaily - Daily LeetCode Challenge Reminder & Streak Tracker",
+    title: "LeetDaily - Daily LeetCode Challenge, Blind 75 & NeetCode 150 Tracker",
     description:
-      "Never miss a LeetCode Daily Challenge! Track streaks, company tags, 30-day heatmap & smart notifications. Free Chrome extension.",
+      "Free Chrome extension for LeetCode daily challenges. Blind 75, NeetCode 150, 2000+ problems explorer, FAANG company tags, streak milestones & smart reminders.",
     url: "https://leetdaily.masst.dev",
     type: "website",
     locale: "en_US",
@@ -37,15 +45,15 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "LeetDaily - Daily LeetCode Challenge Reminder & Streak Tracker",
+        alt: "LeetDaily - Daily LeetCode Challenge, Blind 75 & NeetCode 150 Tracker",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LeetDaily - Daily LeetCode Challenge Reminder & Streak Tracker",
+    title: "LeetDaily - Daily LeetCode Challenge, Blind 75 & NeetCode 150 Tracker",
     description:
-      "Never miss a LeetCode Daily Challenge! Track streaks, company tags, 30-day heatmap & smart notifications.",
+      "Free Chrome extension for LeetCode daily challenges. Blind 75, NeetCode 150, 2000+ problems, FAANG tags, streak milestones & smart reminders.",
     images: ["/og-image.png"],
     creator: "@Adityanaraynn29",
   },

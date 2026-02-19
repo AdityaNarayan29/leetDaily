@@ -4,18 +4,69 @@
 let lastCheck = 0;
 const CHECK_COOLDOWN = 5000; // 5 seconds between checks
 
+// Safe sendMessage wrapper (extension context may be invalidated on update)
+function safeSendMessage(msg) {
+  try {
+    chrome.runtime.sendMessage(msg);
+  } catch (err) {
+    // Extension context invalidated (e.g. after update) - silently ignore
+  }
+}
+
 // Notify background to start loading blink
 function notifyLoading() {
-  chrome.runtime.sendMessage({ action: "startLoadingBlink" });
+  safeSendMessage({ action: "startLoadingBlink" });
 }
 
 // Notify background to stop loading blink
 function notifyLoadingDone() {
-  chrome.runtime.sendMessage({ action: "stopLoadingBlink" });
+  safeSendMessage({ action: "stopLoadingBlink" });
 }
 
 // isLoadingActive tracks if we started a loading blink that needs cleanup
 let isLoadingActive = false;
+
+// Extract problem titleSlug from current URL
+function getProblemSlugFromURL() {
+  const match = window.location.href.match(/leetcode\.com\/problems\/([^/?]+)/);
+  return match ? match[1] : null;
+}
+
+// Cached problem data map (loaded once, reused)
+let _problemDataMap = null;
+
+// Load problem metadata from local JSON (with cache)
+async function getProblemMetadata(titleSlug) {
+  try {
+    if (!_problemDataMap) {
+      const response = await fetch(chrome.runtime.getURL('data/leetcode-problems.json'));
+      const data = await response.json();
+      _problemDataMap = new Map();
+      for (const p of data.problems) {
+        _problemDataMap.set(p.titleSlug, p);
+      }
+    }
+
+    const problem = _problemDataMap.get(titleSlug);
+    if (!problem) {
+      console.log(`Problem not found in local data: ${titleSlug}`);
+      return null;
+    }
+
+    return {
+      id: problem.id,
+      titleSlug: problem.titleSlug,
+      title: problem.title,
+      difficulty: problem.difficulty,
+      topics: (problem.topics || []).map(t => typeof t === 'string' ? t : t.name),
+      companies: problem.companies || [],
+      companyFrequency: problem.companyFrequency || {}
+    };
+  } catch (error) {
+    console.error('Failed to load problem metadata:', error);
+    return null;
+  }
+}
 
 async function checkAndNotifyCompletion() {
   const now = Date.now();
@@ -63,7 +114,7 @@ async function checkAndNotifyCompletion() {
 
     if (completedToday) {
       // Send message to background script to update badge (this also stops loading)
-      chrome.runtime.sendMessage({
+      safeSendMessage({
         action: "problemSolved",
         data: {
           streak: streakData?.streakCount || 0,
@@ -84,6 +135,39 @@ async function checkAndNotifyCompletion() {
       isLoadingActive = false;
     }
   }
+}
+
+// Notify individual problem solution to background
+async function notifyIndividualProblemSolved() {
+  const titleSlug = getProblemSlugFromURL();
+  if (!titleSlug) {
+    console.log('No problem slug found in URL');
+    return;
+  }
+
+  // Get problem metadata from local JSON
+  const metadata = await getProblemMetadata(titleSlug);
+  if (!metadata) {
+    console.log('No metadata found for problem');
+    return;
+  }
+
+  // Send to background script
+  safeSendMessage({
+    action: "individualProblemSolved",
+    data: {
+      problemId: metadata.id,
+      titleSlug: metadata.titleSlug,
+      title: metadata.title,
+      difficulty: metadata.difficulty,
+      topics: metadata.topics,
+      companies: metadata.companies,
+      companyFrequency: metadata.companyFrequency,
+      solvedAt: new Date().toISOString()
+    }
+  });
+
+  console.log('✅ Individual problem solved notification sent:', metadata.title);
 }
 
 // Listen for submission results by watching for success indicators
@@ -111,6 +195,9 @@ function observeSubmissionResults() {
           if (text.includes('Accepted') &&
               (text.includes('Runtime') || text.includes('Memory') || text.includes('testcase'))) {
             hasTriggered = true;
+
+            // PHASE 3: Notify individual problem solution immediately
+            notifyIndividualProblemSolved();
 
             // Start loading blink immediately, then check API after delay
             isLoadingActive = true;

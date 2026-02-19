@@ -1,0 +1,79 @@
+{
+  "name": "NeetCode 150",
+  "description": "Comprehensive list of 150 LeetCode problems covering all important data structures and algorithms",
+  "totalProblems": 158,
+  "categories": [
+    {
+      "name": "Arrays & Hashing",
+      "problemIds": [217, 242, 1, 49, 347, 238, 659, 128, 271, 36, 41, 1930]
+    },
+    {
+      "name": "Two Pointers",
+      "problemIds": [125, 167, 15, 11, 42]
+    },
+    {
+      "name": "Sliding Window",
+      "problemIds": [121, 3, 424, 567, 76, 239]
+    },
+    {
+      "name": "Stack",
+      "problemIds": [20, 155, 150, 22, 739, 853, 84]
+    },
+    {
+      "name": "Binary Search",
+      "problemIds": [704, 74, 875, 153, 33, 81, 4, 981]
+    },
+    {
+      "name": "Linked List",
+      "problemIds": [206, 21, 138, 2, 287, 141, 142, 143, 146, 23, 25]
+    },
+    {
+      "name": "Trees",
+      "problemIds": [226, 104, 543, 100, 572, 110, 235, 102, 199, 1448, 98, 230, 105, 106, 124, 297, 652]
+    },
+    {
+      "name": "Tries",
+      "problemIds": [208, 211, 212, 1707]
+    },
+    {
+      "name": "Heap / Priority Queue",
+      "problemIds": [703, 1046, 973, 215, 621, 355, 295]
+    },
+    {
+      "name": "Backtracking",
+      "problemIds": [78, 39, 46, 90, 40, 131, 17, 79, 51]
+    },
+    {
+      "name": "Graphs",
+      "problemIds": [200, 695, 133, 417, 130, 994, 286, 207, 210, 684, 743, 787, 778, 323, 261]
+    },
+    {
+      "name": "Advanced Graphs",
+      "problemIds": [332, 1584, 269]
+    },
+    {
+      "name": "1-D Dynamic Programming",
+      "problemIds": [70, 746, 198, 213, 5, 647, 91, 139, 300, 416, 322, 152, 1143, 72, 10, 44]
+    },
+    {
+      "name": "2-D Dynamic Programming",
+      "problemIds": [62, 1143, 309, 518, 494, 97, 329, 115, 72, 312, 221]
+    },
+    {
+      "name": "Greedy",
+      "problemIds": [53, 55, 45, 134, 846, 678, 763]
+    },
+    {
+      "name": "Intervals",
+      "problemIds": [57, 56, 435, 252, 253, 1851, 920]
+    },
+    {
+      "name": "Math & Geometry",
+      "problemIds": [48, 54, 73, 202, 66, 50, 43, 2013]
+    },
+    {
+      "name": "Bit Manipulation",
+      "problemIds": [136, 191, 338, 190, 268, 371, 7]
+    }
+  ]
+}

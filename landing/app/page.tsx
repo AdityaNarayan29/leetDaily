@@ -13,12 +13,12 @@ export default function Home() {
       priceCurrency: "USD",
     },
     description:
-      "Never miss a LeetCode Daily Challenge! Track streaks, company tags, profile sync, 30-day heatmap & smart notifications.",
+      "Never miss a LeetCode Daily Challenge! Track Blind 75, NeetCode 150 & LC 75 progress, browse 2000+ problems, FAANG company tags, 30-day heatmap, streak milestones & smart reminders.",
     url: "https://leetdaily.masst.dev",
     installUrl:
       "https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf",
     browserRequirements: "Requires Chrome",
-    softwareVersion: "1.2.1.1",
+    softwareVersion: "2.0.0",
     author: {
       "@type": "Person",
       name: "Aditya Narayan",

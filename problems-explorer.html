@@ -21,8 +21,8 @@
 
     body {
       min-height: 100vh;
-      background: #000;
-      color: rgba(255, 255, 255, 0.9);
+      background: #0a0a0a;
+      color: #eff1f6;
       font-size: 14px;
       line-height: 1.5;
     }
@@ -54,16 +54,17 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: #111111;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
     }
 
     .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 64px;
+      min-height: 64px;
+      padding: 16px 0;
     }
 
     .header-left {
@@ -75,18 +76,65 @@
     .header-title {
       font-size: 16px;
       font-weight: 600;
-      color: #fff;
+      color: #eff1f6;
       letter-spacing: -0.01em;
     }
 
     .header-subtitle {
       font-size: 12px;
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(239, 241, 246, 0.6);
       margin-top: 2px;
     }
 
     .header-subtitle span {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(239, 241, 246, 0.9);
+      font-weight: 600;
+    }
+
+    .badge-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: rgba(239, 241, 246, 0.6);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .legend-filter {
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .legend-filter:hover {
+      color: rgba(239, 241, 246, 0.7);
+    }
+
+    .legend-filter.active {
+      color: #eff1f6;
+    }
+
+    .legend-filter.active .list-badge-b75 {
+      color: #fff;
+      background: #00b8a3;
+      border-color: #00b8a3;
+    }
+
+    .legend-filter.active .list-badge-nc {
+      color: #fff;
+      background: #ffa116;
+      border-color: #ffa116;
+    }
+
+    .legend-filter.active .list-badge-lc {
+      color: #fff;
+      background: #ff375f;
+      border-color: #ff375f;
     }
 
     /* Buttons */
@@ -99,9 +147,9 @@
       padding: 0 12px;
       font-size: 13px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.7);
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(239, 241, 246, 0.8);
+      background: #222222;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -110,9 +158,9 @@
     }
 
     .btn:hover {
-      color: rgba(255, 255, 255, 0.9);
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.15);
+      color: #eff1f6;
+      background: #2e2e2e;
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     .btn:active {
@@ -127,11 +175,12 @@
     .btn-icon {
       width: 32px;
       padding: 0;
+      background: transparent;
       border: none;
     }
 
     .btn-icon:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: #222222;
     }
 
     .btn svg {
@@ -146,21 +195,83 @@
     }
 
     /* Search Bar */
-    .search-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .search-row .btn {
-      height: 40px;
-      padding: 0 16px;
-    }
-
     .search-wrapper {
       flex: 1;
       position: relative;
+    }
+
+    #clear-search:hover {
+      color: rgba(239, 241, 246, 0.9);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    #clear-search:active {
+      transform: translateY(-50%) scale(0.9);
+    }
+
+    /* Filter Toggle Button */
+    .filter-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.3);
+      transition: all 0.15s ease;
+    }
+
+    .filter-toggle-btn:hover {
+      color: rgba(239, 241, 246, 0.8);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .filter-toggle-btn.active {
+      color: rgba(239, 241, 246, 1);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* Filter Dropdown */
+    .filter-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      background: #181818;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px;
+      min-width: 140px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .filter-checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .filter-checkbox-item:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .filter-checkbox-item input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      accent-color: #eff1f6;
+    }
+
+    .filter-checkbox-item .difficulty {
+      font-size: 12px;
     }
 
     .search-icon {
@@ -179,25 +290,27 @@
       height: 40px;
       padding: 0 12px 0 40px;
       font-size: 13px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #eff1f6;
+      background: #141414;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       outline: none;
-      transition: all 0.15s ease;
+      transition: all 0.2s ease;
     }
 
     .search-input::placeholder {
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(239, 241, 246, 0.3);
     }
 
     .search-input:hover {
-      border-color: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      background: #181818;
     }
 
     .search-input:focus {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 161, 22, 0.5);
+      background: #181818;
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
     }
 
     /* Select */
@@ -205,30 +318,30 @@
       height: 40px;
       padding: 0 32px 0 12px;
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #eff1f6;
+      background: #141414;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       outline: none;
       cursor: pointer;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
       transition: all 0.15s ease;
     }
 
     .select:hover {
-      border-color: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .select:focus {
-      border-color: rgba(255, 161, 22, 0.5);
+      border-color: rgba(255, 255, 255, 0.35);
     }
 
     .select option {
-      background: #1a1a1a;
-      color: #fff;
+      background: #141414;
+      color: #eff1f6;
     }
 
     /* Selected Filters Inline */
@@ -280,8 +393,8 @@
       justify-content: space-between;
       margin-bottom: 16px;
       padding: 10px 14px;
-      background: rgba(255, 161, 22, 0.05);
-      border: 1px solid rgba(255, 161, 22, 0.1);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
     }
 
@@ -295,7 +408,7 @@
 
     .active-filters-count {
       font-weight: 600;
-      color: #ffa116;
+      color: rgba(239, 241, 246, 0.9);
     }
 
     .clear-all-btn {
@@ -322,10 +435,10 @@
       height: 28px;
       padding: 0 8px 0 10px;
       font-size: 12px;
-      font-weight: 450;
-      color: #ffa116;
-      background: rgba(255, 161, 22, 0.1);
-      border: 1px solid rgba(255, 161, 22, 0.2);
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 6px;
       cursor: default;
     }
@@ -343,7 +456,7 @@
       justify-content: center;
       width: 16px;
       height: 16px;
-      color: rgba(255, 161, 22, 0.6);
+      color: rgba(255, 255, 255, 0.4);
       background: none;
       border: none;
       border-radius: 4px;
@@ -353,7 +466,7 @@
 
     .selected-chip-remove:hover {
       color: #fff;
-      background: rgba(255, 161, 22, 0.3);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .selected-chip-remove svg {
@@ -400,15 +513,20 @@
 
     /* Filters Section */
     .filters {
-      margin-bottom: 32px;
+      margin-bottom: 16px;
     }
 
     .filter-section {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: #111111;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      padding: 0 16px;
+      transition: border-color 0.2s ease;
     }
 
-    .filter-section:last-child {
-      border-bottom: none;
+    .filter-section:hover {
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .filter-header {
@@ -426,13 +544,13 @@
     }
 
     .filter-header:hover .filter-label {
-      color: rgba(255, 255, 255, 0.9);
+      color: #eff1f6;
     }
 
     .filter-label {
       font-size: 13px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.6);
+      font-weight: 600;
+      color: rgba(239, 241, 246, 0.85);
       transition: color 0.15s ease;
       display: flex;
       align-items: center;
@@ -442,8 +560,8 @@
     .filter-count {
       font-size: 11px;
       font-weight: 500;
-      color: #ffa116;
-      background: rgba(255, 161, 22, 0.1);
+      color: rgba(239, 241, 246, 0.8);
+      background: rgba(255, 255, 255, 0.08);
       padding: 2px 6px;
       border-radius: 4px;
     }
@@ -452,11 +570,20 @@
       width: 16px;
       height: 16px;
       color: rgba(255, 255, 255, 0.3);
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .filter-section[open] {
+      border-color: rgba(255, 255, 255, 0.18);
     }
 
     .filter-section[open] .filter-chevron {
       transform: rotate(180deg);
+      color: rgba(239, 241, 246, 0.7);
+    }
+
+    .filter-section[open] .filter-label {
+      color: #eff1f6;
     }
 
     .filter-content {
@@ -473,12 +600,13 @@
     .chip {
       display: inline-flex;
       align-items: center;
+      gap: 5px;
       height: 28px;
       padding: 0 10px;
       font-size: 12px;
-      font-weight: 450;
-      color: rgba(255, 255, 255, 0.5);
-      background: transparent;
+      font-weight: 600;
+      color: #eff1f6;
+      background: #1a1a1a;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 6px;
       cursor: pointer;
@@ -486,58 +614,119 @@
     }
 
     .chip:hover {
-      color: rgba(255, 255, 255, 0.7);
-      background: rgba(255, 255, 255, 0.03);
-      border-color: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      background: #222222;
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     .chip.active {
+      color: #fff;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .chip.active:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .chip-count {
+      font-size: 10px;
+      font-weight: 700;
       color: #ffa116;
       background: rgba(255, 161, 22, 0.1);
-      border-color: rgba(255, 161, 22, 0.25);
+      padding: 1px 5px;
+      border-radius: 4px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .chip.active .chip-count {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .filter-info {
+      font-size: 11px;
+      color: rgba(239, 241, 246, 0.35);
+      margin-bottom: 10px;
     }
 
     /* Difficulty Chips */
     .chip-easy {
-      color: rgba(16, 185, 129, 0.8);
-      border-color: rgba(16, 185, 129, 0.2);
+      color: #2cbb5d;
+      border-color: rgba(44, 187, 93, 0.3);
     }
     .chip-easy:hover {
-      background: rgba(16, 185, 129, 0.08);
-      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(44, 187, 93, 0.1);
+      border-color: rgba(44, 187, 93, 0.4);
     }
     .chip-easy.active {
-      color: #10b981;
-      background: rgba(16, 185, 129, 0.15);
-      border-color: rgba(16, 185, 129, 0.4);
+      color: #2cbb5d;
+      background: rgba(44, 187, 93, 0.15);
+      border-color: rgba(44, 187, 93, 0.5);
     }
 
     .chip-medium {
-      color: rgba(245, 158, 11, 0.8);
-      border-color: rgba(245, 158, 11, 0.2);
+      color: #ffa116;
+      border-color: rgba(255, 161, 22, 0.3);
     }
     .chip-medium:hover {
-      background: rgba(245, 158, 11, 0.08);
-      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(255, 161, 22, 0.1);
+      border-color: rgba(255, 161, 22, 0.4);
     }
     .chip-medium.active {
-      color: #f59e0b;
-      background: rgba(245, 158, 11, 0.15);
-      border-color: rgba(245, 158, 11, 0.4);
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.15);
+      border-color: rgba(255, 161, 22, 0.5);
     }
 
     .chip-hard {
-      color: rgba(239, 68, 68, 0.8);
-      border-color: rgba(239, 68, 68, 0.2);
+      color: #ff375f;
+      border-color: rgba(255, 55, 95, 0.3);
     }
     .chip-hard:hover {
-      background: rgba(239, 68, 68, 0.08);
-      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(255, 55, 95, 0.1);
+      border-color: rgba(255, 55, 95, 0.4);
     }
     .chip-hard.active {
-      color: #ef4444;
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.4);
+      color: #ff375f;
+      background: rgba(255, 55, 95, 0.15);
+      border-color: rgba(255, 55, 95, 0.5);
+    }
+
+    /* Topic/Company Active Chips */
+    .chip.topic-active {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.12);
+      border-color: rgba(255, 161, 22, 0.4);
+      font-weight: 600;
+    }
+    .chip.topic-active:hover {
+      background: rgba(255, 161, 22, 0.18);
+      border-color: rgba(255, 161, 22, 0.5);
+    }
+    .chip.topic-active .chip-count {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.15);
+    }
+
+    .chip.company-active {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.12);
+      border-color: rgba(255, 161, 22, 0.4);
+      font-weight: 600;
+    }
+    .chip.company-active:hover {
+      background: rgba(255, 161, 22, 0.18);
+      border-color: rgba(255, 161, 22, 0.5);
+    }
+    .chip.company-active .chip-count {
+      color: #ffa116;
+      background: rgba(255, 161, 22, 0.15);
     }
 
     /* Show More Button */
@@ -563,27 +752,27 @@
       padding: 0 12px;
       margin-bottom: 12px;
       font-size: 12px;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #eff1f6;
+      background: #141414;
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 6px;
       outline: none;
       transition: all 0.15s ease;
     }
 
     .company-search::placeholder {
-      color: rgba(255, 255, 255, 0.25);
+      color: rgba(239, 241, 246, 0.3);
     }
 
     .company-search:focus {
-      border-color: rgba(255, 161, 22, 0.4);
-      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.3);
+      background: #181818;
     }
 
     /* Table */
     .table-wrapper {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: #111111;
+      border: 1px solid rgba(255, 255, 255, 0.07);
       border-radius: 12px;
       overflow: hidden;
     }
@@ -597,30 +786,76 @@
       text-align: left;
       padding: 12px 16px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: rgba(255, 255, 255, 0.35);
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: rgba(239, 241, 246, 0.6);
+      background: #181818;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .table th .header-content {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .table th.sortable:hover .header-content {
+      color: rgba(239, 241, 246, 0.8);
+    }
+
+    .table th.sortable.active .header-content {
+      color: rgba(239, 241, 246, 1);
+    }
+
+    .sort-indicator {
+      display: inline;
+      margin-left: 4px;
+      font-size: 11px;
+      opacity: 0.3;
+      transition: opacity 0.15s ease;
+    }
+
+    .table th.sortable.active .sort-indicator {
+      opacity: 1;
+    }
+
+    .table th.sortable[data-sort-direction="asc"] .sort-indicator::before {
+      content: "↑";
+    }
+
+    .table th.sortable[data-sort-direction="desc"] .sort-indicator::before {
+      content: "↓";
+    }
+
+    .table tbody tr {
+      border-left: 3px solid transparent;
+      transition: all 0.2s ease;
     }
 
     .table td {
       padding: 14px 16px;
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.8);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: rgba(239, 241, 246, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
     }
 
     .table tr:last-child td {
       border-bottom: none;
     }
 
-    .table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
+    .table tbody tr:hover {
+      border-left-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.03);
     }
 
-    .table .col-id { width: 60px; color: rgba(255, 255, 255, 0.4); }
+    .table tbody tr:hover td {
+      background: transparent;
+    }
+
+    .table .col-id { width: 70px; color: rgba(239, 241, 246, 0.7); font-weight: 600; white-space: nowrap; }
     .table .col-title { min-width: 250px; }
     .table .col-difficulty { width: 100px; }
     .table .col-acceptance { width: 100px; text-align: center; }
@@ -629,30 +864,33 @@
 
     /* Problem Link */
     .problem-link {
-      color: rgba(255, 255, 255, 0.9);
+      color: #eff1f6;
+      font-weight: 500;
       text-decoration: none;
-      transition: color 0.15s ease;
+      transition: all 0.2s ease;
+      position: relative;
     }
 
     .problem-link:hover {
-      color: #ffa116;
+      color: #fff;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
     }
 
     /* Difficulty Badge */
     .difficulty {
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .difficulty-easy { color: #10b981; }
-    .difficulty-medium { color: #f59e0b; }
-    .difficulty-hard { color: #ef4444; }
+    .difficulty-easy { color: #2cbb5d; font-weight: 600; }
+    .difficulty-medium { color: #ffa116; font-weight: 600; }
+    .difficulty-hard { color: #ff375f; font-weight: 600; }
 
     /* Frequency Bar */
     .frequency-bar {
       width: 60px;
       height: 4px;
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 2px;
       overflow: hidden;
     }
@@ -673,16 +911,57 @@
 
     .topic-tag {
       font-size: 11px;
-      color: rgba(255, 255, 255, 0.45);
-      background: rgba(255, 255, 255, 0.04);
+      color: rgba(239, 241, 246, 0.75);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 2px 6px;
       border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .topic-tag:hover {
+      color: rgba(239, 241, 246, 0.9);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .topic-more {
       font-size: 11px;
-      color: rgba(255, 255, 255, 0.3);
+      color: rgba(239, 241, 246, 0.55);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      user-select: none;
     }
+
+    .topic-more:hover {
+      color: rgba(239, 241, 246, 0.8);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* List Badges */
+    .list-badges { display: inline-flex; gap: 3px; margin-left: 6px; vertical-align: middle; }
+    .list-badge {
+      font-size: 9px; font-weight: 600; padding: 1px 4px; border-radius: 3px;
+      letter-spacing: 0.3px; line-height: 1.4;
+    }
+    .list-badge-b75 { color: #00b8a3; background: rgba(0,184,163,0.12); border: 1px solid rgba(0,184,163,0.2); }
+    .list-badge-nc { color: #ffa116; background: rgba(255,161,22,0.12); border: 1px solid rgba(255,161,22,0.2); }
+    .list-badge-lc { color: #ff375f; background: rgba(255,55,95,0.12); border: 1px solid rgba(255,55,95,0.2); }
+
+    /* Solved Indicator */
+    .solved-check { color: #2cbb5d; font-size: 11px; font-weight: 700; margin-left: 4px; }
+    .table tbody tr.solved { border-left-color: #2cbb5d; }
+
+    /* Premium Indicator */
+    .premium-lock {
+      display: inline-flex; align-items: center; margin-left: 5px; vertical-align: middle;
+      color: #ffa116; opacity: 0.7; font-size: 11px;
+    }
+    .premium-lock svg { width: 11px; height: 11px; }
+    .table tbody tr.premium { opacity: 0.65; }
+    .table tbody tr.premium:hover { opacity: 0.85; }
 
     /* Loading State */
     .loading {
@@ -696,8 +975,8 @@
     .spinner {
       width: 24px;
       height: 24px;
-      border: 2px solid rgba(255, 161, 22, 0.2);
-      border-top-color: #ffa116;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-top-color: rgba(239, 241, 246, 0.8);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -737,41 +1016,43 @@
     /* Pagination */
     .pagination {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
     }
 
     .pagination-info {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      order: 2;
     }
 
     .pagination-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      order: 1;
     }
 
     .page-numbers {
       display: flex;
-      gap: 4px;
+      gap: 2px;
     }
 
     .page-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 32px;
-      height: 32px;
-      padding: 0 8px;
-      font-size: 13px;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 6px;
+      font-size: 12px;
       color: rgba(255, 255, 255, 0.6);
       background: transparent;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
       transition: all 0.15s ease;
     }
@@ -782,8 +1063,8 @@
     }
 
     .page-btn.active {
-      color: #000;
-      background: #ffa116;
+      color: #0a0a0a;
+      background: #eff1f6;
       font-weight: 500;
     }
 
@@ -803,19 +1084,57 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Filter section open/close animation */
+    .filter-section .filter-content {
+      animation: expandIn 0.2s ease;
+    }
+    @keyframes expandIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Table row fade-in */
+    .table tbody tr {
+      animation: rowFadeIn 0.15s ease;
+    }
+    @keyframes rowFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .container { padding: 0 16px; }
-      .search-row { flex-direction: column; }
-      .select { width: 100%; }
+      .container { padding: 0 12px; }
+      .header-inner { flex-wrap: wrap; gap: 8px; padding: 12px 0; min-height: auto; }
+      .badge-legend { font-size: 10px; gap: 8px; }
+      .col-title > div {
+        flex-direction: column;
+        align-items: flex-start !important;
+      }
+      .col-title .search-wrapper {
+        width: 100%;
+        margin-top: 8px;
+      }
+      .table td { padding: 10px 8px; font-size: 12px; }
+      .table th { padding: 10px 8px; }
+      .col-topics { display: none; }
+      .col-frequency { display: none; }
+      .chip { min-height: 36px; padding: 0 12px; }
+      .btn { min-height: 36px; }
+      .page-btn { min-width: 36px; min-height: 36px; }
+    }
+
+    @media (max-width: 480px) {
+      .col-acceptance { display: none; }
+      .table .col-id { width: 50px; }
     }
   </style>
 </head>
@@ -832,10 +1151,15 @@
         </button>
         <div>
           <h1 class="header-title">Problems Explorer</h1>
-          <p class="header-subtitle">
-            <span id="filtered-count">0</span> / <span id="total-problems">0</span> problems
+          <p class="header-subtitle hidden" id="problems-count-subtitle">
+            <span id="filtered-count">0</span><span id="count-separator"> / </span><span id="total-problems">0</span> problems
           </p>
         </div>
+      </div>
+      <div class="badge-legend">
+        <span class="legend-item legend-filter" data-list="B75"><span class="list-badge list-badge-b75">B75</span> Blind 75</span>
+        <span class="legend-item legend-filter" data-list="NC"><span class="list-badge list-badge-nc">NC</span> NeetCode 150</span>
+        <span class="legend-item legend-filter" data-list="LC"><span class="list-badge list-badge-lc">LC</span> LeetCode 75</span>
       </div>
       <a href="https://leetcode.com/problemset/" target="_blank" class="btn">
         LeetCode
@@ -846,83 +1170,28 @@
     </div>
   </header>
 
-  <!-- Debug Info (hidden) -->
-  <div id="debug-info" class="hidden">
-    <div id="js-status">Loading...</div>
-  </div>
-
   <!-- Main Content -->
   <main class="main">
     <div class="container">
-      <!-- Search & Sort -->
-      <div class="search-row">
-        <div class="search-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.35-4.35"></path>
-          </svg>
-          <input id="search-input" type="text" class="search-input" placeholder="Search problems..." />
-        </div>
-        <select id="sort-select" class="select">
-          <option value="frequency-desc">Frequency ↓</option>
-          <option value="frequency-asc">Frequency ↑</option>
-          <option value="id-asc">ID ↑</option>
-          <option value="id-desc">ID ↓</option>
-          <option value="acceptance-desc">Acceptance ↓</option>
-          <option value="acceptance-asc">Acceptance ↑</option>
-          <option value="title-asc">Title A-Z</option>
-          <option value="title-desc">Title Z-A</option>
-        </select>
-        <button id="reset-filters" class="btn">Reset</button>
-      </div>
-
-      <!-- Active Filters Summary -->
-      <div id="active-filters-bar" class="active-filters-bar hidden">
-        <div class="active-filters-info">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-          </svg>
-          <span><span id="total-filter-count" class="active-filters-count">0</span> filters active</span>
-        </div>
-        <button id="clear-all-filters" class="clear-all-btn">Clear all</button>
-      </div>
-
       <!-- Filters -->
       <div class="filters">
-        <!-- Difficulty -->
-        <details class="filter-section" open>
-          <summary class="filter-header">
-            <span class="filter-label">
-              Difficulty
-              <span id="difficulty-count" class="filter-count hidden"></span>
-            </span>
-            <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </summary>
-          <div class="filter-content">
-            <div id="selected-difficulty" class="selected-inline hidden"></div>
-            <div class="chip-group">
-              <button class="chip chip-easy difficulty-filter" data-difficulty="Easy">Easy</button>
-              <button class="chip chip-medium difficulty-filter" data-difficulty="Medium">Medium</button>
-              <button class="chip chip-hard difficulty-filter" data-difficulty="Hard">Hard</button>
-            </div>
-          </div>
-        </details>
-
         <!-- Topics -->
-        <details class="filter-section">
+        <details class="filter-section" open>
           <summary class="filter-header">
             <span class="filter-label">
               Topics
               <span id="topics-count" class="filter-count hidden"></span>
             </span>
-            <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button id="topics-clear-all" class="show-more-btn hidden" style="margin: 0; font-size: 11px; color: rgba(255, 55, 95, 0.8);">Clear all</button>
+              <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
           </summary>
           <div class="filter-content">
-            <div id="selected-topics" class="selected-inline hidden"></div>
+            <input id="topic-search" type="text" class="company-search" placeholder="🔍 Search topics..." style="margin-bottom: 12px;" />
+            <div id="topics-info" class="filter-info"></div>
             <div id="topics-container" class="chip-group"></div>
             <button id="topics-show-more" class="show-more-btn hidden">Show more</button>
           </div>
@@ -935,13 +1204,16 @@
               Companies
               <span id="companies-count" class="filter-count hidden"></span>
             </span>
-            <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button id="companies-clear-all" class="show-more-btn hidden" style="margin: 0; font-size: 11px; color: rgba(255, 55, 95, 0.8);">Clear all</button>
+              <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
           </summary>
           <div class="filter-content">
-            <div id="selected-companies" class="selected-inline hidden"></div>
-            <input id="company-search" type="text" class="company-search" placeholder="Search companies..." />
+            <input id="company-search" type="text" class="company-search" placeholder="🔍 Search companies..." />
+            <div id="companies-info" class="filter-info"></div>
             <div id="companies-container" class="chip-group"></div>
             <button id="companies-show-more" class="show-more-btn hidden">Show more</button>
           </div>
@@ -953,11 +1225,60 @@
         <table class="table">
           <thead>
             <tr>
-              <th class="col-id">#</th>
-              <th class="col-title">Title</th>
-              <th class="col-difficulty">Difficulty</th>
-              <th class="col-acceptance">Acceptance</th>
-              <th class="col-frequency">Frequency</th>
+              <th class="col-id sortable" data-sort="id">
+                <span class="header-content"># <span class="sort-indicator"></span></span>
+              </th>
+              <th class="col-title sortable" data-sort="title" style="position: relative;">
+                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                  <span class="header-content" style="white-space: nowrap; cursor: pointer;">
+                    Title <span class="sort-indicator"></span>
+                  </span>
+                  <div class="search-wrapper" style="flex: 1; min-width: 200px; position: relative;">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; left: 10px;">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input id="search-input" type="text" class="search-input" placeholder="Search problem..." style="height: 28px; padding: 0 32px 0 32px; font-size: 12px; background: #141414; border: 1px solid rgba(255, 255, 255, 0.1);" />
+                    <button id="clear-search" class="hidden" title="Clear search" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; color: rgba(255, 255, 255, 0.4); border-radius: 4px;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </th>
+              <th class="col-difficulty sortable" data-sort="difficulty" style="position: relative;">
+                <div style="display: flex; align-items: center; gap: 6px; justify-content: space-between;">
+                  <span class="header-content">Difficulty <span class="sort-indicator"></span></span>
+                  <button id="difficulty-filter-toggle" class="filter-toggle-btn" title="Filter difficulty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px;">
+                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                  </button>
+                </div>
+                <!-- Difficulty Filter Dropdown -->
+                <div id="difficulty-dropdown" class="filter-dropdown hidden">
+                  <label class="filter-checkbox-item">
+                    <input type="checkbox" value="Easy" class="difficulty-checkbox" />
+                    <span class="difficulty easy">Easy</span>
+                  </label>
+                  <label class="filter-checkbox-item">
+                    <input type="checkbox" value="Medium" class="difficulty-checkbox" />
+                    <span class="difficulty medium">Medium</span>
+                  </label>
+                  <label class="filter-checkbox-item">
+                    <input type="checkbox" value="Hard" class="difficulty-checkbox" />
+                    <span class="difficulty hard">Hard</span>
+                  </label>
+                </div>
+              </th>
+              <th class="col-acceptance sortable" data-sort="acceptance">
+                <span class="header-content">Acceptance <span class="sort-indicator"></span></span>
+              </th>
+              <th class="col-frequency sortable" data-sort="frequency">
+                <span class="header-content">Frequency <span class="sort-indicator"></span></span>
+              </th>
               <th class="col-topics">Topics</th>
             </tr>
           </thead>
@@ -984,7 +1305,7 @@
       <!-- Pagination -->
       <div id="pagination" class="pagination hidden">
         <div class="pagination-info">
-          Showing <span id="showing-start">1</span>-<span id="showing-end">50</span> of <span id="showing-total">0</span>
+          Showing <span id="showing-start">1</span>-<span id="showing-end">50</span> of <span id="showing-total">0</span><span id="from-total-separator" class="hidden"> of </span><span id="total-all-problems" class="hidden">0</span>
         </div>
         <div class="pagination-controls">
           <button id="prev-page" class="btn" disabled>Previous</button>

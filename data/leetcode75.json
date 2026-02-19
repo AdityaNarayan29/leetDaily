@@ -1,0 +1,95 @@
+{
+  "name": "LeetCode 75",
+  "description": "LeetCode's official study plan of 75 essential problems for acing coding interviews",
+  "totalProblems": 75,
+  "categories": [
+    {
+      "name": "Array / String",
+      "problemIds": [1768, 1071, 1431, 605, 345, 151, 238, 334, 443]
+    },
+    {
+      "name": "Two Pointers",
+      "problemIds": [283, 392, 11, 1679]
+    },
+    {
+      "name": "Sliding Window",
+      "problemIds": [643, 1456, 1004, 1493]
+    },
+    {
+      "name": "Prefix Sum",
+      "problemIds": [1732, 724]
+    },
+    {
+      "name": "Hash Map / Set",
+      "problemIds": [2215, 1207, 1657, 2352]
+    },
+    {
+      "name": "Stack",
+      "problemIds": [2390, 735, 394]
+    },
+    {
+      "name": "Queue",
+      "problemIds": [933, 649]
+    },
+    {
+      "name": "Linked List",
+      "problemIds": [2095, 328, 206, 2130]
+    },
+    {
+      "name": "Binary Tree - DFS",
+      "problemIds": [104, 872, 1448, 437, 1372, 236]
+    },
+    {
+      "name": "Binary Tree - BFS",
+      "problemIds": [1161, 199]
+    },
+    {
+      "name": "Binary Search Tree",
+      "problemIds": [700, 450]
+    },
+    {
+      "name": "Graphs - DFS",
+      "problemIds": [841, 547, 1466, 399]
+    },
+    {
+      "name": "Graphs - BFS",
+      "problemIds": [1926, 994]
+    },
+    {
+      "name": "Heap / Priority Queue",
+      "problemIds": [215, 2336, 2542, 2462]
+    },
+    {
+      "name": "Binary Search",
+      "problemIds": [374, 2300, 162, 875]
+    },
+    {
+      "name": "Backtracking",
+      "problemIds": [17, 216]
+    },
+    {
+      "name": "DP - 1D",
+      "problemIds": [1137, 746, 198, 790]
+    },
+    {
+      "name": "DP - Multidimensional",
+      "problemIds": [62, 1143, 714, 72]
+    },
+    {
+      "name": "Bit Manipulation",
+      "problemIds": [338, 136, 1318]
+    },
+    {
+      "name": "Trie",
+      "problemIds": [208, 1268]
+    },
+    {
+      "name": "Intervals",
+      "problemIds": [435, 452]
+    },
+    {
+      "name": "Monotonic Stack",
+      "problemIds": [739, 901]
+    }
+  ]
+}
