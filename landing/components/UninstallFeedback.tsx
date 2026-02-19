@@ -23,7 +23,23 @@ export default function UninstallFeedback() {
     setSelected(id);
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
+    if (!selected) return;
+    const reason = reasons.find((r) => r.id === selected)?.label || selected;
+
+    // POST to Google Form silently
+    const formUrl =
+      "https://docs.google.com/forms/d/e/1FAIpQLScAtGeMsp4yqzqvn4ao82gHdAte__2aqNZP7R5z3NaKzD6zSQ/formResponse";
+    const body = new URLSearchParams();
+    body.append("entry.2096819875", reason);
+    body.append("entry.1633482000", otherText);
+
+    try {
+      await fetch(formUrl, { method: "POST", body, mode: "no-cors" });
+    } catch {
+      // Silently ignore — form submitted best-effort
+    }
+
     setSubmitted(true);
   }
 
