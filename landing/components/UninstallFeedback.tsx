@@ -23,22 +23,42 @@ export default function UninstallFeedback() {
     setSelected(id);
   }
 
-  async function handleSubmit() {
+  function handleSubmit() {
     if (!selected) return;
     const reason = reasons.find((r) => r.id === selected)?.label || selected;
 
-    // POST to Google Form silently
+    // Submit via hidden iframe to bypass CORS
     const formUrl =
       "https://docs.google.com/forms/d/e/1FAIpQLScAtGeMsp4yqzqvn4ao82gHdAte__2aqNZP7R5z3NaKzD6zSQ/formResponse";
-    const body = new URLSearchParams();
-    body.append("entry.1892502064", reason);
-    body.append("entry.1590935666", otherText);
 
-    try {
-      await fetch(formUrl, { method: "POST", body, mode: "no-cors" });
-    } catch {
-      // Silently ignore — form submitted best-effort
-    }
+    const iframe = document.createElement("iframe");
+    iframe.name = "feedback-iframe";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = formUrl;
+    form.target = "feedback-iframe";
+
+    const reasonInput = document.createElement("input");
+    reasonInput.name = "entry.1892502064";
+    reasonInput.value = reason;
+    form.appendChild(reasonInput);
+
+    const detailsInput = document.createElement("input");
+    detailsInput.name = "entry.1590935666";
+    detailsInput.value = otherText;
+    form.appendChild(detailsInput);
+
+    document.body.appendChild(form);
+    form.submit();
+
+    // Cleanup after submit
+    setTimeout(() => {
+      form.remove();
+      iframe.remove();
+    }, 3000);
 
     setSubmitted(true);
   }
