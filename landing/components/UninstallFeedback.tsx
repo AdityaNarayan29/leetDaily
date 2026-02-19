@@ -31,8 +31,8 @@ export default function UninstallFeedback() {
     const formUrl =
       "https://docs.google.com/forms/d/e/1FAIpQLScAtGeMsp4yqzqvn4ao82gHdAte__2aqNZP7R5z3NaKzD6zSQ/formResponse";
     const body = new URLSearchParams();
-    body.append("entry.2096819875", reason);
-    body.append("entry.1633482000", otherText);
+    body.append("entry.1892502064", reason);
+    body.append("entry.1590935666", otherText);
 
     try {
       await fetch(formUrl, { method: "POST", body, mode: "no-cors" });
