@@ -188,15 +188,15 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
       {/* Animated background gradient */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute top-0 -left-4 w-96 h-96 bg-orange-500/30 rounded-full mix-blend-multiply filter blur-[128px] animate-pulse" />
-        <div className="absolute top-0 -right-4 w-96 h-96 bg-red-500/20 rounded-full mix-blend-multiply filter blur-[128px] animate-pulse delay-1000" />
-        <div className="absolute -bottom-8 left-1/2 w-96 h-96 bg-amber-500/20 rounded-full mix-blend-multiply filter blur-[128px] animate-pulse delay-500" />
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-0 -left-4 w-64 sm:w-96 h-64 sm:h-96 bg-orange-500/30 rounded-full mix-blend-multiply filter blur-[128px] animate-pulse" />
+        <div className="absolute top-0 -right-4 w-64 sm:w-96 h-64 sm:h-96 bg-red-500/20 rounded-full mix-blend-multiply filter blur-[128px] animate-pulse delay-1000" />
+        <div className="absolute -bottom-8 left-1/2 w-64 sm:w-96 h-64 sm:h-96 bg-amber-500/20 rounded-full mix-blend-multiply filter blur-[128px] animate-pulse delay-500" />
       </div>
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[#0a0a0a]/80 border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
               <Flame className="w-5 h-5 text-white" />
@@ -315,7 +315,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right side - Browser mockup */}
-            <div className="relative mx-auto lg:mx-0 max-w-sm sm:max-w-md lg:max-w-none">
+            <div className="relative mx-auto lg:mx-0 max-w-[340px] sm:max-w-md lg:max-w-none">
               {/* Browser Mockup with Extension */}
               <div className="relative">
             {/* Glow effect */}
@@ -324,26 +324,26 @@ export default function LandingPage() {
             {/* Browser Window */}
             <div className="relative bg-[#1a1a1a] rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
               {/* Browser Toolbar */}
-              <div className="flex items-center justify-between px-4 py-3 bg-[#0d0d0d] border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/60" />
+              <div className="flex items-center justify-between px-2.5 sm:px-4 py-2.5 sm:py-3 bg-[#0d0d0d] border-b border-white/5">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/60" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500/60" />
+                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500/60" />
                 </div>
-                <div className="flex-1 mx-4 max-w-lg">
-                  <div className="bg-white/5 rounded-lg px-4 py-1.5 text-xs text-white/40 text-center">
+                <div className="flex-1 mx-2 sm:mx-4 max-w-lg">
+                  <div className="bg-white/5 rounded-lg px-2 sm:px-4 py-1.5 text-[10px] sm:text-xs text-white/40 text-center truncate">
                     mail.google.com/mail/u/0/#inbox
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   {/* Other extension icons */}
-                  <div className="w-5 h-5 rounded bg-white/10" />
-                  <div className="w-5 h-5 rounded bg-white/10" />
+                  <div className="hidden sm:block w-5 h-5 rounded bg-white/10" />
+                  <div className="hidden sm:block w-5 h-5 rounded bg-white/10" />
 
                   {/* LeetDaily Extension Icon with blinking badge */}
                   <div className="extension-icon-demo relative cursor-pointer">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30 hover:scale-110 transition-transform">
-                      <Flame className="w-4 h-4 text-white" />
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30 hover:scale-110 transition-transform">
+                      <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                     </div>
                     {/* Blinking badge */}
                     <div className="icon-badge-blink absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-[9px] font-bold border-2 border-[#0d0d0d] shadow-lg shadow-red-500/50">
@@ -354,7 +354,7 @@ export default function LandingPage() {
               </div>
 
               {/* Browser Content Area with Popup */}
-              <div className="relative p-3 sm:p-4 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] sm:min-h-[620px]">
+              <div className="relative p-2 sm:p-4 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] sm:min-h-[620px]">
                 {/* Email Content - Stacked Emails (hidden on mobile, muted background) */}
                 <div className="hidden sm:block space-y-2 opacity-40">
                   {/* Email 1 - Boogle */}
@@ -449,10 +449,10 @@ export default function LandingPage() {
                 {/* The Popup - Overlapping from top right */}
                 <div
                   ref={popupRef}
-                  className="sm:absolute sm:top-4 sm:right-4 mt-4 sm:mt-0 bg-[#1a1a1a] rounded-2xl border border-white/10 shadow-2xl overflow-hidden z-10 w-full sm:w-[360px]"
+                  className="sm:absolute sm:top-4 sm:right-4 mt-2 sm:mt-0 bg-[#1a1a1a] rounded-xl sm:rounded-2xl border border-white/10 shadow-2xl overflow-hidden z-10 w-full sm:w-[360px]"
                 >
               {/* Popup Header */}
-              <div className="popup-header px-4 py-3">
+              <div className="popup-header px-3 sm:px-4 py-2.5 sm:py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-xs font-bold">
@@ -473,7 +473,7 @@ export default function LandingPage() {
               </div>
 
               {/* Stats Panel */}
-              <div className="popup-stats px-4 pb-3">
+              <div className="popup-stats px-3 sm:px-4 pb-2.5 sm:pb-3">
                 <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center gap-3">
                     <span className="text-[11px] text-white/40">Solved</span>
@@ -488,7 +488,7 @@ export default function LandingPage() {
               </div>
 
               {/* 30-Day Heatmap */}
-              <div className="popup-heatmap px-4 pb-3">
+              <div className="popup-heatmap px-3 sm:px-4 pb-2.5 sm:pb-3">
                 <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
@@ -534,7 +534,7 @@ export default function LandingPage() {
               </div>
 
               {/* Your Progress — List Progress */}
-              <div className="popup-lists px-4 pb-3">
+              <div className="popup-lists px-3 sm:px-4 pb-2.5 sm:pb-3">
                 <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center justify-between mb-3.5">
                     <span className="text-[12px] font-semibold">Your Progress</span>
@@ -591,7 +591,7 @@ export default function LandingPage() {
               </div>
 
               {/* Daily Challenge */}
-              <div className="popup-problem px-4 pb-3">
+              <div className="popup-problem px-3 sm:px-4 pb-2.5 sm:pb-3">
                 <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
                   {/* Title row */}
                   <div className="flex items-start gap-2 mb-3">
@@ -638,7 +638,7 @@ export default function LandingPage() {
               </div>
 
               {/* Problems Explorer Card */}
-              <div className="popup-explorer px-4 pb-4">
+              <div className="popup-explorer px-3 sm:px-4 pb-3 sm:pb-4">
                 <div className="px-3 py-2.5 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center justify-between">
                     <div>
@@ -787,7 +787,7 @@ export default function LandingPage() {
       <section
         ref={notificationSectionRef}
         aria-label="Smart LeetCode Reminders"
-        className="notification-showcase py-12 sm:py-16 px-4 sm:px-6 border-t border-white/5"
+        className="notification-showcase py-12 sm:py-16 px-4 sm:px-6 border-t border-white/5 overflow-hidden"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
@@ -981,7 +981,7 @@ export default function LandingPage() {
       {/* Final CTA */}
       <section aria-label="Install LeetDaily Chrome Extension" className="py-12 sm:py-24 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto">
-          <div className="relative rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 p-6 sm:p-12 text-center overflow-hidden">
+          <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 p-5 sm:p-12 text-center overflow-hidden">
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
             <div className="relative">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
