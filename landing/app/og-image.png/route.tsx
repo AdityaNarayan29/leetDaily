@@ -60,7 +60,7 @@ export async function GET() {
             lineHeight: 1.4,
           }}
         >
-          Daily LeetCode Challenge Reminder & Streak Tracker
+          LeetCode Interview Prep & Tracker
         </div>
 
         <div
@@ -70,7 +70,7 @@ export async function GET() {
             marginTop: "40px",
           }}
         >
-          {["Streak Tracking", "Company Tags", "30-Day Heatmap", "Smart Reminders"].map(
+          {["Interview Prep", "FAANG Tags", "Blind 75", "Streak Tracking"].map(
             (feature) => (
               <div
                 key={feature}

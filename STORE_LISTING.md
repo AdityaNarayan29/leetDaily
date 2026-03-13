@@ -1,14 +1,14 @@
 # Chrome Web Store Listing — LeetDaily v2.0
 
 ## Name
-LeetDaily - Daily LeetCode Challenge
+LeetDaily — LeetCode Interview Prep & Tracker
 
 ## Short Description (132 chars max)
-Daily LeetCode challenges, Blind 75/NeetCode 150/LC 75 tracking, FAANG company tags, problems explorer, streaks & settings sync.
+Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, streaks & smart reminders.
 
 ## Detailed Description
 
-LeetDaily brings your daily LeetCode challenge, curated study lists, company tags, streak tracking, and a full problems explorer — all one click from your browser toolbar.
+LeetDaily is the all-in-one LeetCode interview prep companion — daily challenges, curated study lists, FAANG company tags, streak tracking, and a full problems explorer, all one click from your browser toolbar.
 
 DASHBOARD
 - Today's daily challenge with difficulty, acceptance rate, topic tags, and company tags

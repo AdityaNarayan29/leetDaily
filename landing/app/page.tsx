@@ -4,7 +4,7 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "LeetDaily - Daily LeetCode Challenge",
+    name: "LeetDaily — LeetCode Interview Prep & Tracker",
     applicationCategory: "BrowserApplication",
     operatingSystem: "Chrome",
     offers: {
@@ -13,7 +13,7 @@ export default function Home() {
       priceCurrency: "USD",
     },
     description:
-      "Never miss a LeetCode Daily Challenge! Track Blind 75, NeetCode 150 & LC 75 progress, browse 2000+ problems, FAANG company tags, 30-day heatmap, streak milestones & smart reminders.",
+      "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 2000+ problems explorer, streaks & smart reminders.",
     url: "https://leetdaily.masst.dev",
     installUrl:
       "https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf",

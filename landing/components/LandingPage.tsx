@@ -266,7 +266,7 @@ export default function LandingPage() {
                 ref={subtextRef}
                 className="text-sm sm:text-base text-white/60 max-w-sm sm:max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed"
               >
-                Free Chrome extension for daily LeetCode challenges, Blind 75 / NeetCode 150 tracking, FAANG company tags, problems explorer & smart coding interview reminders — one click from your toolbar.
+                Ace coding interviews with daily LeetCode challenges, Blind 75 / NeetCode 150 tracking, FAANG company tags, 2000+ problems explorer & streak reminders — free Chrome extension.
               </p>
 
               {/* CTA Buttons */}

@@ -202,4 +202,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built for developers who grind LeetCode daily.**
+**Built for developers preparing for coding interviews.**
