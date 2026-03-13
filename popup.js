@@ -3,6 +3,12 @@ const VALID_TOPICS = ['Array','Backtracking','Biconnected Component','Binary Ind
 
 const VALID_COMPANIES = ['1Kosmos','23&me','6sense','AMD','APT Portfolio','AQR Capital Management','ASUS','AT&T','Accelya','Accenture','Accolite','Acko','Activevideo','Activision','Addepar','Adobe','Aetion','Affinity','Affirm','Agoda','Airbnb','Airbus SE','Airtel','Ajira','Akamai','Akuna','Akuna Capital','Alibaba','AllinCall','Alphonso','Altimetrik','Amazon','Amadeus','American Express','Amplitude','Anaplan','Ancestry','Anduril','Angi','Ant Group','Apple','Applied Intuition','Arcesium','Arclight','Ares Management','Arista Networks','Asana','Ascend Learning','Atlassian','Aurora','Autodesk','Avalara','Avito','Axon','Baidu','Barclays','Benchling','BitGo','Bloomberg','Bolt','Box','Brex','Bristol-Myers Squibb','Broadcom','C3.AI','Cadence','Capital One','Careem','Carta','Cashfree','Chime','Citadel','Citrix','Cisco','Cloudera','Cloudflare','Clover Health','Codenation','Coinbase','Comcast','Coupang','Cruise','Databricks','Datadog','Dataminr','De Shaw','Dell','Deutsche Bank','DoorDash','Dropbox','DRW','Duolingo','eBay','Electronic Arts','Expedia','Expensify','Facebook','Fidelity','Figma','FlipKart','Flipkart','Foursquare','GE Healthcare','GoDaddy','Goldman Sachs','Google','Grab','Groupon','HRT','HackerRank','HashiCorp','Hims & Hers','Houzz','Huawei','IBM','IIT','IXL','Indeed','Infosys','Instagram','Instacart','Intel','Intuit','Jio','JP Morgan','Jane Street','Johnson & Johnson','Jpmorgan','Kakao','Karat','Kargo','Klarna','Kustomer','LinkedIn','Loft','Looker','Lyft','MakeMyTrip','Mathworks','Media.net','Meta','Microsoft','Mindtickle','Miro','Morgan Stanley','Myntra','Nagarro','NCR','Netflix','Niantic','Nvidia','Nykaa','OKX','Oracle','Oyo','Paytm','Paypal','Palo Alto Networks','Palantir Technologies','Pinterest','Pocket Gems','Pony.ai','Postmates','PwC','Qualcomm','Qualtrics','Quora','Razorpay','Redfin','Roblox','Robinhood','Salesforce','Samsung','SAP','Seagate','ServiceNow','Shopee','Shopify','Siemens','Slack','Snapchat','Snowflake','SpaceX','Splunk','Spotify','Square','Stripe','Swiggy','Synopsys','TCS','TikTok','Twitter','Two Sigma','Twitch','Twilio','Uber','Unity','Veritas','VMware','Visa','Walmart','Wayfair','Waymo','Wells Fargo','Wish','Wolfe Research','Workday','Yahoo','Yandex','Yelp','Zenefits','Zendesk','Zillow','Zomato','Zoom','Zscaler','eBay','FactSet','Groupon','Hulu','Kaspersky','NerdWallet','Okta','Plaid','Ramp','Scale AI','Sentry','Squarespace','Stitch Fix','Taboola','TaskUs','ThoughtWorks','Twitch','Yatra','Zuora'];
 
+// Escape HTML special characters to prevent XSS
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // Helper for LeetCode GraphQL requests
 async function leetcodeFetch(body) {
   return fetch("https://leetcode.com/graphql", {
@@ -64,17 +70,21 @@ async function getListStats(listName, completedIds = []) {
   }
 
   const completedSet = new Set(completedIds.map(String));
-  let total = 0;
-  let completed = 0;
 
+  // Deduplicate problem IDs across categories
+  const allProblemIds = new Set();
   for (const category of listData.categories) {
     if (!category.problemIds) continue;
-
     for (const problemId of category.problemIds) {
-      total++;
-      if (completedSet.has(String(problemId))) {
-        completed++;
-      }
+      allProblemIds.add(String(problemId));
+    }
+  }
+
+  const total = allProblemIds.size;
+  let completed = 0;
+  for (const problemId of allProblemIds) {
+    if (completedSet.has(problemId)) {
+      completed++;
     }
   }
 
@@ -434,6 +444,16 @@ async function fetchLast30DaysHistory(username) {
   }
 }
 
+// Build URL for problems-explorer with optional topic/company filters
+function getExplorerUrl(topics, companies) {
+  const base = chrome.runtime.getURL('problems-explorer.html');
+  const params = new URLSearchParams();
+  if (topics.length > 0) params.set('topics', topics.join(','));
+  if (companies.length > 0) params.set('companies', companies.join(','));
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
+}
+
 // Renders chips inline with "+X more" that expands on click
 function renderChipsWithOverflow(container, items, chipClass, moreClass, isTopics) {
   container.innerHTML = '';
@@ -583,7 +603,7 @@ function renderQuestion(question, companyData = null) {
 
   document.getElementById("question").innerHTML = `
     <div class="mb-3 flex items-start gap-2">
-      <div class="flex-1 text-[14px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}.</span> <span class="font-medium text-[#eff1f6]">${question.title}</span> <span style="white-space: nowrap; font-size: 11px; float: right;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span></div>
+      <div class="flex-1 text-[14px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}.</span> <span class="font-medium text-[#eff1f6]">${escapeHtml(question.title)}</span> <span style="white-space: nowrap; font-size: 11px; float: right;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span></div>
       <button id="open-problem" class="text-[#eff1f6] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Open problem">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </button>
@@ -779,7 +799,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Sync streak from LeetCode on popup open (fetch from popup since it has cookie access)
   async function syncFromLeetCode() {
-    const userData = await fetchLeetCodeUserData();
+    let userData;
+    try {
+      userData = await fetchLeetCodeUserData();
+    } catch (error) {
+      console.log("Sync failed, falling back to cached data:", error.message);
+      // Fall back to cached data for stats/heatmap
+      const cached = await chrome.storage.local.get(["leetCodeUsername"]);
+      if (cached.leetCodeUsername) {
+        renderStatsPanel(cached.leetCodeUsername);
+        render30DayHeatmap(cached.leetCodeUsername);
+      } else {
+        render30DayHeatmap(null);
+      }
+      return;
+    }
 
     if (userData) {
       const today = getTodayDate();
@@ -792,13 +826,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         // updates in-place (no flash), but tag progress rebuilds DOM so skip it
       });
 
-      chrome.storage.local.set({
+      const syncData = {
         streak: userData.streak,
         leetCodeUsername: userData.username,
         leetCodeAvatar: userData.avatar,
-        lastVisitedDate: userData.completedToday ? today : null,
         lastSyncedAt: Date.now()
-      }, () => {
+      };
+      if (userData.completedToday) {
+        syncData.lastVisitedDate = today;
+        syncData.lastSolvedDate = today;
+      }
+      chrome.storage.local.set(syncData, () => {
         updateStreakDisplay();
         renderStatsPanel(userData.username);
         render30DayHeatmap(userData.username);
@@ -1013,19 +1051,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Start initialization
   initialize();
 
-  // Load stats and heatmap from storage initially (will be updated by syncFromLeetCode)
+  // Show cached user info immediately (stats and heatmap will be rendered by syncFromLeetCode)
   chrome.storage.local.get(["leetCodeUsername", "leetCodeAvatar"], (result) => {
     if (result.leetCodeUsername) {
-      // Show cached user info immediately
       updateLoginState(true, {
         username: result.leetCodeUsername,
         avatar: result.leetCodeAvatar
       });
-      renderStatsPanel(result.leetCodeUsername);
-      render30DayHeatmap(result.leetCodeUsername);
-    } else {
-      // Still render heatmap without username (will only show daily challenges)
-      render30DayHeatmap(null);
     }
   });
 
@@ -1353,14 +1385,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `${topicPart} and ${companyPart}`;
     }
 
-    function getExplorerUrl(topics, companies) {
-      const base = chrome.runtime.getURL('problems-explorer.html');
-      const params = new URLSearchParams();
-      if (topics.length > 0) params.set('topics', topics.join(','));
-      if (companies.length > 0) params.set('companies', companies.join(','));
-      const qs = params.toString();
-      return qs ? `${base}?${qs}` : base;
-    }
 
     function getTagUrl(name, type) {
       return type === 'topic' ? getExplorerUrl([name], []) : getExplorerUrl([], [name]);
@@ -1376,8 +1400,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
       const el = document.createElement('div');
       const labelEl = url
-        ? `<span class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ffa116] transition-colors" data-url="${url}">${label}</span>`
-        : `<span class="text-[13px] font-semibold text-[#eff1f6]">${label}</span>`;
+        ? `<span class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ffa116] transition-colors" data-url="${escapeHtml(url)}">${escapeHtml(label)}</span>`
+        : `<span class="text-[13px] font-semibold text-[#eff1f6]">${escapeHtml(label)}</span>`;
       const nextBtn = nextFn
         ? `<button class="next-unsolved-btn cursor-pointer flex-shrink-0 flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all focus:outline-none" title="Next unsolved">${CODE_ICON}</button>`
         : '';
@@ -1627,7 +1651,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ── Export / Import ────────────────────────────────────────────
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
-    'completedProblemIds', 'requirements',
+    'completedProblemIds', 'requirements', 'orModeRequirements',
+    'topicStreaks', 'companyStreaks',
+    'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
   ];
 

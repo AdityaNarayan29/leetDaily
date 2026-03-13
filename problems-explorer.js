@@ -1,3 +1,9 @@
+// Escape HTML special characters to prevent XSS
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // Problems Explorer - Main Logic
 
 let allProblems = [];
@@ -192,6 +198,7 @@ async function loadProblems() {
     // Apply initial filters and render
     applyFilters();
     renderProblems();
+    document.getElementById('problems-count-subtitle').classList.remove('hidden');
     hideLoading();
 
   } catch (error) {
@@ -280,8 +287,8 @@ function updateTopicDisplay() {
     const count = topicCounts.get(topic) || 0;
     const chipClass = isSelected ? 'chip topic-filter topic-active' : 'chip topic-filter';
     return `
-      <button class="${chipClass}" data-topic="${topic}">
-        ${topic}${isSelected ? ' ×' : ''}<span class="chip-count">${count}</span>
+      <button class="${chipClass}" data-topic="${escapeHtml(topic)}">
+        ${escapeHtml(topic)}${isSelected ? ' ×' : ''}<span class="chip-count">${count}</span>
       </button>
     `;
   }).join('');
@@ -356,8 +363,8 @@ function updateCompanyDisplay() {
     const count = companyCounts.get(company) || 0;
     const chipClass = isSelected ? 'chip company-filter company-active' : 'chip company-filter';
     return `
-      <button class="${chipClass}" data-company="${company}">
-        ${company}${isSelected ? ' ×' : ''}<span class="chip-count">${count}</span>
+      <button class="${chipClass}" data-company="${escapeHtml(company)}">
+        ${escapeHtml(company)}${isSelected ? ' ×' : ''}<span class="chip-count">${count}</span>
       </button>
     `;
   }).join('');
@@ -633,7 +640,7 @@ function expandTopics(moreBtn) {
 
   // Replace content with all topics
   container.innerHTML = allTopics.map(topic =>
-    `<span class="topic-tag">${topic}</span>`
+    `<span class="topic-tag">${escapeHtml(topic)}</span>`
   ).join('');
 }
 
@@ -669,7 +676,7 @@ function renderProblems() {
       <tr data-url="${problem.url}" style="cursor: pointer;"${rowClass ? ` class="${rowClass}"` : ''}>
         <td class="col-id">${problem.id}${isSolved ? ' <span class="solved-check">✓</span>' : ''}</td>
         <td class="col-title">
-          <a href="${problem.url}" target="_blank" class="problem-link">${problem.title}</a>${lockHtml}${badgeHtml}
+          <a href="${problem.url}" target="_blank" class="problem-link">${escapeHtml(problem.title)}</a>${lockHtml}${badgeHtml}
         </td>
         <td class="col-difficulty">
           <span class="difficulty ${difficultyClass}">${problem.difficulty}</span>
@@ -682,7 +689,7 @@ function renderProblems() {
         </td>
         <td class="col-topics">
           <div class="topic-tags">
-            ${topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+            ${topics.map(topic => `<span class="topic-tag">${escapeHtml(topic)}</span>`).join('')}
             ${moreTopics > 0 ? `<span class="topic-more" data-topics="${allTopicsJson}">+${moreTopics}</span>` : ''}
           </div>
         </td>
@@ -691,8 +698,10 @@ function renderProblems() {
   }).join('');
 
   // Add click listeners
-  document.querySelectorAll('.problem-row').forEach(row => {
-    row.addEventListener('click', () => {
+  document.querySelectorAll('#problems-table tr[data-url]').forEach(row => {
+    row.addEventListener('click', (e) => {
+      // Don't navigate if clicking a link directly
+      if (e.target.closest('a')) return;
       window.open(row.dataset.url, '_blank');
     });
   });
@@ -835,6 +844,7 @@ function resetFilters() {
 
   // Reset UI
   document.getElementById('search-input').value = '';
+  document.getElementById('topic-search').value = '';
   document.getElementById('company-search').value = '';
 
   // Reset difficulty checkboxes
@@ -992,7 +1002,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Back button
   document.getElementById('back-btn').addEventListener('click', () => {
-    window.close();
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.close();
+    }
   });
 
   // Topics show more/less

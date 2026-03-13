@@ -73,6 +73,7 @@ function calculateStreak(solvedProblems, requirements = null) {
   // Group problems by date
   const solvedByDate = {};
   for (const [problemId, data] of Object.entries(solvedProblems)) {
+    if (!data.solvedAt) continue;
     const date = data.solvedAt.slice(0, 10); // YYYY-MM-DD
     if (!solvedByDate[date]) {
       solvedByDate[date] = [];
@@ -349,6 +350,9 @@ function startLoadingBlink() {
 
   // Get current streak to display
   chrome.storage.local.get(["currentStreak"], (result) => {
+    // Guard against race: if stopLoadingBlink was called while waiting for storage
+    if (!isLoadingBlink) return;
+
     const streak = String(result.currentStreak || 0);
     currentBlinkText = streak;
     blinkVisible = true;
@@ -437,11 +441,11 @@ function updateBadge() {
 async function checkLeetCodeCompletion() {
   try {
     // First check if we already know it's completed today
-    const stored = await chrome.storage.local.get(["lastVisitedDate"]);
+    const stored = await chrome.storage.local.get(["lastSolvedDate"]);
     const today = getTodayDate();
 
-    // If already marked as completed today, no need to check API
-    if (stored.lastVisitedDate === today) {
+    // If already marked as solved today, no need to check API
+    if (stored.lastSolvedDate === today) {
       return;
     }
 
@@ -480,6 +484,7 @@ async function checkLeetCodeCompletion() {
       // Update storage with completion status
       await chrome.storage.local.set({
         lastVisitedDate: today,
+        lastSolvedDate: today,
         streak: streakData?.streakCount || 0,
         leetCodeUsername: userStatus.username,
         leetCodeAvatar: userStatus.avatar
@@ -663,14 +668,24 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "problemSolved") {
     // Instant badge update when content script detects completion
     const today = getTodayDate();
-    chrome.storage.local.set({
-      lastVisitedDate: today,
-      streak: request.data.streak,
-      leetCodeUsername: request.data.username,
-      leetCodeAvatar: request.data.avatar
-    }).then(() => {
-      stopBlinking(); // Stop loading blink first
-      updateBadge();
+    // Recalculate currentStreak from stored solvedProblems to keep badge in sync
+    chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements'], (result) => {
+      const solvedProblems = result.solvedProblems || {};
+      const requirements = result.requirements || result.orModeRequirements || null;
+      const { currentStreak, longestStreak } = calculateStreak(solvedProblems, requirements);
+
+      chrome.storage.local.set({
+        lastVisitedDate: today,
+        lastSolvedDate: today,
+        currentStreak,
+        longestStreak,
+        streak: request.data.streak,
+        leetCodeUsername: request.data.username,
+        leetCodeAvatar: request.data.avatar
+      }).then(() => {
+        stopBlinking();
+        updateBadge();
+      });
     });
     sendResponse({ success: true });
     return true;
