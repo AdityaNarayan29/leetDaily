@@ -12,6 +12,7 @@ zip -r $ZIP_NAME \
   content.js \
   popup.html \
   popup.js \
+  sync.js \
   privacy.html \
   icon.png \
   problems-explorer.html \
