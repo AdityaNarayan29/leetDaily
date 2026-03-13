@@ -1,3 +1,6 @@
+// Import sync utilities for cross-device preference syncing
+importScripts('sync.js');
+
 // Set uninstall feedback URL
 chrome.runtime.setUninstallURL('https://leetdaily.masst.dev/uninstall');
 
@@ -731,4 +734,15 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true; // Will respond asynchronously
   }
 
+});
+
+// On extension install or update, push existing preferences to cloud
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install' || details.reason === 'update') {
+    chrome.storage.local.get(['leetCodeUsername'], (result) => {
+      if (result.leetCodeUsername) {
+        pushPrefs();
+      }
+    });
+  }
 });

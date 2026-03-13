@@ -1,0 +1,16 @@
+name = "leetdaily-prefs"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+workers_dev = true
+
+# Create KV namespace with:
+#   npx wrangler kv:namespace create "PREFS"
+# Then paste the id below.
+#
+# For preview/dev:
+#   npx wrangler kv:namespace create "PREFS" --preview
+
+[[kv_namespaces]]
+binding = "PREFS"
+id = "553eea9714f544519963ad24f1c30794"
+# preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"

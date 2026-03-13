@@ -18,7 +18,10 @@
     }
   },
   "permissions": ["storage", "alarms", "notifications"],
-  "host_permissions": ["https://leetcode.com/*"],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://leetdaily-prefs.leetdaily.workers.dev/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },

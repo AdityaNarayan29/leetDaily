@@ -819,6 +819,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const today = getTodayDate();
       updateLoginState(true, userData);
 
+      // Pull preferences from cloud (if another device updated them)
+      pullPrefs().then((prefsChanged) => {
+        if (prefsChanged) {
+          // Reload settings UI to reflect synced preferences
+          location.reload();
+        }
+      });
+
       // Sync all solved problem IDs from LeetCode, then re-render list progress
       syncCompletedProblemIds().then(() => {
         renderListProgress();
@@ -1112,6 +1120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       chrome.storage.local.set({ notificationsEnabled: newState }, () => {
         updateNotificationToggleUI(newState);
+        debouncedPushPrefs();
       });
     });
   });
@@ -1141,6 +1150,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateBadgeToggleUI(newState);
         // Notify background to update badge
         chrome.runtime.sendMessage({ action: "updateBadge" });
+        debouncedPushPrefs();
       });
     });
   });
@@ -1170,6 +1180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const time = get24HourTime();
     chrome.storage.local.set({ reminderTime: time }, () => {
       chrome.runtime.sendMessage({ action: "updateReminderTime", time });
+      debouncedPushPrefs();
 
       timeSavedCheck.classList.remove("opacity-0");
       timeSavedCheck.classList.add("opacity-100");
@@ -1255,6 +1266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearTimeout(_saveReqTimer);
     _saveReqTimer = setTimeout(() => {
       chrome.storage.local.set({ requirements: req });
+      debouncedPushPrefs();
     }, 150);
     // UI updates are immediate
     updateProgressCardVisibility();
@@ -1708,6 +1720,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert('Failed to save imported data: ' + chrome.runtime.lastError.message);
             return;
           }
+          pushPrefs(); // Sync imported prefs to cloud immediately
           alert('Data imported! Reloading…');
           location.reload();
         });
