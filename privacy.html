@@ -55,30 +55,40 @@
 
   <h2>What Data We Store</h2>
   <p>LeetDaily does <strong>not</strong> collect, transmit, or share any personally identifiable information (PII).</p>
-  <p>All data is stored <strong>locally on your device</strong> using Chrome's built-in storage API. This includes:</p>
+
+  <h3>Local Storage (on your device)</h3>
+  <p>The following data is stored <strong>locally on your device</strong> using Chrome's built-in storage API:</p>
   <ul>
     <li>Your LeetCode username and avatar (synced from your logged-in session)</li>
     <li>Streak count, solved problem IDs, and daily challenge completion status</li>
+    <li>All solve history and progress data</li>
+  </ul>
+
+  <h3>Cloud-Synced Settings (preferences only)</h3>
+  <p>To enable cross-device sync, LeetDaily stores <strong>only your settings/preferences</strong> on a secure cloud
+    server (Cloudflare Workers KV), keyed by your LeetCode username. This includes:</p>
+  <ul>
     <li>Streak requirement preferences (which lists, topics, and companies you track)</li>
     <li>Notification settings and reminder times</li>
+    <li>Badge display preferences</li>
   </ul>
-  <p>This data remains entirely on your device and is <strong>never transmitted to any server</strong> other than
-    LeetCode itself.</p>
+  <p><strong>No solve history, problem data, passwords, or personal information is ever sent to our server.</strong>
+    Only your settings are synced so they appear on any device where you use LeetDaily.</p>
 
   <h2>API Usage</h2>
-  <p>LeetDaily communicates only with <strong>leetcode.com</strong> to:</p>
+  <p>LeetDaily communicates with:</p>
   <ul>
-    <li>Fetch the daily challenge question</li>
-    <li>Sync your solved problems and submission history</li>
-    <li>Read your profile stats (total solved, streak count)</li>
-    <li>Fetch daily challenge completion status for the 30-day heatmap</li>
+    <li><strong>leetcode.com</strong> — to fetch the daily challenge, sync your solved problems and submission history,
+      read your profile stats, and check daily challenge completion. These requests use your existing LeetCode browser
+      session cookies. LeetDaily does not access or store your LeetCode password.</li>
+    <li><strong>leetdaily-prefs.leetdaily.workers.dev</strong> — to sync your settings/preferences only (streak rules,
+      reminder time, badge settings). No personal data or solve history is sent to this server.</li>
   </ul>
-  <p>These requests use your existing LeetCode browser session cookies. LeetDaily does not access or store your LeetCode
-    password.</p>
 
   <h2>Data Sharing</h2>
   <p>We do <strong>not</strong> share, sell, or transfer any data to third parties.</p>
   <p>We do <strong>not</strong> use data for advertising, tracking, or analytics.</p>
+  <p>Your synced settings are stored securely and are only accessible using your LeetCode username.</p>
 
   <h2>Data Export & Import</h2>
   <p>You can export all your LeetDaily data as a JSON file and import it on another device. This is a local file

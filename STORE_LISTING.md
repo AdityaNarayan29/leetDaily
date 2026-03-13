@@ -4,7 +4,7 @@
 LeetDaily - Daily LeetCode Challenge
 
 ## Short Description (132 chars max)
-Daily LeetCode challenges, Blind 75/NeetCode 150/LC 75 tracking, FAANG company tags, problems explorer, streak & smart reminders.
+Daily LeetCode challenges, Blind 75/NeetCode 150/LC 75 tracking, FAANG company tags, problems explorer, streaks & settings sync.
 
 ## Detailed Description
 
@@ -41,11 +41,16 @@ SMART REMINDERS
 - Streak-at-risk alert 2 hours before midnight reset
 - Extension icon badge shows your current streak count
 
+CROSS-DEVICE SETTINGS SYNC
+- Your streak preferences, reminder settings, and badge options sync across devices automatically
+- Just log into LeetCode on any device — your settings appear instantly
+- Only preferences are synced to the cloud; all solve history and progress stay local on your device
+
 SETTINGS & DATA
 - Choose what counts toward your streak: daily challenge, curated lists, topic/company tags, or any submission
 - Combobox inputs to pick which topics and companies to track
 - Export/import all progress as JSON backup
-- Privacy-first: all data stored locally, no external tracking
+- Privacy-first: solve history stored locally, only settings synced to the cloud (no tracking, no ads)
 
 HOW TO USE
 1. Sign in to leetcode.com in your browser
@@ -59,6 +64,7 @@ PERMISSIONS
 - Alarms: Schedule daily reminder notifications
 - Notifications: Show streak reminders
 - leetcode.com: Sync your solved status and daily challenge
+- leetdaily-prefs.leetdaily.workers.dev: Sync your settings/preferences only (no solve history or personal data is sent)
 
 ---
 

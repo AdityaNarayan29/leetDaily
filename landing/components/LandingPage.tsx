@@ -28,6 +28,7 @@ import {
   BookOpen,
   Search,
   Database,
+  Cloud,
 } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -757,10 +758,17 @@ export default function LandingPage() {
                 gradient: "from-emerald-500 to-teal-500",
               },
               {
+                icon: Cloud,
+                title: "Cross-Device Settings Sync",
+                description:
+                  "Your preferences sync across devices via your LeetCode username. Only settings are synced — solve history stays local.",
+                gradient: "from-indigo-500 to-violet-500",
+              },
+              {
                 icon: Shield,
                 title: "Privacy-First",
                 description:
-                  "All data stored locally. No tracking, no ads, no account required. Free forever.",
+                  "Solve history stored locally. Only settings synced to the cloud. No tracking, no ads. Free forever.",
                 gradient: "from-yellow-500 to-amber-500",
               },
             ].map((feature, i) => (
@@ -1080,7 +1088,7 @@ export default function LandingPage() {
           <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-white/40">
             <p>
               Built for developers, by developers. &copy; 2026 LeetDaily.
-              Privacy-first.
+              Privacy-first — only settings synced, solve history stays local.
             </p>
           </div>
         </div>

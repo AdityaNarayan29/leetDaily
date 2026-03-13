@@ -17,6 +17,7 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 - **Configurable Streak Rules** — Choose what counts toward your streak: daily challenge, curated lists, topic/company tags, or any submission
 - **30-Day Activity Heatmap** — Color-coded daily activity with submission counts and daily challenge checkmarks
 - **Streak Detail Modal** — Click your streak to see 7-day history, longest streak, and milestone progress
+- **Cross-Device Settings Sync** — Your preferences sync across devices via your LeetCode username (only settings, not solve history)
 - **Data Export/Import** — Backup and restore all your progress as JSON
 - **Smooth Animations** — View transitions, accordion expand/collapse, progress bar fills, and milestone celebrations
 - **2000+ Problems with Company Data** — Problem database with company frequency tags fetched from LeetCode
@@ -56,11 +57,16 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 - **Streak at Risk** — Urgent alert 2 hours before midnight reset
 - **Badge Counter** — Extension icon shows your current streak number
 
+### Cross-Device Settings Sync
+- **Automatic Sync** — Your streak preferences, reminder settings, and badge options sync across devices
+- **LeetCode Identity** — Just log into LeetCode on any device and your settings appear instantly
+- **Settings Only** — Only preferences are synced to the cloud; all solve history and progress stay local on your device
+
 ### Settings & Data
 - **Flexible Streak Rules** — Choose what counts toward your streak: Daily Challenge, curated lists, topic/company problems, or any submission
 - **Topic & Company Selection** — Combobox inputs to pick which topics and companies to track
 - **Data Export/Import** — Backup and restore all your progress as JSON
-- **Privacy-First** — All data stored locally in your browser, no external tracking
+- **Privacy-First** — Solve history stored locally in your browser; only settings/preferences synced to the cloud (no tracking, no ads)
 
 ---
 
@@ -116,6 +122,10 @@ leetDaily/
 ├── utils/                 # Shared utilities
 │   └── list-helpers.js
 ├── landing/               # Landing page (Next.js + TypeScript)
+├── sync.js                # Cross-device settings sync (Cloudflare KV)
+├── worker/                # Cloudflare Worker for preferences sync
+│   ├── src/index.js       # Worker API (GET/PUT /prefs/:username)
+│   └── wrangler.toml      # Wrangler config
 ├── popup.html             # Extension popup UI
 ├── popup.js               # Extension popup logic
 ├── background.js          # Service worker (streak calc, alarms, notifications)
@@ -158,9 +168,10 @@ This updates `data/leetcode-problems.json` with the latest problems, difficulty,
 ## Privacy
 
 LeetDaily respects your privacy:
-- No personal data is collected or transmitted
-- All data is stored locally in your browser
-- Only connects to LeetCode to fetch problem data and sync your solved status
+- **Solve history, progress, and streaks** are stored locally on your device — never sent to any server
+- **Only settings/preferences** (streak rules, reminder time, badge settings) are synced to a secure cloud server, keyed by your LeetCode username
+- No passwords, personal data, or solve history is ever transmitted
+- No tracking, no ads, no analytics
 
 See our full [Privacy Policy](privacy.html) for details.
 
