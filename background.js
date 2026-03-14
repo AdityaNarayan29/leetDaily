@@ -67,8 +67,49 @@ async function getProblemListMembership(problemId) {
   };
 }
 
-// Calculate streak based on requirements (any selected requirement counts)
-function calculateStreak(solvedProblems, requirements = null) {
+// Check if a day's solved problems meet the given requirements
+function meetsRequirementsForDay(problemsOnDay, reqs) {
+  if (!reqs) {
+    return problemsOnDay.length > 0;
+  }
+
+  // Check if ANY requirement is actually enabled
+  const hasAnyRequirement = reqs.anySubmission ||
+    reqs.dailyChallenge ||
+    reqs.leetcode75 ||
+    reqs.blind75 ||
+    reqs.neetcode150 ||
+    (reqs.companyFocus && reqs.selectedCompanies?.length > 0) ||
+    (reqs.topicFocus && reqs.selectedTopics?.length > 0);
+
+  // If no requirement is enabled (all unchecked), fall back to "any submission counts"
+  if (!hasAnyRequirement) {
+    return problemsOnDay.length > 0;
+  }
+
+  if (reqs.anySubmission && problemsOnDay.length > 0) return true;
+  if (reqs.dailyChallenge && problemsOnDay.some(p => p.isDailyChallenge)) return true;
+  if (reqs.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
+  if (reqs.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
+  if (reqs.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
+
+  if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
+    const companies = reqs.selectedCompanies.map(c => c.toLowerCase());
+    if (problemsOnDay.some(p => p.companies?.some(c => companies.includes(c.toLowerCase())))) return true;
+  }
+
+  if (reqs.topicFocus && reqs.selectedTopics?.length > 0) {
+    const topics = reqs.selectedTopics.map(t => t.toLowerCase());
+    if (problemsOnDay.some(p => p.topics?.some(t => topics.includes(t.toLowerCase())))) return true;
+  }
+
+  return false;
+}
+
+// Calculate streak based on per-day requirements (cumulative across requirement changes)
+// requirementsByDate: { "YYYY-MM-DD": reqObject } — snapshot of requirements active on each day
+// currentRequirements: the current requirements (used for days without a snapshot)
+function calculateStreak(solvedProblems, currentRequirements = null, requirementsByDate = {}) {
   if (!solvedProblems || Object.keys(solvedProblems).length === 0) {
     return { currentStreak: 0, longestStreak: 0 };
   }
@@ -84,29 +125,23 @@ function calculateStreak(solvedProblems, requirements = null) {
     solvedByDate[date].push(data);
   }
 
-  // Check if a day meets requirements (any selected requirement counts)
-  function meetsRequirements(problemsOnDay) {
-    if (!requirements) {
-      return problemsOnDay.length > 0;
+  // Get the requirements that were active on a specific date
+  // Uses the snapshot for that date if available, otherwise falls back to
+  // "any submission counts" for historical days (before this feature existed)
+  function getRequirementsForDate(dateStr) {
+    if (requirementsByDate[dateStr]) {
+      return requirementsByDate[dateStr];
     }
+    // For days without a snapshot (pre-feature), be generous: any solve counts
+    // This prevents old streaks from breaking when the feature is first introduced
+    return null;
+  }
 
-    if (requirements.anySubmission && problemsOnDay.length > 0) return true;
-    if (requirements.dailyChallenge && problemsOnDay.some(p => p.isDailyChallenge)) return true;
-    if (requirements.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
-    if (requirements.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
-    if (requirements.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
-
-    if (requirements.companyFocus && requirements.selectedCompanies?.length > 0) {
-      const companies = requirements.selectedCompanies.map(c => c.toLowerCase());
-      if (problemsOnDay.some(p => p.companies?.some(c => companies.includes(c.toLowerCase())))) return true;
-    }
-
-    if (requirements.topicFocus && requirements.selectedTopics?.length > 0) {
-      const topics = requirements.selectedTopics.map(t => t.toLowerCase());
-      if (problemsOnDay.some(p => p.topics?.some(t => topics.includes(t.toLowerCase())))) return true;
-    }
-
-    return false;
+  // Check if a specific date meets its requirements
+  function dayMeetsRequirements(dateStr) {
+    const problemsOnDay = solvedByDate[dateStr] || [];
+    const reqs = getRequirementsForDate(dateStr);
+    return meetsRequirementsForDay(problemsOnDay, reqs);
   }
 
   // Calculate current streak (going backwards from today)
@@ -118,8 +153,7 @@ function calculateStreak(solvedProblems, requirements = null) {
   // Check today and go backwards
   while (true) {
     const dateStr = date.toISOString().slice(0, 10);
-    const solvedToday = solvedByDate[dateStr] || [];
-    const countsForStreak = meetsRequirements(solvedToday);
+    const countsForStreak = dayMeetsRequirements(dateStr);
 
     if (countsForStreak) {
       currentStreak++;
@@ -144,9 +178,8 @@ function calculateStreak(solvedProblems, requirements = null) {
 
   for (let i = 0; i < allDates.length; i++) {
     const currentDate = allDates[i];
-    const solved = solvedByDate[currentDate];
 
-    if (meetsRequirements(solved)) {
+    if (dayMeetsRequirements(currentDate)) {
       tempStreak++;
       longestStreak = Math.max(longestStreak, tempStreak);
 
@@ -233,7 +266,8 @@ async function updateStreaksAndStorage(problemData) {
       'solvedProblems',
       'requirements',
       'orModeRequirements',
-      'completedProblemIds'
+      'completedProblemIds',
+      'requirementsByDate'
     ], (result) => {
       const solvedProblems = result.solvedProblems || {};
       const requirements = result.requirements || result.orModeRequirements || {
@@ -247,6 +281,7 @@ async function updateStreaksAndStorage(problemData) {
         selectedTopics: []
       };
       const completedProblemIds = result.completedProblemIds || [];
+      const requirementsByDate = result.requirementsByDate || {};
 
       // Add new problem to solved problems
       solvedProblems[problemData.problemId] = {
@@ -266,21 +301,27 @@ async function updateStreaksAndStorage(problemData) {
         completedProblemIds.push(problemData.problemId);
       }
 
-      // Calculate streaks with current requirements
+      // Snapshot current requirements for the solve date
+      const solveDate = problemData.solvedAt.slice(0, 10);
+      requirementsByDate[solveDate] = { ...requirements };
+
+      // Calculate streaks with per-day requirements
       const { currentStreak, longestStreak } = calculateStreak(
         solvedProblems,
-        requirements
+        requirements,
+        requirementsByDate
       );
       const topicStreaks = calculateTopicStreaks(solvedProblems);
       const companyStreaks = calculateCompanyStreaks(solvedProblems);
 
       // Get last solved date
-      const lastSolvedDate = problemData.solvedAt.slice(0, 10);
+      const lastSolvedDate = solveDate;
 
       // Update storage
       chrome.storage.local.set({
         solvedProblems,
         completedProblemIds,
+        requirementsByDate,
         currentStreak,
         longestStreak,
         lastSolvedDate,
@@ -647,6 +688,15 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.action === "updateBadge") {
     updateBadge();
     sendResponse({ success: true });
+    return true;
+  }
+
+  if (request.action === "recalculateStreak") {
+    const { solvedProblems, requirements, requirementsByDate } = request.data;
+    const { currentStreak, longestStreak } = calculateStreak(solvedProblems, requirements, requirementsByDate || {});
+    chrome.storage.local.set({ currentStreak, longestStreak }, () => {
+      sendResponse({ currentStreak, longestStreak });
+    });
     return true;
   }
 

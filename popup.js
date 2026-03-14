@@ -845,11 +845,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         syncData.lastSolvedDate = today;
       }
       chrome.storage.local.set(syncData, () => {
-        updateStreakDisplay();
+        // Recalculate currentStreak from solvedProblems to keep it in sync
+        chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements', 'requirementsByDate'], (result) => {
+          const solvedProblems = result.solvedProblems || {};
+          const requirements = result.requirements || result.orModeRequirements || null;
+          const requirementsByDate = result.requirementsByDate || {};
+          // Send to background for streak recalculation
+          chrome.runtime.sendMessage({
+            action: 'recalculateStreak',
+            data: { solvedProblems, requirements, requirementsByDate }
+          }, () => {
+            updateStreakDisplay();
+            // Notify background to update badge
+            chrome.runtime.sendMessage({ action: "updateBadge" });
+          });
+        });
         renderStatsPanel(userData.username);
         render30DayHeatmap(userData.username);
-        // Notify background to update badge
-        chrome.runtime.sendMessage({ action: "updateBadge" });
       });
     } else {
       // Not logged in
@@ -1265,7 +1277,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Throttle storage writes (150ms)
     clearTimeout(_saveReqTimer);
     _saveReqTimer = setTimeout(() => {
-      chrome.storage.local.set({ requirements: req });
+      // Snapshot requirements for today so streak stays cumulative across changes
+      const today = new Date().toISOString().slice(0, 10);
+      chrome.storage.local.get(['requirementsByDate', 'solvedProblems'], (result) => {
+        const requirementsByDate = result.requirementsByDate || {};
+        requirementsByDate[today] = { ...req };
+        chrome.storage.local.set({ requirements: req, requirementsByDate }, () => {
+          // Recalculate streak with updated per-day requirements
+          const solvedProblems = result.solvedProblems || {};
+          chrome.runtime.sendMessage({
+            action: 'recalculateStreak',
+            data: { solvedProblems, requirements: req, requirementsByDate }
+          }, () => {
+            updateStreakDisplay();
+            chrome.runtime.sendMessage({ action: "updateBadge" });
+          });
+        });
+      });
       debouncedPushPrefs();
     }, 150);
     // UI updates are immediate
