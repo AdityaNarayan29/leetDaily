@@ -1292,9 +1292,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateStreakDisplay();
             chrome.runtime.sendMessage({ action: "updateBadge" });
           });
+          // Push after storage is written so cloud gets fresh data
+          debouncedPushPrefs();
         });
       });
-      debouncedPushPrefs();
     }, 150);
     // UI updates are immediate
     updateProgressCardVisibility();
@@ -1692,6 +1693,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
     'completedProblemIds', 'requirements', 'orModeRequirements',
+    'requirementsByDate',
     'topicStreaks', 'companyStreaks',
     'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'

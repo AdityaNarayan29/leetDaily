@@ -305,6 +305,14 @@ async function updateStreaksAndStorage(problemData) {
       const solveDate = problemData.solvedAt.slice(0, 10);
       requirementsByDate[solveDate] = { ...requirements };
 
+      // Prune entries older than 400 days to prevent unbounded growth
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 400);
+      const cutoffStr = cutoff.toISOString().slice(0, 10);
+      for (const dateKey of Object.keys(requirementsByDate)) {
+        if (dateKey < cutoffStr) delete requirementsByDate[dateKey];
+      }
+
       // Calculate streaks with per-day requirements
       const { currentStreak, longestStreak } = calculateStreak(
         solvedProblems,
@@ -534,6 +542,16 @@ async function checkLeetCodeCompletion() {
         leetCodeAvatar: userStatus.avatar
       });
 
+      // Recalculate currentStreak so badge shows correct value
+      const stored = await chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements', 'requirementsByDate']);
+      const requirements = stored.requirements || stored.orModeRequirements || null;
+      const { currentStreak, longestStreak } = calculateStreak(
+        stored.solvedProblems || {},
+        requirements,
+        stored.requirementsByDate || {}
+      );
+      await chrome.storage.local.set({ currentStreak, longestStreak });
+
       // Immediately update badge
       updateBadge();
     }
@@ -722,10 +740,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     // Instant badge update when content script detects completion
     const today = getTodayDate();
     // Recalculate currentStreak from stored solvedProblems to keep badge in sync
-    chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements'], (result) => {
+    chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements', 'requirementsByDate'], (result) => {
       const solvedProblems = result.solvedProblems || {};
       const requirements = result.requirements || result.orModeRequirements || null;
-      const { currentStreak, longestStreak } = calculateStreak(solvedProblems, requirements);
+      const requirementsByDate = result.requirementsByDate || {};
+      const { currentStreak, longestStreak } = calculateStreak(solvedProblems, requirements, requirementsByDate);
 
       chrome.storage.local.set({
         lastVisitedDate: today,
