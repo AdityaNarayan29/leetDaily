@@ -602,11 +602,8 @@ function renderQuestion(question, companyData = null) {
   const buildingIcon = `<svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"></path><path d="M9 8h1"></path><path d="M9 12h1"></path><path d="M9 16h1"></path><path d="M14 8h1"></path><path d="M14 12h1"></path><path d="M14 16h1"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path></svg>`;
 
   document.getElementById("question").innerHTML = `
-    <div class="mb-3 flex items-start gap-2">
-      <div class="flex-1 text-[14px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}.</span> <span class="font-medium text-[#eff1f6]">${escapeHtml(question.title)}</span> <span style="white-space: nowrap; font-size: 11px; float: right;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699; cursor: help;">${acceptanceRate}%</span></span></div>
-      <button id="open-problem" class="text-[#eff1f6] hover:text-[#ffa116] cursor-pointer transition-colors flex-shrink-0 mt-0.5" title="Open problem">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </button>
+    <div class="mb-3">
+      <div class="text-[13px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}. ${escapeHtml(question.title)}</span> <span style="white-space: nowrap; font-size: 11px; float: right; margin-top: 2px;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699;">${acceptanceRate}%</span></span></div>
     </div>
     <div>
       <!-- Topics row -->
@@ -652,30 +649,15 @@ function renderQuestion(question, companyData = null) {
     renderChipsWithOverflow(companiesRowEl, companyItems, companyChipClass, moreChipClass, false);
   }
 
-  // Open problem button
-  document.getElementById("open-problem").addEventListener("click", () => {
+  // Open problem — clicking "Daily Challenge ↗" header
+  document.getElementById("open-problem-header").addEventListener("click", () => {
     chrome.tabs.create({ url: problemUrl });
   });
 
   // Acceptance rate tooltip
   const acceptanceEl = document.getElementById("acceptance-rate");
   if (acceptanceEl) {
-    let tooltip = null;
-    acceptanceEl.addEventListener("mouseenter", () => {
-      tooltip = document.createElement("div");
-      tooltip.textContent = `${acceptanceRate}% Acceptance Rate`;
-      tooltip.style.cssText = "position:absolute;background:#333;color:#fff;padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;z-index:1000;";
-      const rect = acceptanceEl.getBoundingClientRect();
-      tooltip.style.left = rect.left + "px";
-      tooltip.style.top = (rect.top - 28) + "px";
-      document.body.appendChild(tooltip);
-    });
-    acceptanceEl.addEventListener("mouseleave", () => {
-      if (tooltip) {
-        tooltip.remove();
-        tooltip = null;
-      }
-    });
+    acceptanceEl.title = `${acceptanceRate}% Acceptance Rate`;
   }
 
 }
@@ -779,6 +761,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else if (milestoneEl) {
         milestoneEl.classList.add("hidden");
       }
+
+      // Show/hide daily challenge solved badge
+      const dailySolvedBadge = document.getElementById("daily-solved-badge");
+      if (dailySolvedBadge) {
+        dailySolvedBadge.style.display = lastSolved === today ? 'inline-flex' : 'none';
+      }
     });
   }
 
@@ -867,6 +855,42 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (userData.completedToday) {
         syncData.lastVisitedDate = today;
         syncData.lastSolvedDate = today;
+
+        // Backfill today's daily challenge into solvedProblems if missing
+        // (handles fresh install / extension re-add / data wipe)
+        chrome.storage.local.get(['solvedProblems'], (spResult) => {
+          const solvedProblems = spResult.solvedProblems || {};
+          const hasTodaySolve = Object.values(solvedProblems).some(
+            p => p.solvedAt && p.solvedAt.slice(0, 10) === today
+          );
+          if (!hasTodaySolve) {
+            // Fetch daily challenge slug and record it
+            leetcodeFetch({
+              query: `query questionOfToday {
+                activeDailyCodingChallengeQuestion {
+                  question { titleSlug title questionFrontendId difficulty topicTags { name } }
+                }
+              }`
+            }).then(r => r.json()).then(dcData => {
+              const q = dcData?.data?.activeDailyCodingChallengeQuestion?.question;
+              if (q) {
+                chrome.runtime.sendMessage({
+                  action: 'individualProblemSolved',
+                  data: {
+                    problemId: parseInt(q.questionFrontendId),
+                    titleSlug: q.titleSlug,
+                    title: q.title,
+                    difficulty: q.difficulty,
+                    topics: (q.topicTags || []).map(t => t.name),
+                    companies: [],
+                    companyFrequency: {},
+                    solvedAt: new Date().toISOString()
+                  }
+                });
+              }
+            }).catch(() => {});
+          }
+        });
       }
       // Use LeetCode API streak as source of truth
       syncData.currentStreak = userData.streak;
@@ -1129,12 +1153,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       notifToggle.classList.remove("bg-[#ffffff1a]");
       notifToggle.classList.add("bg-[#2cbb5d]");
       notifDot.classList.add("translate-x-4");
-      reminderTimeSection.classList.remove("opacity-50", "pointer-events-none");
+      reminderTimeSection.classList.remove("hidden");
     } else {
       notifToggle.classList.add("bg-[#ffffff1a]");
       notifToggle.classList.remove("bg-[#2cbb5d]");
       notifDot.classList.remove("translate-x-4");
-      reminderTimeSection.classList.add("opacity-50", "pointer-events-none");
+      reminderTimeSection.classList.add("hidden");
     }
   }
 
@@ -1342,6 +1366,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // UI updates are immediate
     updateProgressCardVisibility();
     refreshTagProgress(req);
+    updateFocusSubtitle();
   }
 
   function updateProgressCardVisibility() {
@@ -1729,34 +1754,50 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateProgressCardVisibility();
     refreshTagProgress();
+    updateFocusSubtitle();
   });
 
-  // ── Streak Notice ───────────────────────────────────────────
-  const streakNoticeModal = document.getElementById('streak-notice-modal');
+  // ── Focus Areas Info Popover + Dynamic Subtitle ─────────────
+  const focusInfoBtn = document.getElementById("focus-info-btn");
+  const focusInfoPopover = document.getElementById("focus-info-popover");
+  const focusSubtitle = document.getElementById("focus-subtitle");
 
-  // Info button opens the notice modal
-  document.getElementById('streak-mode-info').addEventListener('click', () => {
-    streakNoticeModal.classList.remove('hidden');
-  });
-
-  // Notice modal close handlers
-  document.getElementById('streak-notice-close').addEventListener('click', () => {
-    streakNoticeModal.classList.add('hidden');
-  });
-  document.getElementById('streak-notice-ok').addEventListener('click', () => {
-    streakNoticeModal.classList.add('hidden');
-    chrome.storage.local.set({ streakNoticeShown: true });
-  });
-  streakNoticeModal.addEventListener('click', (e) => {
-    if (e.target === streakNoticeModal) streakNoticeModal.classList.add('hidden');
+  // Toggle popover on click
+  focusInfoBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    focusInfoPopover.classList.toggle("hidden");
   });
 
-  // Show one-time notice on first open after update
-  chrome.storage.local.get(['streakNoticeShown'], (result) => {
-    if (!result.streakNoticeShown) {
-      streakNoticeModal.classList.remove('hidden');
+  // Dismiss popover on outside click
+  document.addEventListener("click", (e) => {
+    if (!focusInfoPopover.contains(e.target) && e.target !== focusInfoBtn) {
+      focusInfoPopover.classList.add("hidden");
     }
   });
+
+  // Update subtitle based on current requirements
+  function updateFocusSubtitle() {
+    const labels = [];
+    if (reqBlind75.checked) labels.push("Blind 75");
+    if (reqNc150.checked) labels.push("NC 150");
+    if (reqLc75.checked) labels.push("LC 75");
+    if (reqDaily.checked) labels.push("Daily");
+    if (reqAny && reqAny.checked) labels.push("Any");
+    if (companyTags && companyTags.isEnabled()) {
+      const tags = companyTags.getTags();
+      if (tags.length) labels.push(tags.slice(0, 2).join(", "));
+    }
+    if (topicTags && topicTags.isEnabled()) {
+      const tags = topicTags.getTags();
+      if (tags.length) labels.push(tags.slice(0, 2).join(", "));
+    }
+
+    if (labels.length > 0) {
+      focusSubtitle.textContent = "Tracking " + labels.join(", ");
+    } else {
+      focusSubtitle.textContent = "No focus areas selected";
+    }
+  }
 
   // ── Export / Import ────────────────────────────────────────────
   const EXPORT_KEYS = [

@@ -417,7 +417,10 @@ function updateBadge() {
         chrome.action.setBadgeTextColor({ color: greenColor });
         chrome.action.setBadgeText({ text: String(streak) });
       } else {
-        chrome.action.setBadgeText({ text: "" });
+        // No number, just green color indicator
+        chrome.action.setBadgeBackgroundColor({ color: greenColor });
+        chrome.action.setBadgeTextColor({ color: "#FFFFFF" });
+        chrome.action.setBadgeText({ text: " " });
       }
     }
     else if (timeLeft <= twoHoursInMs) {
@@ -434,6 +437,7 @@ function updateBadge() {
         chrome.action.setBadgeTextColor({ color: orangeColor });
         chrome.action.setBadgeText({ text: String(streak) });
       } else {
+        // No number, just orange color indicator
         chrome.action.setBadgeBackgroundColor({ color: orangeColor });
         chrome.action.setBadgeTextColor({ color: "#FFFFFF" });
         chrome.action.setBadgeText({ text: " " });

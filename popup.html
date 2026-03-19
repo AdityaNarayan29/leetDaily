@@ -302,7 +302,6 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <span id="timer" class="text-[12px] text-[#eff1f699] tabular-nums"></span>
         <span id="streakDisplay" class="text-[14px] font-semibold text-[#ffa116]"></span>
         <span class="text-[#ffffff1a]">|</span>
         <!-- Settings Icon -->
@@ -445,6 +444,16 @@
 
     <!-- Question Section -->
     <section id="daily-challenge-section" class="mb-4 p-4 rounded-xl bg-[#282828] border border-[#ffffff0d]">
+      <div class="flex items-center justify-between mb-2">
+        <span id="open-problem-header" class="flex items-center gap-1.5 cursor-pointer text-[#eff1f6] hover:text-[#ffa116] transition-colors">
+          <span class="text-[12px] font-semibold">Daily Challenge</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </span>
+        <div class="flex items-center gap-2">
+          <span id="daily-solved-badge" style="display:none; color:#4ade80; font-size:11px; font-weight:600; align-items:center; gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Solved</span>
+          <span id="timer" class="text-[11px] text-[#eff1f699] tabular-nums"></span>
+        </div>
+      </div>
       <div id="question" class="text-[#eff1f6]">
         <!-- Skeleton for daily challenge -->
         <div class="mb-3 flex items-start gap-2">
@@ -549,11 +558,11 @@
         <div id="badge-display-options" class="pl-4 space-y-2">
           <p class="text-[11px] text-[#eff1f666]">Badge displays:</p>
           <label class="flex items-center cursor-pointer group" style="gap: 10px;">
-            <input type="radio" name="badge-display" id="badge-display-focus" value="focus" class="flex-shrink-0 cursor-pointer accent-[#ffa116]">
+            <input type="radio" name="badge-display" id="badge-display-focus" value="focus" class="flex-shrink-0 cursor-pointer" style="accent-color: #ffa116;">
             <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🎯 Focus streak <span class="text-[10px] text-[#eff1f644]">— days on your plan</span></span>
           </label>
           <label class="flex items-center cursor-pointer group" style="gap: 10px;">
-            <input type="radio" name="badge-display" id="badge-display-leetcode" value="leetcode" class="flex-shrink-0 cursor-pointer accent-[#ffa116]">
+            <input type="radio" name="badge-display" id="badge-display-leetcode" value="leetcode" class="flex-shrink-0 cursor-pointer" style="accent-color: #ffa116;">
             <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🔥 LeetCode streak <span class="text-[10px] text-[#eff1f644]">— official streak</span></span>
           </label>
         </div>
@@ -563,9 +572,19 @@
       <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <span class="text-[13px] font-semibold text-[#eff1f6]">Focus areas</span>
-          <button id="streak-mode-info" class="text-[#eff1f666] hover:text-[#ffa116] transition-colors" title="Streak mode info">
+          <button id="focus-info-btn" class="text-[#eff1f666] hover:text-[#ffa116] transition-colors" title="How focus areas work">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           </button>
+        </div>
+        <p id="focus-subtitle" class="text-[11px] text-[#eff1f666] -mt-1"></p>
+
+        <!-- Focus info popover -->
+        <div id="focus-info-popover" class="hidden bg-[#1a1a1a] border border-[#ffffff1a] rounded-xl p-3 -mt-1">
+          <p class="text-[11px] text-[#eff1f6cc] leading-relaxed">
+            <strong class="text-[#ffa116]">Focus Areas</strong> tracks your progress on specific LeetCode lists, topics, and companies.
+            Your <strong>focus streak</strong> (🎯) counts consecutive days you solved a matching problem.
+            With nothing selected, only your LeetCode streak (🔥) is shown.
+          </p>
         </div>
 
         <!-- Requirements (single section) -->
@@ -625,30 +644,6 @@
           <input type="file" id="import-file" accept=".json" class="hidden">
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Streak Mode Update Notice Modal -->
-  <div id="streak-notice-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.7)">
-    <div class="bg-[#1e1e1e] rounded-2xl p-5 w-[320px] border border-[#ffffff0d] mx-4">
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-[14px] font-semibold text-[#eff1f6]">Streak Update</span>
-        <button id="streak-notice-close" class="text-[20px] leading-none text-[#eff1f699] hover:text-[#eff1f6] transition-colors">&times;</button>
-      </div>
-      <div class="text-center mb-4">
-        <div class="text-[32px] mb-2">&#x1F525;</div>
-        <p class="text-[12px] text-[#eff1f6cc] leading-relaxed">
-          We've updated how streaks work! Your streak now comes directly from <strong class="text-[#ffa116]">LeetCode's official streak</strong> — accurate, reliable, and always in sync.
-        </p>
-      </div>
-      <div class="bg-[#282828] rounded-xl p-3 mb-4">
-        <p class="text-[11px] text-[#eff1f699] leading-relaxed">
-          <strong class="text-[#2cbb5d]">Coming soon:</strong> Custom Streak mode — set your own rules (Blind 75 only, specific topics, company tags) and track streaks your way.
-        </p>
-      </div>
-      <button id="streak-notice-ok" class="w-full py-2 rounded-lg bg-[#ffa116] text-[#1e1e1e] text-[12px] font-semibold hover:bg-[#ffb340] transition-colors">
-        Got it
-      </button>
     </div>
   </div>
 
