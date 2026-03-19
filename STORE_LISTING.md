@@ -1,4 +1,4 @@
-# Chrome Web Store Listing — LeetDaily v2.1.2
+# Chrome Web Store Listing — LeetDaily v2.2.2
 
 ## Name
 LeetDaily — LeetCode Interview Prep & Tracker
