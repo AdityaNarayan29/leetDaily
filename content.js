@@ -112,22 +112,24 @@ async function checkAndNotifyCompletion() {
     const dailyStatus = data?.data?.activeDailyCodingChallengeQuestion?.userStatus;
     const completedToday = dailyStatus === "Finish";
 
-    if (completedToday) {
-      // Send message to background script to update badge (this also stops loading)
-      safeSendMessage({
-        action: "problemSolved",
-        data: {
-          streak: streakData?.streakCount || 0,
-          username: userStatus.username,
-          avatar: userStatus.avatar
-        }
-      });
-      isLoadingActive = false;
-    } else if (isLoadingActive) {
-      // API didn't confirm yet, stop the loading blink
-      notifyLoadingDone();
-      isLoadingActive = false;
-    }
+    // Check if "Any submission" is enabled
+    const stored = await new Promise(resolve => {
+      chrome.storage.local.get(['requirements', 'orModeRequirements'], resolve);
+    });
+    const reqs = stored.requirements || stored.orModeRequirements || {};
+    const anySubmissionEnabled = reqs.anySubmission === true;
+
+    // Update streak and user info from API
+    safeSendMessage({
+      action: "problemSolved",
+      data: {
+        streak: streakData?.streakCount || 0,
+        username: userStatus.username,
+        avatar: userStatus.avatar,
+        completedToday: completedToday || anySubmissionEnabled
+      }
+    });
+    isLoadingActive = false;
   } catch (error) {
     // Silently fail, but stop loading if it was started
     if (isLoadingActive) {
@@ -170,6 +172,56 @@ async function notifyIndividualProblemSolved() {
   console.log('✅ Individual problem solved notification sent:', metadata.title);
 }
 
+// Check if this submission should trigger badge update (daily challenge or "Any submission" enabled)
+async function checkIfDailyAndUpdate() {
+  const titleSlug = getProblemSlugFromURL();
+  if (!titleSlug) return;
+
+  try {
+    // Check user's requirements from storage
+    const stored = await new Promise(resolve => {
+      chrome.storage.local.get(['requirements', 'orModeRequirements'], resolve);
+    });
+    const reqs = stored.requirements || stored.orModeRequirements || {};
+    const anySubmissionEnabled = reqs.anySubmission === true;
+
+    if (anySubmissionEnabled) {
+      // "Any submission" is enabled — every accepted problem counts
+      isLoadingActive = true;
+      notifyLoading();
+      setTimeout(() => checkAndNotifyCompletion(), 2000);
+      return;
+    }
+
+    // Otherwise, only trigger for the daily challenge
+    const dcResponse = await fetch("https://leetcode.com/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        query: `
+          query questionOfToday {
+            activeDailyCodingChallengeQuestion {
+              question { titleSlug }
+            }
+          }
+        `
+      })
+    });
+    const dcData = await dcResponse.json();
+    const dailySlug = dcData?.data?.activeDailyCodingChallengeQuestion?.question?.titleSlug;
+
+    if (titleSlug !== dailySlug) return;
+
+    // It's the daily challenge — start loading blink
+    isLoadingActive = true;
+    notifyLoading();
+    setTimeout(() => checkAndNotifyCompletion(), 2000);
+  } catch (error) {
+    console.log('Daily challenge check failed:', error.message);
+  }
+}
+
 // Listen for submission results by watching for success indicators
 function observeSubmissionResults() {
   let hasTriggered = false;
@@ -196,19 +248,14 @@ function observeSubmissionResults() {
               (text.includes('Runtime') || text.includes('Memory') || text.includes('testcase'))) {
             hasTriggered = true;
 
-            // PHASE 3: Notify individual problem solution immediately
+            // Record the problem solve (silent, no badge blink)
             notifyIndividualProblemSolved();
 
-            // Start loading blink immediately, then check API after delay
-            isLoadingActive = true;
-            notifyLoading();
+            // Check if this is the daily challenge — only blink badge for daily
+            checkIfDailyAndUpdate();
 
-            // Small delay to let LeetCode's backend update
-            setTimeout(() => {
-              checkAndNotifyCompletion();
-              // Reset trigger after 10 seconds to allow for next submission
-              setTimeout(() => { hasTriggered = false; }, 10000);
-            }, 2000);
+            // Reset trigger after 10 seconds to allow for next submission
+            setTimeout(() => { hasTriggered = false; }, 10000);
 
             break;
           }

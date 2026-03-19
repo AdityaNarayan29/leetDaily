@@ -547,7 +547,12 @@
 
       <!-- Streak Requirements -->
       <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] flex flex-col gap-3">
-        <span class="text-[13px] font-semibold text-[#eff1f6]">Streak requirements</span>
+        <div class="flex items-center justify-between">
+          <span class="text-[13px] font-semibold text-[#eff1f6]">Focus areas</span>
+          <button id="streak-mode-info" class="text-[#eff1f666] hover:text-[#ffa116] transition-colors" title="Streak mode info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </button>
+        </div>
 
         <!-- Requirements (single section) -->
         <div id="requirements-section" class="pl-4 space-y-2.5">
@@ -606,6 +611,30 @@
           <input type="file" id="import-file" accept=".json" class="hidden">
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Streak Mode Update Notice Modal -->
+  <div id="streak-notice-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.7)">
+    <div class="bg-[#1e1e1e] rounded-2xl p-5 w-[320px] border border-[#ffffff0d] mx-4">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[14px] font-semibold text-[#eff1f6]">Streak Update</span>
+        <button id="streak-notice-close" class="text-[20px] leading-none text-[#eff1f699] hover:text-[#eff1f6] transition-colors">&times;</button>
+      </div>
+      <div class="text-center mb-4">
+        <div class="text-[32px] mb-2">&#x1F525;</div>
+        <p class="text-[12px] text-[#eff1f6cc] leading-relaxed">
+          We've updated how streaks work! Your streak now comes directly from <strong class="text-[#ffa116]">LeetCode's official streak</strong> — accurate, reliable, and always in sync.
+        </p>
+      </div>
+      <div class="bg-[#282828] rounded-xl p-3 mb-4">
+        <p class="text-[11px] text-[#eff1f699] leading-relaxed">
+          <strong class="text-[#2cbb5d]">Coming soon:</strong> Custom Streak mode — set your own rules (Blind 75 only, specific topics, company tags) and track streaks your way.
+        </p>
+      </div>
+      <button id="streak-notice-ok" class="w-full py-2 rounded-lg bg-[#ffa116] text-[#1e1e1e] text-[12px] font-semibold hover:bg-[#ffb340] transition-colors">
+        Got it
+      </button>
     </div>
   </div>
 

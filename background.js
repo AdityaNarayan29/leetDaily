@@ -67,137 +67,28 @@ async function getProblemListMembership(problemId) {
   };
 }
 
-// Check if a day's solved problems meet the given requirements
-function meetsRequirementsForDay(problemsOnDay, reqs) {
-  if (!reqs) {
-    return problemsOnDay.length > 0;
-  }
-
-  // Check if ANY requirement is actually enabled
-  const hasAnyRequirement = reqs.anySubmission ||
-    reqs.dailyChallenge ||
-    reqs.leetcode75 ||
-    reqs.blind75 ||
-    reqs.neetcode150 ||
-    (reqs.companyFocus && reqs.selectedCompanies?.length > 0) ||
-    (reqs.topicFocus && reqs.selectedTopics?.length > 0);
-
-  // If no requirement is enabled (all unchecked), fall back to "any submission counts"
-  if (!hasAnyRequirement) {
-    return problemsOnDay.length > 0;
-  }
-
-  if (reqs.anySubmission && problemsOnDay.length > 0) return true;
-  if (reqs.dailyChallenge && problemsOnDay.some(p => p.isDailyChallenge)) return true;
-  if (reqs.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
-  if (reqs.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
-  if (reqs.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
-
-  if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
-    const companies = reqs.selectedCompanies.map(c => c.toLowerCase());
-    if (problemsOnDay.some(p => p.companies?.some(c => companies.includes(c.toLowerCase())))) return true;
-  }
-
-  if (reqs.topicFocus && reqs.selectedTopics?.length > 0) {
-    const topics = reqs.selectedTopics.map(t => t.toLowerCase());
-    if (problemsOnDay.some(p => p.topics?.some(t => topics.includes(t.toLowerCase())))) return true;
-  }
-
-  return false;
-}
-
-// Calculate streak based on per-day requirements (cumulative across requirement changes)
-// requirementsByDate: { "YYYY-MM-DD": reqObject } — snapshot of requirements active on each day
-// currentRequirements: the current requirements (used for days without a snapshot)
-function calculateStreak(solvedProblems, currentRequirements = null, requirementsByDate = {}) {
-  if (!solvedProblems || Object.keys(solvedProblems).length === 0) {
-    return { currentStreak: 0, longestStreak: 0 };
-  }
-
-  // Group problems by date
-  const solvedByDate = {};
-  for (const [problemId, data] of Object.entries(solvedProblems)) {
-    if (!data.solvedAt) continue;
-    const date = data.solvedAt.slice(0, 10); // YYYY-MM-DD
-    if (!solvedByDate[date]) {
-      solvedByDate[date] = [];
-    }
-    solvedByDate[date].push(data);
-  }
-
-  // Get the requirements that were active on a specific date
-  // Uses the snapshot for that date if available, otherwise falls back to
-  // "any submission counts" for historical days (before this feature existed)
-  function getRequirementsForDate(dateStr) {
-    if (requirementsByDate[dateStr]) {
-      return requirementsByDate[dateStr];
-    }
-    // For days without a snapshot (pre-feature), be generous: any solve counts
-    // This prevents old streaks from breaking when the feature is first introduced
+// Fetch current streak directly from LeetCode API (source of truth)
+async function fetchStreakFromLeetCode() {
+  try {
+    const response = await leetcodeFetch({
+      query: `
+        query globalData {
+          userStatus {
+            isSignedIn
+          }
+          streakCounter {
+            streakCount
+          }
+        }
+      `
+    });
+    const data = await response.json();
+    if (!data?.data?.userStatus?.isSignedIn) return null;
+    return data?.data?.streakCounter?.streakCount || 0;
+  } catch (e) {
+    console.log('Failed to fetch streak from LeetCode:', e.message);
     return null;
   }
-
-  // Check if a specific date meets its requirements
-  function dayMeetsRequirements(dateStr) {
-    const problemsOnDay = solvedByDate[dateStr] || [];
-    const reqs = getRequirementsForDate(dateStr);
-    return meetsRequirementsForDay(problemsOnDay, reqs);
-  }
-
-  // Calculate current streak (going backwards from today)
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let tempStreak = 0;
-  let date = new Date();
-
-  // Check today and go backwards
-  while (true) {
-    const dateStr = date.toISOString().slice(0, 10);
-    const countsForStreak = dayMeetsRequirements(dateStr);
-
-    if (countsForStreak) {
-      currentStreak++;
-      tempStreak++;
-      longestStreak = Math.max(longestStreak, tempStreak);
-    } else {
-      // If it's today and nothing solved yet, don't break the streak
-      if (dateStr === getTodayDate()) {
-        date.setDate(date.getDate() - 1);
-        continue;
-      }
-      // Streak broken
-      break;
-    }
-
-    date.setDate(date.getDate() - 1);
-  }
-
-  // Calculate longest streak from all historical data
-  const allDates = Object.keys(solvedByDate).sort();
-  tempStreak = 0;
-
-  for (let i = 0; i < allDates.length; i++) {
-    const currentDate = allDates[i];
-
-    if (dayMeetsRequirements(currentDate)) {
-      tempStreak++;
-      longestStreak = Math.max(longestStreak, tempStreak);
-
-      // Check if next day is consecutive
-      if (i < allDates.length - 1) {
-        const nextDate = new Date(currentDate);
-        nextDate.setDate(nextDate.getDate() + 1);
-        const nextDateStr = nextDate.toISOString().slice(0, 10);
-        if (allDates[i + 1] !== nextDateStr) {
-          tempStreak = 0;
-        }
-      }
-    } else {
-      tempStreak = 0;
-    }
-  }
-
-  return { currentStreak, longestStreak };
 }
 
 // Calculate topic-specific streaks
@@ -264,24 +155,13 @@ async function updateStreaksAndStorage(problemData) {
   return new Promise((resolve) => {
     chrome.storage.local.get([
       'solvedProblems',
-      'requirements',
-      'orModeRequirements',
       'completedProblemIds',
-      'requirementsByDate'
-    ], (result) => {
+      'requirements',
+      'orModeRequirements'
+    ], async (result) => {
       const solvedProblems = result.solvedProblems || {};
-      const requirements = result.requirements || result.orModeRequirements || {
-        dailyChallenge: true,
-        leetcode75: true,
-        blind75: true,
-        neetcode150: true,
-        companyFocus: false,
-        selectedCompanies: [],
-        topicFocus: false,
-        selectedTopics: []
-      };
       const completedProblemIds = result.completedProblemIds || [];
-      const requirementsByDate = result.requirementsByDate || {};
+      const reqs = result.requirements || result.orModeRequirements || {};
 
       // Add new problem to solved problems
       solvedProblems[problemData.problemId] = {
@@ -301,43 +181,28 @@ async function updateStreaksAndStorage(problemData) {
         completedProblemIds.push(problemData.problemId);
       }
 
-      // Snapshot current requirements for the solve date
       const solveDate = problemData.solvedAt.slice(0, 10);
-      requirementsByDate[solveDate] = { ...requirements };
-
-      // Prune entries older than 400 days to prevent unbounded growth
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - 400);
-      const cutoffStr = cutoff.toISOString().slice(0, 10);
-      for (const dateKey of Object.keys(requirementsByDate)) {
-        if (dateKey < cutoffStr) delete requirementsByDate[dateKey];
-      }
-
-      // Calculate streaks with per-day requirements
-      const { currentStreak, longestStreak } = calculateStreak(
-        solvedProblems,
-        requirements,
-        requirementsByDate
-      );
       const topicStreaks = calculateTopicStreaks(solvedProblems);
       const companyStreaks = calculateCompanyStreaks(solvedProblems);
 
-      // Get last solved date
-      const lastSolvedDate = solveDate;
+      // Fetch streak from LeetCode API (source of truth)
+      const apiStreak = await fetchStreakFromLeetCode();
+      const currentStreak = apiStreak !== null ? apiStreak : 0;
 
-      // Update storage
-      chrome.storage.local.set({
+      // Mark lastSolvedDate if daily challenge OR "Any submission" is enabled
+      const storageData = {
         solvedProblems,
         completedProblemIds,
-        requirementsByDate,
         currentStreak,
-        longestStreak,
-        lastSolvedDate,
         topicStreaks,
         companyStreaks
-      }, () => {
-        console.log('✅ Streaks updated:', { currentStreak, longestStreak });
-        resolve({ currentStreak, longestStreak });
+      };
+      if (problemData.isDailyChallenge || reqs.anySubmission) {
+        storageData.lastSolvedDate = solveDate;
+      }
+      chrome.storage.local.set(storageData, () => {
+        console.log('✅ Streaks updated:', { currentStreak });
+        resolve({ currentStreak });
       });
     });
   });
@@ -532,27 +397,27 @@ async function checkLeetCodeCompletion() {
     const dailyStatus = data?.data?.activeDailyCodingChallengeQuestion?.userStatus;
     const completedToday = dailyStatus === "Finish";
 
+    const currentStreak = streakData?.streakCount || 0;
+
     if (completedToday) {
-      // Update storage with completion status
+      // Update storage with completion status and streak from LeetCode API
       await chrome.storage.local.set({
         lastVisitedDate: today,
         lastSolvedDate: today,
-        streak: streakData?.streakCount || 0,
+        currentStreak,
         leetCodeUsername: userStatus.username,
         leetCodeAvatar: userStatus.avatar
       });
 
-      // Recalculate currentStreak so badge shows correct value
-      const stored = await chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements', 'requirementsByDate']);
-      const requirements = stored.requirements || stored.orModeRequirements || null;
-      const { currentStreak, longestStreak } = calculateStreak(
-        stored.solvedProblems || {},
-        requirements,
-        stored.requirementsByDate || {}
-      );
-      await chrome.storage.local.set({ currentStreak, longestStreak });
-
       // Immediately update badge
+      updateBadge();
+    } else {
+      // Even if not completed today, update streak from API
+      await chrome.storage.local.set({
+        currentStreak,
+        leetCodeUsername: userStatus.username,
+        leetCodeAvatar: userStatus.avatar
+      });
       updateBadge();
     }
   } catch (error) {
@@ -710,10 +575,12 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 
   if (request.action === "recalculateStreak") {
-    const { solvedProblems, requirements, requirementsByDate } = request.data;
-    const { currentStreak, longestStreak } = calculateStreak(solvedProblems, requirements, requirementsByDate || {});
-    chrome.storage.local.set({ currentStreak, longestStreak }, () => {
-      sendResponse({ currentStreak, longestStreak });
+    // Fetch streak from LeetCode API (source of truth)
+    fetchStreakFromLeetCode().then(apiStreak => {
+      const currentStreak = apiStreak !== null ? apiStreak : (request.data?.fallbackStreak || 0);
+      chrome.storage.local.set({ currentStreak }, () => {
+        sendResponse({ currentStreak });
+      });
     });
     return true;
   }
@@ -737,27 +604,25 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 
   if (request.action === "problemSolved") {
-    // Instant badge update when content script detects completion
+    // Update badge with fresh streak from LeetCode API
     const today = getTodayDate();
-    // Recalculate currentStreak from stored solvedProblems to keep badge in sync
-    chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements', 'requirementsByDate'], (result) => {
-      const solvedProblems = result.solvedProblems || {};
-      const requirements = result.requirements || result.orModeRequirements || null;
-      const requirementsByDate = result.requirementsByDate || {};
-      const { currentStreak, longestStreak } = calculateStreak(solvedProblems, requirements, requirementsByDate);
+    const currentStreak = request.data.streak || 0;
 
-      chrome.storage.local.set({
-        lastVisitedDate: today,
-        lastSolvedDate: today,
-        currentStreak,
-        longestStreak,
-        streak: request.data.streak,
-        leetCodeUsername: request.data.username,
-        leetCodeAvatar: request.data.avatar
-      }).then(() => {
-        stopBlinking();
-        updateBadge();
-      });
+    const storageUpdate = {
+      lastVisitedDate: today,
+      currentStreak,
+      leetCodeUsername: request.data.username,
+      leetCodeAvatar: request.data.avatar
+    };
+
+    // Only mark lastSolvedDate when daily challenge is completed
+    if (request.data.completedToday) {
+      storageUpdate.lastSolvedDate = today;
+    }
+
+    chrome.storage.local.set(storageUpdate).then(() => {
+      stopBlinking();
+      updateBadge();
     });
     sendResponse({ success: true });
     return true;

@@ -844,22 +844,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         syncData.lastVisitedDate = today;
         syncData.lastSolvedDate = today;
       }
+      // Use LeetCode API streak as source of truth
+      syncData.currentStreak = userData.streak;
       chrome.storage.local.set(syncData, () => {
-        // Recalculate currentStreak from solvedProblems to keep it in sync
-        chrome.storage.local.get(['solvedProblems', 'requirements', 'orModeRequirements', 'requirementsByDate'], (result) => {
-          const solvedProblems = result.solvedProblems || {};
-          const requirements = result.requirements || result.orModeRequirements || null;
-          const requirementsByDate = result.requirementsByDate || {};
-          // Send to background for streak recalculation
-          chrome.runtime.sendMessage({
-            action: 'recalculateStreak',
-            data: { solvedProblems, requirements, requirementsByDate }
-          }, () => {
-            updateStreakDisplay();
-            // Notify background to update badge
-            chrome.runtime.sendMessage({ action: "updateBadge" });
-          });
-        });
+        updateStreakDisplay();
+        chrome.runtime.sendMessage({ action: "updateBadge" });
         renderStatsPanel(userData.username);
         render30DayHeatmap(userData.username);
       });
@@ -1277,24 +1266,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Throttle storage writes (150ms)
     clearTimeout(_saveReqTimer);
     _saveReqTimer = setTimeout(() => {
-      // Snapshot requirements for today so streak stays cumulative across changes
-      const today = new Date().toISOString().slice(0, 10);
-      chrome.storage.local.get(['requirementsByDate', 'solvedProblems'], (result) => {
-        const requirementsByDate = result.requirementsByDate || {};
-        requirementsByDate[today] = { ...req };
-        chrome.storage.local.set({ requirements: req, requirementsByDate }, () => {
-          // Recalculate streak with updated per-day requirements
-          const solvedProblems = result.solvedProblems || {};
-          chrome.runtime.sendMessage({
-            action: 'recalculateStreak',
-            data: { solvedProblems, requirements: req, requirementsByDate }
-          }, () => {
-            updateStreakDisplay();
-            chrome.runtime.sendMessage({ action: "updateBadge" });
-          });
-          // Push after storage is written so cloud gets fresh data
-          debouncedPushPrefs();
-        });
+      chrome.storage.local.set({ requirements: req }, () => {
+        // Push after storage is written so cloud gets fresh data
+        debouncedPushPrefs();
       });
     }, 150);
     // UI updates are immediate
@@ -1689,12 +1663,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     refreshTagProgress();
   });
 
+  // ── Streak Notice ───────────────────────────────────────────
+  const streakNoticeModal = document.getElementById('streak-notice-modal');
+
+  // Info button opens the notice modal
+  document.getElementById('streak-mode-info').addEventListener('click', () => {
+    streakNoticeModal.classList.remove('hidden');
+  });
+
+  // Notice modal close handlers
+  document.getElementById('streak-notice-close').addEventListener('click', () => {
+    streakNoticeModal.classList.add('hidden');
+  });
+  document.getElementById('streak-notice-ok').addEventListener('click', () => {
+    streakNoticeModal.classList.add('hidden');
+    chrome.storage.local.set({ streakNoticeShown: true });
+  });
+  streakNoticeModal.addEventListener('click', (e) => {
+    if (e.target === streakNoticeModal) streakNoticeModal.classList.add('hidden');
+  });
+
+  // Show one-time notice on first open after update
+  chrome.storage.local.get(['streakNoticeShown'], (result) => {
+    if (!result.streakNoticeShown) {
+      streakNoticeModal.classList.remove('hidden');
+    }
+  });
+
   // ── Export / Import ────────────────────────────────────────────
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
     'completedProblemIds', 'requirements', 'orModeRequirements',
-    'requirementsByDate',
-    'topicStreaks', 'companyStreaks',
+    'streakMode', 'topicStreaks', 'companyStreaks',
     'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
   ];
