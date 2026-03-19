@@ -67,6 +67,81 @@ async function getProblemListMembership(problemId) {
   };
 }
 
+// Check if a day's solved problems meet the given requirements (OR mode)
+function meetsRequirements(problemsOnDay, reqs) {
+  if (!reqs) return problemsOnDay.length > 0;
+
+  const hasAnyReq = reqs.anySubmission ||
+    reqs.dailyChallenge ||
+    reqs.leetcode75 ||
+    reqs.blind75 ||
+    reqs.neetcode150 ||
+    (reqs.companyFocus && reqs.selectedCompanies?.length > 0) ||
+    (reqs.topicFocus && reqs.selectedTopics?.length > 0);
+
+  if (!hasAnyReq) return problemsOnDay.length > 0;
+
+  if (reqs.anySubmission && problemsOnDay.length > 0) return true;
+  if (reqs.dailyChallenge && problemsOnDay.some(p => p.isDailyChallenge)) return true;
+  if (reqs.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
+  if (reqs.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
+  if (reqs.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
+
+  if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
+    const companies = reqs.selectedCompanies.map(c => c.toLowerCase());
+    if (problemsOnDay.some(p => p.companies?.some(c => companies.includes(c.toLowerCase())))) return true;
+  }
+  if (reqs.topicFocus && reqs.selectedTopics?.length > 0) {
+    const topics = reqs.selectedTopics.map(t => t.toLowerCase());
+    if (problemsOnDay.some(p => p.topics?.some(t => topics.includes(t.toLowerCase())))) return true;
+  }
+  return false;
+}
+
+// Calculate focus streak: consecutive days (backwards from today) where solves match current requirements
+function calculateFocusStreak(solvedProblems, requirements) {
+  if (!solvedProblems || Object.keys(solvedProblems).length === 0) {
+    return { focusStreak: 0, focusGoalMetToday: false };
+  }
+
+  // Group by date
+  const solvedByDate = {};
+  for (const [, data] of Object.entries(solvedProblems)) {
+    if (!data.solvedAt) continue;
+    const date = data.solvedAt.slice(0, 10);
+    if (!solvedByDate[date]) solvedByDate[date] = [];
+    solvedByDate[date].push(data);
+  }
+
+  let focusStreak = 0;
+  const today = getTodayDate();
+  let date = new Date();
+
+  while (true) {
+    const dateStr = date.toISOString().slice(0, 10);
+    const problemsOnDay = solvedByDate[dateStr] || [];
+    const met = meetsRequirements(problemsOnDay, requirements);
+
+    if (met) {
+      focusStreak++;
+    } else {
+      // If today and not yet met, skip (don't break streak for today)
+      if (dateStr === today) {
+        date.setDate(date.getDate() - 1);
+        continue;
+      }
+      break;
+    }
+    date.setDate(date.getDate() - 1);
+  }
+
+  // Check if today's goal is met
+  const todayProblems = solvedByDate[today] || [];
+  const focusGoalMetToday = meetsRequirements(todayProblems, requirements);
+
+  return { focusStreak, focusGoalMetToday };
+}
+
 // Fetch current streak directly from LeetCode API (source of truth)
 async function fetchStreakFromLeetCode() {
   try {
@@ -297,55 +372,68 @@ function updateBadge() {
   chrome.storage.local.get([
     "lastSolvedDate",
     "currentStreak",
-    "badgeStreakEnabled"
+    "badgeStreakEnabled",
+    "badgeDisplay",
+    "focusStreak",
+    "focusGoalMetToday",
+    "solvedProblems",
+    "requirements",
+    "orModeRequirements"
   ], (result) => {
     if (!result) return;
 
-    const badgeEnabled = result.badgeStreakEnabled !== false; // Default to true
+    const badgeEnabled = result.badgeStreakEnabled !== false;
+    const badgeDisplay = result.badgeDisplay || 'focus'; // Default to focus streak
     const today = getTodayDate();
     const timeLeft = getTimeUntilMidnightUTC();
     const twoHoursInMs = 2 * 60 * 60 * 1000;
-    const streak = result.currentStreak || 0;
+    const lcStreak = result.currentStreak || 0;
     const lastSolved = result.lastSolvedDate || null;
 
-    // Colors - bright text on dark bg
-    const darkBg = "#1a1a1a"; // Dark background matching extension
-    const greenColor = "#4ade80"; // Bright green
-    const orangeColor = "#fbbf24"; // Bright amber/orange
-    const redColor = "#f87171"; // Bright red
+    // Recalculate focus streak fresh
+    const reqs = result.requirements || result.orModeRequirements || null;
+    const { focusStreak, focusGoalMetToday } = calculateFocusStreak(
+      result.solvedProblems || {}, reqs
+    );
 
-    // If solved today, show green (solved)
-    if (lastSolved === today) {
+    // Save focus values so popup can read them
+    chrome.storage.local.set({ focusStreak, focusGoalMetToday });
+
+    // Decide which streak to show on badge
+    const useFocus = badgeDisplay === 'focus';
+    const streak = useFocus ? focusStreak : lcStreak;
+    const solvedToday = useFocus ? focusGoalMetToday : (lastSolved === today);
+
+    // Colors
+    const darkBg = "#1a1a1a";
+    const greenColor = "#4ade80";
+    const orangeColor = "#fbbf24";
+    const redColor = "#f87171";
+
+    if (solvedToday) {
       stopBlinking();
       if (badgeEnabled) {
-        // Dark bg with green text
         chrome.action.setBadgeBackgroundColor({ color: darkBg });
         chrome.action.setBadgeTextColor({ color: greenColor });
         chrome.action.setBadgeText({ text: String(streak) });
       } else {
-        chrome.action.setBadgeText({ text: "" }); // Hide when solved
+        chrome.action.setBadgeText({ text: "" });
       }
     }
-    // If not solved and less than 2 hours left, BLINK red
     else if (timeLeft <= twoHoursInMs) {
       if (badgeEnabled) {
-        // Dark bg with red text, blinking
         startBlinking(String(streak), redColor, darkBg);
       } else {
-        // Colored bg with space, blinking
         startBlinking(" ", "#FFFFFF", redColor);
       }
     }
-    // If not solved but more than 2 hours left, show orange (pending)
     else {
       stopBlinking();
       if (badgeEnabled) {
-        // Dark bg with orange text
         chrome.action.setBadgeBackgroundColor({ color: darkBg });
         chrome.action.setBadgeTextColor({ color: orangeColor });
         chrome.action.setBadgeText({ text: String(streak) });
       } else {
-        // Colored bg with space
         chrome.action.setBadgeBackgroundColor({ color: orangeColor });
         chrome.action.setBadgeTextColor({ color: "#FFFFFF" });
         chrome.action.setBadgeText({ text: " " });

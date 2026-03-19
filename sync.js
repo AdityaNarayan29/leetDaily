@@ -11,6 +11,7 @@ const SYNC_KEYS = [
   'notificationsEnabled',
   'reminderTime',
   'badgeStreakEnabled',
+  'badgeDisplay',
   'streakMode'
 ];
 

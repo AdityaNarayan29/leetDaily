@@ -7,6 +7,7 @@ const ALLOWED_KEYS = new Set([
   'notificationsEnabled',
   'reminderTime',
   'badgeStreakEnabled',
+  'badgeDisplay',
   'streakMode'
 ]);
 

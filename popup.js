@@ -714,41 +714,65 @@ document.addEventListener("DOMContentLoaded", async () => {
       "currentStreak",
       "longestStreak",
       "lastSolvedDate",
-      "leetCodeUsername"
+      "leetCodeUsername",
+      "focusStreak",
+      "focusGoalMetToday",
+      "requirements",
+      "orModeRequirements"
     ], (result) => {
-      const streak = result.currentStreak || 0;
-      const longestStreak = result.longestStreak || 0;
+      const lcStreak = result.currentStreak || 0;
+      const focusStreak = result.focusStreak || 0;
+      const focusGoalMetToday = result.focusGoalMetToday || false;
       const today = getTodayDate();
       const lastSolved = result.lastSolvedDate || null;
       const streakDisplay = document.getElementById("streakDisplay");
       const username = result.leetCodeUsername;
-      const milestone = getStreakMilestone(streak);
+      const milestone = getStreakMilestone(lcStreak);
 
-      const solvedToday = lastSolved === today;
+      // Build focus area label
+      const reqs = result.requirements || result.orModeRequirements || {};
+      const focusLabels = [];
+      if (reqs.blind75) focusLabels.push('Blind 75');
+      if (reqs.neetcode150) focusLabels.push('NC 150');
+      if (reqs.leetcode75) focusLabels.push('LC 75');
+      if (reqs.dailyChallenge) focusLabels.push('Daily');
+      if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
+        focusLabels.push(reqs.selectedCompanies.slice(0, 2).join(', '));
+      }
+      if (reqs.topicFocus && reqs.selectedTopics?.length > 0) {
+        focusLabels.push(reqs.selectedTopics.slice(0, 2).join(', '));
+      }
+      if (reqs.anySubmission) focusLabels.push('Any');
 
-      if (solvedToday) {
-        // Solved today - show active streak
-        const milestoneEmoji = milestone ? ` ${milestone.emoji}` : "";
-        const prev = streakDisplay.textContent;
-        streakDisplay.textContent = `🔥 ${streak}${milestoneEmoji}`;
-        streakDisplay.title = milestone
-          ? `${milestone.message} ${username ? `(${username})` : ""}`
-          : `Streak active! ${streak} day${streak !== 1 ? 's' : ''}`;
-        // Pulse animation when streak value changes
-        if (prev && prev !== streakDisplay.textContent) {
-          streakDisplay.classList.add('streak-pulse');
-          setTimeout(() => streakDisplay.classList.remove('streak-pulse'), 300);
-        }
+      const hasFocusAreas = focusLabels.length > 0;
+      const focusLabel = focusLabels.join(', ');
+
+      // Display both streaks
+      const prev = streakDisplay.textContent;
+      if (hasFocusAreas) {
+        streakDisplay.textContent = `🎯 ${focusStreak}  🔥 ${lcStreak}`;
+        streakDisplay.title = focusGoalMetToday
+          ? `Focus: ${focusStreak} days on plan (${focusLabel}) | LeetCode: ${lcStreak}`
+          : `Focus goal not met today (${focusLabel}) | LeetCode: ${lcStreak}`;
       } else {
-        // Not solved today - show pending streak
-        streakDisplay.textContent = `🔥 ${streak}`;
-        streakDisplay.title = streak > 0
-          ? `Streak at risk! Keep solving to continue your ${streak}-day streak.`
-          : `Start your streak by solving a problem!`;
+        const milestoneEmoji = milestone ? ` ${milestone.emoji}` : "";
+        streakDisplay.textContent = `🔥 ${lcStreak}${milestoneEmoji}`;
+        streakDisplay.title = lastSolved === today
+          ? `Streak active! ${lcStreak} day${lcStreak !== 1 ? 's' : ''}`
+          : lcStreak > 0
+            ? `Keep solving to continue your ${lcStreak}-day streak.`
+            : `Start your streak by solving a problem!`;
+      }
+
+      // Pulse animation when streak value changes
+      if (prev && prev !== streakDisplay.textContent) {
+        streakDisplay.classList.add('streak-pulse');
+        setTimeout(() => streakDisplay.classList.remove('streak-pulse'), 300);
       }
 
       // Show milestone celebration banner if applicable
       const milestoneEl = document.getElementById("milestone-banner");
+      const solvedToday = lastSolved === today || focusGoalMetToday;
       if (milestoneEl && milestone && solvedToday) {
         milestoneEl.textContent = `${milestone.emoji} ${milestone.message}`;
         milestoneEl.classList.remove("hidden");
@@ -1149,10 +1173,47 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       chrome.storage.local.set({ badgeStreakEnabled: newState }, () => {
         updateBadgeToggleUI(newState);
+        updateBadgeDisplayVisibility(newState);
         // Notify background to update badge
         chrome.runtime.sendMessage({ action: "updateBadge" });
         debouncedPushPrefs();
       });
+    });
+  });
+
+  // Badge display radio (focus vs leetcode streak)
+  const badgeDisplayFocus = document.getElementById("badge-display-focus");
+  const badgeDisplayLeetcode = document.getElementById("badge-display-leetcode");
+  const badgeDisplayOptions = document.getElementById("badge-display-options");
+
+  function updateBadgeDisplayUI(display) {
+    if (display === 'focus') {
+      badgeDisplayFocus.checked = true;
+    } else {
+      badgeDisplayLeetcode.checked = true;
+    }
+  }
+
+  // Show/hide radio options based on badge toggle state
+  function updateBadgeDisplayVisibility(badgeEnabled) {
+    if (badgeEnabled) {
+      badgeDisplayOptions.classList.remove('hidden');
+    } else {
+      badgeDisplayOptions.classList.add('hidden');
+    }
+  }
+
+  badgeDisplayFocus.addEventListener("change", () => {
+    chrome.storage.local.set({ badgeDisplay: 'focus' }, () => {
+      chrome.runtime.sendMessage({ action: "updateBadge" });
+      debouncedPushPrefs();
+    });
+  });
+
+  badgeDisplayLeetcode.addEventListener("change", () => {
+    chrome.storage.local.set({ badgeDisplay: 'leetcode' }, () => {
+      chrome.runtime.sendMessage({ action: "updateBadge" });
+      debouncedPushPrefs();
     });
   });
 
@@ -1205,13 +1266,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Load initial settings state
-  chrome.storage.local.get(["notificationsEnabled", "reminderTime", "badgeStreakEnabled"], (result) => {
+  chrome.storage.local.get(["notificationsEnabled", "reminderTime", "badgeStreakEnabled", "badgeDisplay"], (result) => {
     const enabled = result.notificationsEnabled !== false;
     updateNotificationToggleUI(enabled);
 
     // Badge streak toggle (default to true)
     const badgeEnabled = result.badgeStreakEnabled !== false;
     updateBadgeToggleUI(badgeEnabled);
+    updateBadgeDisplayVisibility(badgeEnabled);
+
+    // Badge display radio (default to focus)
+    updateBadgeDisplayUI(result.badgeDisplay || 'focus');
 
     // Parse stored time (24h format like "10:00" or "14:30")
     const time = result.reminderTime || "10:00";
@@ -1267,6 +1332,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     clearTimeout(_saveReqTimer);
     _saveReqTimer = setTimeout(() => {
       chrome.storage.local.set({ requirements: req }, () => {
+        // Recalculate focus streak with new requirements and update badge
+        updateStreakDisplay();
+        chrome.runtime.sendMessage({ action: "updateBadge" });
         // Push after storage is written so cloud gets fresh data
         debouncedPushPrefs();
       });
@@ -1694,7 +1762,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
     'completedProblemIds', 'requirements', 'orModeRequirements',
-    'streakMode', 'topicStreaks', 'companyStreaks',
+    'streakMode', 'badgeDisplay', 'topicStreaks', 'companyStreaks',
     'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
   ];

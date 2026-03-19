@@ -538,11 +538,25 @@
       </div>
 
       <!-- Badge Streak Toggle -->
-      <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d]">
-        <span class="text-[13px] text-[#eff1f699]">Show streak in badge</span>
-        <button id="toggle-badge-streak" class="relative w-9 h-5 rounded-full transition-colors bg-[#2cbb5d]" title="Toggle streak badge">
-          <span id="badge-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform translate-x-4"></span>
-        </button>
+      <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <span class="text-[13px] text-[#eff1f699]">Show streak in badge</span>
+          <button id="toggle-badge-streak" class="relative w-9 h-5 rounded-full transition-colors bg-[#2cbb5d]" title="Toggle streak badge">
+            <span id="badge-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform translate-x-4"></span>
+          </button>
+        </div>
+        <!-- Badge display option -->
+        <div id="badge-display-options" class="pl-4 space-y-2">
+          <p class="text-[11px] text-[#eff1f666]">Badge displays:</p>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="radio" name="badge-display" id="badge-display-focus" value="focus" class="flex-shrink-0 cursor-pointer accent-[#ffa116]">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🎯 Focus streak <span class="text-[10px] text-[#eff1f644]">— days on your plan</span></span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="radio" name="badge-display" id="badge-display-leetcode" value="leetcode" class="flex-shrink-0 cursor-pointer accent-[#ffa116]">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🔥 LeetCode streak <span class="text-[10px] text-[#eff1f644]">— official streak</span></span>
+          </label>
+        </div>
       </div>
 
       <!-- Streak Requirements -->
