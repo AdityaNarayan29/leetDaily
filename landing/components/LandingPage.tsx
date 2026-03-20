@@ -791,6 +791,109 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Settings Showcase */}
+      <section className="py-12 sm:py-16 px-4 sm:px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 mb-4">
+              <Settings className="w-3 h-3 text-orange-400" />
+              <span className="text-xs text-orange-200/90">Fully Customizable</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+              Your prep,{" "}
+              <span className="bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                your rules
+              </span>
+            </h2>
+            <p className="text-sm text-white/50 max-w-md mx-auto">
+              Set focus areas, choose your streak display, toggle themes, and configure reminders
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Settings Mockup - Focus Areas */}
+            <div className="bg-[#1a1a1a] rounded-2xl p-5 border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-semibold">Focus areas</span>
+                <div className="w-9 h-5 rounded-full bg-green-500 relative">
+                  <div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-white" />
+                </div>
+              </div>
+              <div className="space-y-3 mb-4">
+                {[
+                  { label: "Blind 75", checked: true },
+                  { label: "NeetCode 150", checked: true },
+                  { label: "Daily Challenge", checked: true },
+                  { label: "Company tags", checked: false },
+                  { label: "Topic tags", checked: false },
+                ].map((item) => (
+                  <label key={item.label} className="flex items-center gap-3 text-xs">
+                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${item.checked ? 'bg-orange-500 border-orange-500' : 'border-white/20'}`}>
+                      {item.checked && (
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-white/60">{item.label}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                <span className="text-xs text-white/40">❄️ Streak freezes this month</span>
+                <span className="text-xs font-medium text-blue-400">3/3</span>
+              </div>
+            </div>
+
+            {/* Settings Mockup - Badge & Theme */}
+            <div className="space-y-4">
+              <div className="bg-[#1a1a1a] rounded-2xl p-5 border border-white/10">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-semibold">Show streak in badge</span>
+                  <div className="w-9 h-5 rounded-full bg-green-500 relative">
+                    <div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-white" />
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  <p className="text-[11px] text-white/30">Badge displays:</p>
+                  <label className="flex items-center gap-2.5 text-xs">
+                    <div className="w-4 h-4 rounded-full border-2 border-orange-500 flex items-center justify-center">
+                      <div className="w-2 h-2 rounded-full bg-orange-500" />
+                    </div>
+                    <span className="text-white/60">🎯 Focus streak</span>
+                  </label>
+                  <label className="flex items-center gap-2.5 text-xs">
+                    <div className="w-4 h-4 rounded-full border-2 border-white/20" />
+                    <span className="text-white/60">🔥 LeetCode streak</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="bg-[#1a1a1a] rounded-2xl p-5 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">Theme</span>
+                  <div className="flex items-center gap-3">
+                    <button className="text-orange-400 text-sm">☀️</button>
+                    <span className="text-white/20">|</span>
+                    <button className="text-white/30 text-sm">🌙</button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#1a1a1a] rounded-2xl p-5 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">Data</span>
+                  <div className="flex gap-2">
+                    <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/5 text-white/50">Export</span>
+                    <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/5 text-white/50">Import</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Smart Reminders Showcase */}
       <section
         ref={notificationSectionRef}
