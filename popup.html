@@ -278,6 +278,74 @@
     .skeleton-bar { height: 8px; border-radius: 9999px; }
     .skeleton-cell { border-radius: 3px; }
 
+    /* Light mode overrides */
+    body.light {
+      background: #f5f5f5 !important;
+      color: #1a1a1a !important;
+    }
+    body.light section,
+    body.light .rounded-xl[class*="bg-[#282828]"],
+    body.light div[class*="bg-[#282828]"] {
+      background: #ffffff !important;
+      border-color: rgba(0,0,0,0.08) !important;
+    }
+    body.light .bg-\[\#1a1a1a\] {
+      background: #e8e8e8 !important;
+    }
+    body.light [class*="text-[#eff1f6]"]:not([class*="text-[#eff1f699]"]):not([class*="text-[#eff1f666]"]):not([class*="text-[#eff1f644]"]):not([class*="text-[#eff1f6cc]"]) {
+      color: #1a1a1a !important;
+    }
+    body.light [class*="text-[#eff1f699]"] {
+      color: #666666 !important;
+    }
+    body.light [class*="text-[#eff1f666]"],
+    body.light [class*="text-[#eff1f644]"] {
+      color: #999999 !important;
+    }
+    body.light [class*="bg-[#3a3a3a]"] {
+      background: #e8e8e8 !important;
+    }
+    body.light [class*="bg-[#3a3a3a]"]:hover {
+      background: #d8d8d8 !important;
+    }
+    body.light input[type="checkbox"] {
+      background: #f0f0f0 !important;
+      border-color: rgba(0,0,0,0.2) !important;
+    }
+    body.light .tag-text-input {
+      background: #f0f0f0 !important;
+      color: #1a1a1a !important;
+      border-color: rgba(0,0,0,0.1) !important;
+    }
+    body.light .combobox-dropdown {
+      background: #ffffff !important;
+      border-color: rgba(0,0,0,0.1) !important;
+    }
+    body.light .combobox-item {
+      color: #444 !important;
+    }
+    body.light .combobox-item:hover,
+    body.light .combobox-item.active {
+      background: rgba(0,0,0,0.05) !important;
+      color: #1a1a1a !important;
+    }
+    body.light #streak-modal > div {
+      background: #ffffff !important;
+      border-color: rgba(0,0,0,0.08) !important;
+    }
+    body.light #toast {
+      background: #ffffff !important;
+      color: #1a1a1a !important;
+      border-color: rgba(0,0,0,0.1) !important;
+    }
+    body.light select {
+      color: #1a1a1a !important;
+    }
+    body.light select option {
+      background: #ffffff;
+      color: #1a1a1a;
+    }
+
     /* Settings gear rotation on hover */
     .settings-gear {
       transition: transform 0.3s ease-in-out;
@@ -330,8 +398,8 @@
         <span class="text-[#ffffff1a]">|</span>
         <!-- Settings Icon -->
         <div class="relative">
-          <span id="settings-tooltip" style="display:none; position:absolute; top:calc(100% + 8px); right:0; background:#ffa116; color:#1e1e1e; font-size:11px; font-weight:600; padding:5px 10px; border-radius:8px; white-space:nowrap; z-index:50;">Set your focus areas
-            <span style="position:absolute; top:-4px; right:10px; width:8px; height:8px; background:#ffa116; transform:rotate(45deg);"></span>
+          <span id="settings-tooltip" style="display:none; position:absolute; top:calc(100% + 8px); right:-4px; background:#ffa116; color:#1e1e1e; font-size:11px; font-weight:600; padding:5px 10px; border-radius:8px; white-space:nowrap; z-index:50;">Set your focus areas
+            <span style="position:absolute; top:-4px; right:8px; width:8px; height:8px; background:#ffa116; transform:rotate(45deg);"></span>
           </span>
         <button id="settings-btn" class="text-[#eff1f699] hover:text-[#eff1f6] transition-colors" title="Settings">
           <svg class="w-4 h-4 settings-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -512,13 +580,21 @@
   <!-- ─── SETTINGS VIEW ─────────────────────────────────────────── -->
   <div id="settings-view" class="hidden p-5">
     <!-- Settings Header -->
-    <header class="flex items-center gap-3 mb-6">
-      <button id="settings-back-btn" class="text-[#eff1f699] hover:text-[#eff1f6] transition-colors" title="Back">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
+    <header class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <button id="settings-back-btn" class="text-[#eff1f699] hover:text-[#eff1f6] transition-colors" title="Back">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <h2 class="text-[15px] font-semibold text-[#eff1f6]">Settings</h2>
+      </div>
+      <button id="theme-toggle" class="text-[#eff1f699] hover:text-[#ffa116] transition-colors" title="Toggle theme">
+        <!-- Sun icon (shown in dark mode) -->
+        <svg id="theme-icon-sun" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <!-- Moon icon (shown in light mode) -->
+        <svg id="theme-icon-moon" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <h2 class="text-[15px] font-semibold text-[#eff1f6]">Settings</h2>
     </header>
 
     <!-- Settings Content -->

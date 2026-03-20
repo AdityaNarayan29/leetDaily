@@ -11,7 +11,8 @@ const SYNC_KEYS = [
   'notificationsEnabled',
   'reminderTime',
   'badgeStreakEnabled',
-  'badgeDisplay'
+  'badgeDisplay',
+  'theme'
 ];
 
 // Get the current LeetCode username from local storage

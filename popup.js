@@ -1250,6 +1250,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     mainView.style.display = '';
   });
 
+  // Theme toggle
+  const themeToggle = document.getElementById("theme-toggle");
+  const sunIcon = document.getElementById("theme-icon-sun");
+  const moonIcon = document.getElementById("theme-icon-moon");
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.body.classList.add('light');
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
+    } else {
+      document.body.classList.remove('light');
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
+    }
+  }
+
+  // Load saved theme
+  chrome.storage.local.get(['theme'], (r) => {
+    applyTheme(r.theme || 'dark');
+  });
+
+  themeToggle.addEventListener("click", () => {
+    const isLight = document.body.classList.contains('light');
+    const newTheme = isLight ? 'dark' : 'light';
+    applyTheme(newTheme);
+    chrome.storage.local.set({ theme: newTheme });
+    debouncedPushPrefs();
+  });
+
   // Notification toggle
   const notifToggle = document.getElementById("toggle-notifications");
   const notifDot = document.getElementById("notif-toggle-dot");
@@ -1914,7 +1944,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
     'completedProblemIds', 'requirements', 'orModeRequirements',
-    'badgeDisplay', 'focusStreak', 'frozenDates', 'topicStreaks', 'companyStreaks',
+    'badgeDisplay', 'theme', 'focusStreak', 'frozenDates', 'topicStreaks', 'companyStreaks',
     'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
   ];
