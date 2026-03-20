@@ -2254,4 +2254,110 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById('streakDisplay').addEventListener('click', openStreakModal);
   document.getElementById('streak-modal-close').addEventListener('click', () => streakModal.classList.add('hidden'));
   streakModal.addEventListener('click', (e) => { if (e.target === streakModal) streakModal.classList.add('hidden'); });
+
+  // ── Share Stats Card ──────────────────────────────────────────
+  const shareModal = document.getElementById('share-modal');
+  let shareCanvas = null;
+
+  document.getElementById('share-stats-btn').addEventListener('click', async () => {
+    // Gather all data
+    const data = await new Promise(r => chrome.storage.local.get([
+      'leetCodeUsername', 'leetCodeAvatar', 'currentStreak', 'focusStreak'
+    ], r));
+
+    const username = data.leetCodeUsername || 'LeetCoder';
+    const avatar = data.leetCodeAvatar || '';
+
+    // Populate card
+    const avatarEl = document.getElementById('share-avatar');
+    if (avatar) {
+      avatarEl.src = avatar;
+    } else {
+      avatarEl.style.display = 'none';
+    }
+    document.getElementById('share-username').textContent = username;
+    document.getElementById('share-focus-streak').textContent = data.focusStreak || 0;
+    document.getElementById('share-lc-streak').textContent = data.currentStreak || 0;
+
+    // Stats from the displayed values
+    document.getElementById('share-total').textContent = document.getElementById('total-count')?.textContent || '0';
+    document.getElementById('share-easy').textContent = document.getElementById('easy-count')?.textContent || '0';
+    document.getElementById('share-medium').textContent = document.getElementById('medium-count')?.textContent || '0';
+    document.getElementById('share-hard').textContent = document.getElementById('hard-count')?.textContent || '0';
+
+    // Progress bars
+    const b75El = document.getElementById('blind75-progress');
+    const nc150El = document.getElementById('neetcode150-progress');
+    const lc75El = document.getElementById('leetcode75-progress');
+    document.getElementById('share-b75-bar').style.width = b75El ? b75El.style.width : '0%';
+    document.getElementById('share-b75-pct').textContent = document.getElementById('blind75-percentage')?.textContent || '0%';
+    document.getElementById('share-nc150-bar').style.width = nc150El ? nc150El.style.width : '0%';
+    document.getElementById('share-nc150-pct').textContent = document.getElementById('neetcode150-percentage')?.textContent || '0%';
+    document.getElementById('share-lc75-bar').style.width = lc75El ? lc75El.style.width : '0%';
+    document.getElementById('share-lc75-pct').textContent = document.getElementById('leetcode75-percentage')?.textContent || '0%';
+
+    // Mini heatmap
+    const heatmapEl = document.getElementById('share-heatmap');
+    heatmapEl.innerHTML = '';
+    const mainHeatmap = document.querySelectorAll('#heatmap .heatmap-cell');
+    mainHeatmap.forEach(cell => {
+      const div = document.createElement('div');
+      div.style.cssText = `aspect-ratio:1; border-radius:3px; background:${cell.style.backgroundColor || 'rgba(255,255,255,0.05)'};`;
+      heatmapEl.appendChild(div);
+    });
+
+    // Render to canvas
+    const cardEl = document.getElementById('share-card');
+    try {
+      shareCanvas = await html2canvas(cardEl, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      });
+
+      // Show preview
+      const preview = document.getElementById('share-preview');
+      preview.innerHTML = '';
+      const previewImg = document.createElement('img');
+      previewImg.src = shareCanvas.toDataURL('image/png');
+      previewImg.style.cssText = 'width:100%; border-radius:12px;';
+      preview.appendChild(previewImg);
+
+      shareModal.classList.remove('hidden');
+    } catch (err) {
+      console.error('Failed to render share card:', err);
+      showToast('Failed to generate card');
+    }
+  });
+
+  // Download
+  document.getElementById('share-download').addEventListener('click', () => {
+    if (!shareCanvas) return;
+    const link = document.createElement('a');
+    link.download = `leetdaily-stats-${new Date().toISOString().slice(0, 10)}.png`;
+    link.href = shareCanvas.toDataURL('image/png');
+    link.click();
+    showToast('Card downloaded!');
+  });
+
+  // Copy to clipboard
+  document.getElementById('share-copy').addEventListener('click', async () => {
+    if (!shareCanvas) return;
+    try {
+      shareCanvas.toBlob(async (blob) => {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        showToast('Copied to clipboard!');
+      });
+    } catch (err) {
+      showToast('Copy failed — try download instead');
+    }
+  });
+
+  // Close share modal
+  document.getElementById('share-modal-close').addEventListener('click', () => shareModal.classList.add('hidden'));
+  shareModal.addEventListener('click', (e) => { if (e.target === shareModal) shareModal.classList.add('hidden'); });
 });
