@@ -1534,8 +1534,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateBadgeToggleUI(badgeEnabled);
     updateBadgeDisplayVisibility(badgeEnabled);
 
-    // Badge display radio (default to focus)
-    updateBadgeDisplayUI(result.badgeDisplay || 'focus');
+    // Badge display radio (default to leetcode)
+    updateBadgeDisplayUI(result.badgeDisplay || 'leetcode');
 
     // Parse stored time (24h format like "10:00" or "14:30")
     const time = result.reminderTime || "10:00";

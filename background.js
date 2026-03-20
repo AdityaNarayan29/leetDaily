@@ -399,7 +399,7 @@ function updateBadge() {
     if (!result) return;
 
     const badgeEnabled = result.badgeStreakEnabled !== false;
-    const badgeDisplay = result.badgeDisplay || 'focus';
+    const badgeDisplay = result.badgeDisplay || 'leetcode';
     const today = getTodayDate();
     const timeLeft = getTimeUntilMidnightUTC();
     const twoHoursInMs = 2 * 60 * 60 * 1000;
