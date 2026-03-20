@@ -829,7 +829,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Show/hide daily challenge solved badge
       const dailySolvedBadge = document.getElementById("daily-solved-badge");
       if (dailySolvedBadge) {
-        dailySolvedBadge.style.display = lastSolved === today ? 'inline-flex' : 'none';
+        if (lastSolved === today) {
+          dailySolvedBadge.style.display = 'inline-flex';
+          dailySolvedBadge.style.animation = 'solvedSlide 0.3s ease';
+        } else {
+          dailySolvedBadge.style.display = 'none';
+        }
       }
     });
   }
@@ -1068,8 +1073,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? `<svg class="w-2 h-2 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>`
         : '';
 
+      const delay = (29 - i) * 15; // stagger: left to right
       days.push(`
-        <div class="heatmap-cell w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" data-tooltip="${tooltip}">${checkmark}</div>
+        <div class="heatmap-cell w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" data-tooltip="${tooltip}" style="animation-delay:${delay}ms">${checkmark}</div>
       `);
     }
 
@@ -1348,9 +1354,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (theme === 'light') {
       sunIcon.classList.add('hidden');
       moonIcon.classList.remove('hidden');
+      moonIcon.classList.add('theme-spin');
+      setTimeout(() => moonIcon.classList.remove('theme-spin'), 400);
     } else {
       sunIcon.classList.remove('hidden');
       moonIcon.classList.add('hidden');
+      sunIcon.classList.add('theme-spin');
+      setTimeout(() => sunIcon.classList.remove('theme-spin'), 400);
     }
     currentTheme = theme;
   }

@@ -46,7 +46,15 @@
       position: relative;
       margin: 0;
       vertical-align: middle;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    }
+    input[type="checkbox"]:checked {
+      animation: checkPop 0.2s ease;
+    }
+    @keyframes checkPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+      100% { transform: scale(1); }
     }
     input[type="checkbox"]:checked::after {
       content: '';
@@ -251,6 +259,64 @@
     }
     .streak-pulse {
       animation: streakPulse 0.3s ease;
+    }
+
+    /* Toggle switch dot bounce */
+    #notif-toggle-dot, #badge-toggle-dot, #focus-toggle-dot {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Theme icon spin */
+    .theme-spin {
+      animation: themeSpin 0.4s ease;
+    }
+    @keyframes themeSpin {
+      from { transform: rotate(0deg); opacity: 0.5; }
+      to { transform: rotate(180deg); opacity: 1; }
+    }
+
+    /* Popover slide */
+    #focus-info-popover, #freeze-info-popover {
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    #focus-info-popover.hidden, #freeze-info-popover.hidden {
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+    }
+    #focus-info-popover:not(.hidden), #freeze-info-popover:not(.hidden) {
+      animation: popoverSlide 0.2s ease;
+    }
+    @keyframes popoverSlide {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Heatmap stagger fade-in */
+    .heatmap-cell {
+      opacity: 0;
+      animation: cellFadeIn 0.3s ease forwards;
+    }
+    @keyframes cellFadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Solved badge slide-in */
+    @keyframes solvedSlide {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Progress bar shimmer on 100% */
+    @keyframes progressShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .progress-complete {
+      background-image: linear-gradient(90deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%) !important;
+      background-size: 200% 100%;
+      animation: progressShimmer 2s ease infinite;
     }
 
     /* Section fade-in on load */
