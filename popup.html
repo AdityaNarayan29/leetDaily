@@ -298,6 +298,73 @@
 
 <body class="bg-[#1a1a1a] text-[#eff1f6] w-[400px] font-sans overflow-y-auto" style="max-height:600px">
 
+  <!-- ─── ONBOARDING VIEW ──────────────────────────────────────── -->
+  <div id="onboarding-view" class="p-5 hidden">
+    <!-- Step 1: Welcome -->
+    <div id="onboard-step-1" class="flex flex-col items-center text-center py-6">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-4">
+        <path d="M16.102 17.93l-2.697 2.607c-.466.467-1.111.662-1.823.662s-1.357-.195-1.824-.662l-4.332-4.363c-.467-.467-.702-1.15-.702-1.863s.235-1.357.702-1.824l4.319-4.38c.467-.467 1.125-.645 1.837-.645s1.357.195 1.823.662l2.697 2.606c.514.515 1.365.497 1.9-.038.535-.536.553-1.387.039-1.901l-2.609-2.636a5.055 5.055 0 00-2.445-1.337l2.467-2.503c.516-.514.498-1.366-.037-1.901-.535-.535-1.387-.552-1.902-.038l-10.1 10.101c-.981.982-1.494 2.337-1.494 3.835 0 1.498.513 2.895 1.494 3.875l4.347 4.361c.981.979 2.337 1.452 3.834 1.452s2.853-.512 3.835-1.494l2.609-2.637c.514-.514.496-1.365-.039-1.9s-1.386-.553-1.899-.039zM20.811 13.01H10.666c-.702 0-1.27.604-1.27 1.346s.568 1.346 1.27 1.346h10.145c.701 0 1.27-.604 1.27-1.346s-.569-1.346-1.27-1.346z" fill="#FFA116"/>
+      </svg>
+      <h2 class="text-[20px] font-bold text-[#eff1f6] mb-2">Welcome to LeetDaily</h2>
+      <p class="text-[13px] text-[#eff1f699] mb-6 leading-relaxed max-w-[280px]">Your daily companion for acing coding interviews. Track progress, build streaks, and stay focused.</p>
+      <div class="space-y-2.5 text-left w-full max-w-[280px] mb-8">
+        <div class="flex items-center gap-3">
+          <span class="text-[16px]">🎯</span>
+          <span class="text-[12px] text-[#eff1f6cc]">Focus streak — track your prep plan daily</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-[16px]">📚</span>
+          <span class="text-[12px] text-[#eff1f6cc]">Blind 75, NeetCode 150, LeetCode 75 progress</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-[16px]">🏢</span>
+          <span class="text-[12px] text-[#eff1f6cc]">FAANG company tags and frequency data</span>
+        </div>
+      </div>
+      <a id="onboard-signin" href="https://leetcode.com/accounts/login/" target="_blank" class="w-full max-w-[280px] py-2.5 rounded-lg bg-[#ffa116] text-[#1e1e1e] text-[13px] font-semibold text-center block hover:bg-[#ffb340] transition-colors">Sign in to LeetCode</a>
+      <button id="onboard-skip-1" class="mt-3 text-[12px] text-[#eff1f699] hover:text-[#eff1f6] transition-colors">I'm already signed in</button>
+    </div>
+
+    <!-- Step 2: Set focus -->
+    <div id="onboard-step-2" class="py-4 hidden">
+      <h2 class="text-[18px] font-bold text-[#eff1f6] mb-1 text-center">Set your focus</h2>
+      <p class="text-[12px] text-[#eff1f699] mb-5 text-center">What are you prepping for? Pick one or more.</p>
+      <div class="space-y-2.5 mb-6">
+        <label class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] cursor-pointer hover:border-[#ffffff1a] transition-colors">
+          <input type="checkbox" id="onboard-blind75" class="flex-shrink-0 cursor-pointer">
+          <div>
+            <span class="text-[13px] font-medium text-[#eff1f6]">Blind 75</span>
+            <p class="text-[11px] text-[#eff1f699]">The classic 75 interview problems</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] cursor-pointer hover:border-[#ffffff1a] transition-colors">
+          <input type="checkbox" id="onboard-nc150" class="flex-shrink-0 cursor-pointer">
+          <div>
+            <span class="text-[13px] font-medium text-[#eff1f6]">NeetCode 150</span>
+            <p class="text-[11px] text-[#eff1f699]">Comprehensive interview roadmap</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] cursor-pointer hover:border-[#ffffff1a] transition-colors">
+          <input type="checkbox" id="onboard-daily" class="flex-shrink-0 cursor-pointer">
+          <div>
+            <span class="text-[13px] font-medium text-[#eff1f6]">Daily Challenge</span>
+            <p class="text-[11px] text-[#eff1f699]">Solve LeetCode's daily problem</p>
+          </div>
+        </label>
+      </div>
+      <button id="onboard-continue" class="w-full py-2.5 rounded-lg bg-[#ffa116] text-[#1e1e1e] text-[13px] font-semibold hover:bg-[#ffb340] transition-colors">Continue</button>
+      <button id="onboard-skip-2" class="w-full mt-2 py-2 text-[12px] text-[#eff1f699] hover:text-[#eff1f6] transition-colors">Skip for now</button>
+    </div>
+
+    <!-- Step 3: All set -->
+    <div id="onboard-step-3" class="flex flex-col items-center text-center py-8 hidden">
+      <div class="text-[48px] mb-4">🚀</div>
+      <h2 class="text-[20px] font-bold text-[#eff1f6] mb-2">You're all set!</h2>
+      <p class="text-[13px] text-[#eff1f699] mb-6 leading-relaxed max-w-[280px]">Your streak starts today. We'll remind you daily so you never miss a problem.</p>
+      <button id="onboard-finish" class="w-full max-w-[280px] py-2.5 rounded-lg bg-[#ffa116] text-[#1e1e1e] text-[13px] font-semibold hover:bg-[#ffb340] transition-colors">Open today's challenge</button>
+    </div>
+  </div>
+
   <!-- ─── MAIN VIEW ─────────────────────────────────────────────── -->
   <div id="main-view" class="p-5">
     <!-- Milestone Banner -->
