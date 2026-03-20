@@ -1105,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // Update count display
-    countEl.textContent = `${dailyChallengeCount}/30 daily`;
+    countEl.textContent = `${dailyChallengeCount}/30`;
 
     // Add date labels
     const startDate = new Date(today);

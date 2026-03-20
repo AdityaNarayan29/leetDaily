@@ -369,26 +369,18 @@
     <!-- 30-Day Activity -->
     <section id="heatmap-section" class="mb-4 p-4 rounded-xl bg-[#282828] border border-[#ffffff0d]">
       <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <span class="text-[13px] font-semibold text-[#eff1f6]">30-Day Activity</span>
+        <span class="text-[13px] font-semibold text-[#eff1f6]">30-Day Activity</span>
+        <div class="flex items-center gap-1.5 text-[10px] text-[#eff1f699]">
           <span id="heatmap-count" class="text-[11px] text-[#2cbb5d] font-medium"></span>
-        </div>
-        <div class="flex items-center gap-2 text-[10px] text-[#eff1f699]">
-          <div class="flex items-center gap-1">
-            <svg class="w-2 h-2" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>
-            <span>Daily</span>
+          <span class="text-[#ffffff33]">·</span>
+          <span>Less</span>
+          <div class="flex gap-0.5">
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#ffffff0d]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d40]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d80]"></div>
+            <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d]"></div>
           </div>
-          <span class="text-[#ffffff33]">|</span>
-          <div class="flex items-center gap-1">
-            <span>Less</span>
-            <div class="flex gap-0.5">
-              <div class="w-2.5 h-2.5 rounded-sm bg-[#ffffff0d]"></div>
-              <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d40]"></div>
-              <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d80]"></div>
-              <div class="w-2.5 h-2.5 rounded-sm bg-[#2cbb5d]"></div>
-            </div>
-            <span>More</span>
-          </div>
+          <span>More</span>
         </div>
       </div>
       <div id="heatmap" class="grid grid-cols-15 gap-[3px]">
