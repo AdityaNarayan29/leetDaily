@@ -1428,7 +1428,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // UI updates are immediate
     updateProgressCardVisibility();
     refreshTagProgress(req);
-    updateFocusSubtitle();
+    updateFreezeCounter();
   }
 
   function updateProgressCardVisibility() {
@@ -1816,13 +1816,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateProgressCardVisibility();
     refreshTagProgress();
-    updateFocusSubtitle();
+    updateFreezeCounter();
   });
 
   // ── Focus Areas Info Popover + Dynamic Subtitle ─────────────
   const focusInfoBtn = document.getElementById("focus-info-btn");
   const focusInfoPopover = document.getElementById("focus-info-popover");
-  const focusSubtitle = document.getElementById("focus-subtitle");
 
   // Toggle popover on click
   focusInfoBtn.addEventListener("click", (e) => {
@@ -1830,37 +1829,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     focusInfoPopover.classList.toggle("hidden");
   });
 
-  // Dismiss popover on outside click
+  // Freeze info popover
+  const freezeInfoBtn = document.getElementById("freeze-info-btn");
+  const freezeInfoPopover = document.getElementById("freeze-info-popover");
+
+  freezeInfoBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    freezeInfoPopover.classList.toggle("hidden");
+  });
+
+  // Dismiss popovers on outside click
   document.addEventListener("click", (e) => {
     if (!focusInfoPopover.contains(e.target) && e.target !== focusInfoBtn) {
       focusInfoPopover.classList.add("hidden");
     }
+    if (!freezeInfoPopover.contains(e.target) && e.target !== freezeInfoBtn) {
+      freezeInfoPopover.classList.add("hidden");
+    }
   });
 
-  // Update subtitle based on current requirements
-  function updateFocusSubtitle() {
-    const labels = [];
-    if (reqBlind75.checked) labels.push("Blind 75");
-    if (reqNc150.checked) labels.push("NC 150");
-    if (reqLc75.checked) labels.push("LC 75");
-    if (reqDaily.checked) labels.push("Daily");
-    if (reqAny && reqAny.checked) labels.push("Any");
-    if (companyTags && companyTags.isEnabled()) {
-      const tags = companyTags.getTags();
-      if (tags.length) labels.push(tags.slice(0, 2).join(", "));
-    }
-    if (topicTags && topicTags.isEnabled()) {
-      const tags = topicTags.getTags();
-      if (tags.length) labels.push(tags.slice(0, 2).join(", "));
-    }
-
-    if (labels.length > 0) {
-      focusSubtitle.textContent = "Tracking " + labels.join(", ");
-    } else {
-      focusSubtitle.textContent = "No focus areas selected";
-    }
-
-    // Update freeze counter
+  // Update freeze counter display
+  function updateFreezeCounter() {
     chrome.storage.local.get(['frozenDates'], (r) => {
       const frozenDates = r.frozenDates || [];
       const currentMonth = new Date().toISOString().slice(0, 7);

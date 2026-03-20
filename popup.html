@@ -555,7 +555,7 @@
           </button>
         </div>
         <!-- Badge display option -->
-        <div id="badge-display-options" class="pl-4 space-y-2">
+        <div id="badge-display-options" class="space-y-2">
           <p class="text-[11px] text-[#eff1f666]">Badge displays:</p>
           <label class="flex items-center cursor-pointer group" style="gap: 10px;">
             <input type="radio" name="badge-display" id="badge-display-focus" value="focus" class="flex-shrink-0 cursor-pointer" style="accent-color: #ffa116;">
@@ -576,8 +576,6 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           </button>
         </div>
-        <p id="focus-subtitle" class="text-[11px] text-[#eff1f666] -mt-1"></p>
-
         <!-- Focus info popover -->
         <div id="focus-info-popover" class="hidden bg-[#1a1a1a] border border-[#ffffff1a] rounded-xl p-3 -mt-1">
           <p class="text-[11px] text-[#eff1f6cc] leading-relaxed">
@@ -590,12 +588,23 @@
 
         <!-- Streak freezes remaining -->
         <div class="flex items-center justify-between -mt-1">
-          <span class="text-[11px] text-[#eff1f666]">❄️ Streak freezes this month</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[11px] text-[#eff1f666]">❄️ Streak freezes this month</span>
+            <button id="freeze-info-btn" class="text-[#eff1f666] hover:text-[#60a5fa] transition-colors" title="How streak freezes work">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </button>
+          </div>
           <span id="freezes-remaining" class="text-[11px] font-medium text-[#60a5fa]">3/3</span>
+        </div>
+        <div id="freeze-info-popover" class="hidden bg-[#1a1a1a] border border-[#ffffff1a] rounded-xl p-3 -mt-1">
+          <p class="text-[11px] text-[#eff1f6cc] leading-relaxed">
+            Miss a day? Your <strong class="text-[#60a5fa]">focus streak</strong> is automatically preserved using a freeze.
+            You get <strong>3 freezes per month</strong> (resets on the 1st). Frozen days keep your streak alive but don't increment it.
+          </p>
         </div>
 
         <!-- Requirements (single section) -->
-        <div id="requirements-section" class="pl-4 space-y-2.5">
+        <div id="requirements-section" class="space-y-2.5">
           <p class="text-[11px] text-[#eff1f666]">Solve at least one of these each day:</p>
           <label class="flex items-center cursor-pointer group" style="gap: 10px;">
             <input type="checkbox" id="req-blind75" class="flex-shrink-0 cursor-pointer">
