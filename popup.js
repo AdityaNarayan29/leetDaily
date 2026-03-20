@@ -732,10 +732,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!toast) return;
     toast.textContent = message;
     toast.style.display = 'block';
+    // Trigger reflow so transition plays from initial state
+    toast.offsetHeight;
     toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
     setTimeout(() => {
       toast.style.opacity = '0';
-      setTimeout(() => { toast.style.display = 'none'; }, 200);
+      toast.style.transform = 'translateX(-50%) translateY(20px)';
+      setTimeout(() => { toast.style.display = 'none'; }, 250);
     }, duration);
   }
 
