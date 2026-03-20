@@ -9,29 +9,33 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ---
 
-## What's New in v2.0
+## What's New in v2.2
 
+- **Dual Streak Tracking** — 🎯 Focus streak (days on your prep plan) + 🔥 LeetCode streak (official, from API)
+- **Focus Areas** — Set your prep focus (Blind 75, company tags, topics, etc.) and track daily accountability
+- **Badge Display Choice** — Show Focus streak or LeetCode streak on the extension badge
+- **Longest Streak** — Calculated from your full LeetCode history (all years, not just trailing 12 months)
+- **Daily Challenge Card** — ✓ Solved badge, countdown timer, click heading to open problem
+- **Clickable Profile** — Click your avatar or username to open your LeetCode profile
 - **Curated List Tracking** — Blind 75, NeetCode 150, and LeetCode 75 with live progress bars and next-unsolved shortcuts
 - **Tag & Company Progress** — Track solved/total for selected topics and companies with intersection view
 - **Problems Explorer** — Full-page browser for 2000+ problems with filters, sorting, list badges, and solved indicators
-- **Configurable Streak Rules** — Choose what counts toward your streak: daily challenge, curated lists, topic/company tags, or any submission
 - **30-Day Activity Heatmap** — Color-coded daily activity with submission counts and daily challenge checkmarks
-- **Streak Detail Modal** — Click your streak to see 7-day history, longest streak, and milestone progress
 - **Cross-Device Settings Sync** — Your preferences sync across devices via your LeetCode username (only settings, not solve history)
 - **Data Export/Import** — Backup and restore all your progress as JSON
 - **Smooth Animations** — View transitions, accordion expand/collapse, progress bar fills, and milestone celebrations
-- **2000+ Problems with Company Data** — Problem database with company frequency tags fetched from LeetCode
 
 ---
 
 ## Features
 
 ### Dashboard
-- **Daily Challenge** — Today's problem with difficulty, acceptance rate, topic tags, and company tags
+- **Daily Challenge** — Today's problem with difficulty, acceptance rate, topic & company tags, ✓ Solved badge, and countdown timer
 - **Your Stats** — Total solved with Easy/Medium/Hard breakdown, synced from your LeetCode account
 - **30-Day Heatmap** — Activity visualization with color intensity showing daily solve counts
-- **Streak Tracking** — Current streak with fire badge on the extension icon, milestone celebrations at 7, 14, 30, 50, 100, and 365 days
-- **Streak Detail Modal** — Click your streak to see last 7 days history, longest streak, and progress to next milestone
+- **Dual Streak Display** — 🎯 Focus streak (days on your plan) + 🔥 LeetCode streak (official) in the header
+- **Streak Detail Modal** — Click your streak to see longest streak (full history), milestones, and last 7 days
+- **Profile Link** — Click your avatar or username to open your LeetCode profile
 
 ### Curated Study Lists
 - **Blind 75** — Track progress across the classic 75 interview problems
@@ -55,15 +59,17 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 ### Smart Reminders
 - **Daily Reminder** — Configurable notification at your chosen time
 - **Streak at Risk** — Urgent alert 2 hours before midnight reset
-- **Badge Counter** — Extension icon shows your current streak number
+- **Badge Display** — Choose Focus streak or LeetCode streak on the icon; green/orange/red color shows goal status
 
 ### Cross-Device Settings Sync
 - **Automatic Sync** — Your streak preferences, reminder settings, and badge options sync across devices
 - **LeetCode Identity** — Just log into LeetCode on any device and your settings appear instantly
 - **Settings Only** — Only preferences are synced to the cloud; all solve history and progress stay local on your device
 
-### Settings & Data
-- **Flexible Streak Rules** — Choose what counts toward your streak: Daily Challenge, curated lists, topic/company problems, or any submission
+### Focus Areas & Settings
+- **Focus Areas** — Set your prep focus: Blind 75, NeetCode 150, LeetCode 75, Daily Challenge, company tags, topic tags, or any submission
+- **Focus Streak** — 🎯 Tracks consecutive days you solved a problem matching your focus areas
+- **Badge Display** — Choose which streak to show on the extension icon (Focus or LeetCode)
 - **Topic & Company Selection** — Combobox inputs to pick which topics and companies to track
 - **Data Export/Import** — Backup and restore all your progress as JSON
 - **Privacy-First** — Solve history stored locally in your browser; only settings/preferences synced to the cloud (no tracking, no ads)

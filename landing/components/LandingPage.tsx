@@ -684,7 +684,7 @@ export default function LandingPage() {
                 icon: Flame,
                 title: "Daily Challenge",
                 description:
-                  "Today's problem with difficulty, acceptance rate, topic tags, and company frequency data.",
+                  "Today's problem with difficulty, acceptance rate, topic & company tags, ✓ Solved status, and countdown timer.",
                 gradient: "from-orange-500 to-red-500",
               },
               {
@@ -703,9 +703,9 @@ export default function LandingPage() {
               },
               {
                 icon: Trophy,
-                title: "Streak Milestones",
+                title: "Dual Streak Tracking",
                 description:
-                  "Celebrate at 7, 14, 30, 50, 100, and 365 days. Badge shows your streak on the icon.",
+                  "🎯 Focus streak tracks your prep plan. 🔥 LeetCode streak from the API. Longest streak from your full history.",
                 gradient: "from-orange-500 to-red-500",
               },
               {
@@ -738,9 +738,9 @@ export default function LandingPage() {
               },
               {
                 icon: Settings,
-                title: "Flexible Streak Rules",
+                title: "Focus Areas",
                 description:
-                  "Choose what counts: Daily Challenge, curated lists, topic/company problems, or any submission.",
+                  "Set your prep focus: Blind 75, company tags, topics, or any submission. Choose which streak shows on the badge.",
                 gradient: "from-red-500 to-orange-500",
               },
               {
