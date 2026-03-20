@@ -253,6 +253,53 @@ async function fetchLeetCodeUserData() {
   }
 }
 
+// Calculate longest streak from full LeetCode history and save to storage
+async function calculateAndSaveLongestStreak(username) {
+  try {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let y = currentYear - 10; y <= currentYear; y++) years.push(y);
+
+    const responses = await Promise.all(years.map(year =>
+      leetcodeFetch({
+        query: `query userProfileCalendar($username: String!, $year: Int) {
+          matchedUser(username: $username) {
+            userCalendar(year: $year) { submissionCalendar }
+          }
+        }`,
+        variables: { username, year }
+      }).then(r => r.json()).catch(() => null)
+    ));
+
+    let allDates = [];
+    for (const data of responses) {
+      if (!data) continue;
+      const calStr = data?.data?.matchedUser?.userCalendar?.submissionCalendar;
+      if (!calStr) continue;
+      const cal = JSON.parse(calStr);
+      for (const [ts, count] of Object.entries(cal)) {
+        if (count > 0) allDates.push(new Date(parseInt(ts) * 1000).toISOString().slice(0, 10));
+      }
+    }
+
+    allDates = [...new Set(allDates)].sort();
+    let longest = allDates.length > 0 ? 1 : 0;
+    let temp = 1;
+    for (let i = 1; i < allDates.length; i++) {
+      const prev = new Date(allDates[i - 1]);
+      prev.setDate(prev.getDate() + 1);
+      if (prev.toISOString().slice(0, 10) === allDates[i]) {
+        temp++;
+      } else {
+        temp = 1;
+      }
+      longest = Math.max(longest, temp);
+    }
+
+    chrome.storage.local.set({ longestStreak: longest });
+  } catch (e) { /* silent */ }
+}
+
 function updateTimerDisplay() {
   const now = new Date();
   const nextUTC = new Date(now);
@@ -911,6 +958,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         chrome.runtime.sendMessage({ action: "updateBadge" });
         renderStatsPanel(userData.username);
         render30DayHeatmap(userData.username);
+
+        // Calculate and persist longest streak from full history (background, non-blocking)
+        calculateAndSaveLongestStreak(userData.username);
       });
     } else {
       // Not logged in
@@ -1815,7 +1865,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
     'completedProblemIds', 'requirements', 'orModeRequirements',
-    'streakMode', 'badgeDisplay', 'topicStreaks', 'companyStreaks',
+    'badgeDisplay', 'focusStreak', 'topicStreaks', 'companyStreaks',
     'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
   ];
@@ -1941,7 +1991,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const years = [];
-      for (let y = 2020; y <= currentYear; y++) years.push(y);
+      for (let y = currentYear - 10; y <= currentYear; y++) years.push(y);
 
       const responses = await Promise.all(years.map(year =>
         leetcodeFetch({
@@ -1985,6 +2035,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     longest = Math.max(longest, lcStreak);
     document.getElementById('modal-longest').textContent = longest;
+    // Persist so export gets the real value
+    chrome.storage.local.set({ longestStreak: longest });
 
     // Build submissionMap for last 7 days
     const { submissionMap } = await fetchLast30DaysHistory(username || null);
