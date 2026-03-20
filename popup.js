@@ -795,6 +795,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Update header text
       headerTitle.textContent = userData.username;
       headerSubtitle.textContent = "Daily LeetCode Kro";
+
+      // Make avatar/username clickable to open LeetCode profile
+      const profileLink = document.getElementById("user-profile-link");
+      profileLink.title = `Open ${userData.username}'s LeetCode profile`;
+      profileLink.onclick = () => {
+        chrome.tabs.create({ url: `https://leetcode.com/u/${userData.username}/` });
+      };
     } else {
       loginPrompt.classList.remove("hidden");
       statsPanel.classList.add("hidden");
@@ -855,46 +862,51 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (userData.completedToday) {
         syncData.lastVisitedDate = today;
         syncData.lastSolvedDate = today;
-
+      }
+      // Use LeetCode API streak as source of truth
+      syncData.currentStreak = userData.streak;
+      chrome.storage.local.set(syncData, async () => {
         // Backfill today's daily challenge into solvedProblems if missing
         // (handles fresh install / extension re-add / data wipe)
-        chrome.storage.local.get(['solvedProblems'], (spResult) => {
+        if (userData.completedToday) {
+          const spResult = await new Promise(r => chrome.storage.local.get(['solvedProblems'], r));
           const solvedProblems = spResult.solvedProblems || {};
           const hasTodaySolve = Object.values(solvedProblems).some(
             p => p.solvedAt && p.solvedAt.slice(0, 10) === today
           );
           if (!hasTodaySolve) {
-            // Fetch daily challenge slug and record it
-            leetcodeFetch({
-              query: `query questionOfToday {
-                activeDailyCodingChallengeQuestion {
-                  question { titleSlug title questionFrontendId difficulty topicTags { name } }
-                }
-              }`
-            }).then(r => r.json()).then(dcData => {
+            try {
+              const dcResp = await leetcodeFetch({
+                query: `query questionOfToday {
+                  activeDailyCodingChallengeQuestion {
+                    question { titleSlug title questionFrontendId difficulty topicTags { name } }
+                  }
+                }`
+              });
+              const dcData = await dcResp.json();
               const q = dcData?.data?.activeDailyCodingChallengeQuestion?.question;
               if (q) {
-                chrome.runtime.sendMessage({
-                  action: 'individualProblemSolved',
-                  data: {
-                    problemId: parseInt(q.questionFrontendId),
-                    titleSlug: q.titleSlug,
-                    title: q.title,
-                    difficulty: q.difficulty,
-                    topics: (q.topicTags || []).map(t => t.name),
-                    companies: [],
-                    companyFrequency: {},
-                    solvedAt: new Date().toISOString()
-                  }
+                await new Promise(resolve => {
+                  chrome.runtime.sendMessage({
+                    action: 'individualProblemSolved',
+                    data: {
+                      problemId: parseInt(q.questionFrontendId),
+                      titleSlug: q.titleSlug,
+                      title: q.title,
+                      difficulty: q.difficulty,
+                      topics: (q.topicTags || []).map(t => t.name),
+                      companies: [],
+                      companyFrequency: {},
+                      solvedAt: new Date().toISOString()
+                    }
+                  }, resolve);
                 });
               }
-            }).catch(() => {});
+            } catch (e) { /* ignore */ }
           }
-        });
-      }
-      // Use LeetCode API streak as source of truth
-      syncData.currentStreak = userData.streak;
-      chrome.storage.local.set(syncData, () => {
+        }
+
+        // Now update display — after backfill is done
         updateStreakDisplay();
         chrome.runtime.sendMessage({ action: "updateBadge" });
         renderStatsPanel(userData.username);
@@ -1879,35 +1891,106 @@ document.addEventListener("DOMContentLoaded", async () => {
     streakModal.classList.remove('hidden');
 
     const result = await new Promise(resolve =>
-      chrome.storage.local.get(['currentStreak', 'longestStreak', 'leetCodeUsername'], resolve)
+      chrome.storage.local.get([
+        'currentStreak', 'leetCodeUsername',
+        'focusStreak', 'requirements', 'orModeRequirements'
+      ], resolve)
     );
 
-    const streak = result.currentStreak || 0;
-    const longest = result.longestStreak || 0;
-    const nextMilestone = STREAK_MILESTONES.find(m => m > streak) || null;
+    const lcStreak = result.currentStreak || 0;
+    const focusStreak = result.focusStreak || 0;
+    const reqs = result.requirements || result.orModeRequirements || {};
 
-    document.getElementById('modal-streak-num').textContent = streak;
-    document.getElementById('modal-longest').textContent = longest;
+    // Build focus label
+    const focusLabels = [];
+    if (reqs.blind75) focusLabels.push('Blind 75');
+    if (reqs.neetcode150) focusLabels.push('NC 150');
+    if (reqs.leetcode75) focusLabels.push('LC 75');
+    if (reqs.dailyChallenge) focusLabels.push('Daily');
+    if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) focusLabels.push(reqs.selectedCompanies.slice(0, 2).join(', '));
+    if (reqs.topicFocus && reqs.selectedTopics?.length > 0) focusLabels.push(reqs.selectedTopics.slice(0, 2).join(', '));
+    if (reqs.anySubmission) focusLabels.push('Any');
+
+    // Hero number — LeetCode streak
+    document.getElementById('modal-streak-num').textContent = lcStreak;
+
+    // Use LeetCode streak for milestone tracking
+    const nextMilestone = STREAK_MILESTONES.find(m => m > lcStreak) || null;
     document.getElementById('modal-next-milestone').textContent = nextMilestone ? `${nextMilestone} days` : '🏆';
 
     // Milestone progress bar
-    const prevMilestone = [...STREAK_MILESTONES].reverse().find(m => m <= streak) || 0;
+    const prevMilestone = [...STREAK_MILESTONES].reverse().find(m => m <= lcStreak) || 0;
     const pct = nextMilestone
-      ? Math.round(((streak - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
+      ? Math.round(((lcStreak - prevMilestone) / (nextMilestone - prevMilestone)) * 100)
       : 100;
     document.getElementById('modal-milestone-bar').style.width = `${pct}%`;
     document.getElementById('modal-milestone-pct').textContent = `${pct}%`;
     document.getElementById('modal-milestone-label').textContent = nextMilestone
-      ? `${streak} / ${nextMilestone} days`
+      ? `${lcStreak} / ${nextMilestone} days`
       : 'All milestones reached!';
 
-    // Last 7 days
+    // Last 7 days + longest streak from ALL years
     const last7El = document.getElementById('modal-last7');
     last7El.innerHTML = '<span class="text-[11px] text-[#eff1f666]">Loading…</span>';
+    document.getElementById('modal-longest').textContent = '…';
 
-    const { submissionMap } = await fetchLast30DaysHistory(result.leetCodeUsername || null);
+    // Fetch submission calendars for all years in parallel
+    const currentYear = new Date().getFullYear();
+    const username = result.leetCodeUsername;
+    let allDates = [];
+
+    try {
+      const years = [];
+      for (let y = 2020; y <= currentYear; y++) years.push(y);
+
+      const responses = await Promise.all(years.map(year =>
+        leetcodeFetch({
+          query: `query userProfileCalendar($username: String!, $year: Int) {
+            matchedUser(username: $username) {
+              userCalendar(year: $year) { submissionCalendar }
+            }
+          }`,
+          variables: { username, year }
+        }).then(r => r.json()).catch(() => null)
+      ));
+
+      for (const data of responses) {
+        if (!data) continue;
+        const calStr = data?.data?.matchedUser?.userCalendar?.submissionCalendar;
+        if (!calStr) continue;
+        const cal = JSON.parse(calStr);
+        for (const [ts, count] of Object.entries(cal)) {
+          if (count > 0) {
+            allDates.push(new Date(parseInt(ts) * 1000).toISOString().slice(0, 10));
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+
+    // Deduplicate and sort
+    allDates = [...new Set(allDates)].sort();
+
+    // Calculate longest consecutive run
+    let longest = allDates.length > 0 ? 1 : 0;
+    let tempStreak = 1;
+    for (let i = 1; i < allDates.length; i++) {
+      const prev = new Date(allDates[i - 1]);
+      prev.setDate(prev.getDate() + 1);
+      if (prev.toISOString().slice(0, 10) === allDates[i]) {
+        tempStreak++;
+      } else {
+        tempStreak = 1;
+      }
+      longest = Math.max(longest, tempStreak);
+    }
+    longest = Math.max(longest, lcStreak);
+    document.getElementById('modal-longest').textContent = longest;
+
+    // Build submissionMap for last 7 days
+    const { submissionMap } = await fetchLast30DaysHistory(username || null);
+
+    // Render last 7 days
     last7El.innerHTML = '';
-
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -1920,7 +2003,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       col.className = 'flex flex-col items-center gap-1';
 
       const dot = document.createElement('div');
-      dot.className = `w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold`;
+      dot.className = 'w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold';
       if (count > 0) {
         dot.style.cssText = 'background:#2cbb5d22; color:#2cbb5d; border:1px solid #2cbb5d44;';
         dot.textContent = count;
