@@ -278,148 +278,8 @@
     .skeleton-bar { height: 8px; border-radius: 9999px; }
     .skeleton-cell { border-radius: 3px; }
 
-    /* Light mode overrides */
-    body.light {
-      background: #f5f5f5 !important;
-      color: #1a1a1a !important;
-    }
-    /* Cards, sections, panels */
-    body.light section,
-    body.light #settings-view > div > div,
-    body.light .rounded-xl {
-      background: #ffffff !important;
-      border-color: rgba(0,0,0,0.08) !important;
-    }
-    /* Inner dark backgrounds */
-    body.light input[type="checkbox"] {
-      background: #f0f0f0 !important;
-      border-color: rgba(0,0,0,0.2) !important;
-    }
-    body.light input[type="radio"] {
-      border-color: rgba(0,0,0,0.2) !important;
-    }
-    /* Text colors */
-    body.light h1, body.light h2, body.light span, body.light p, body.light div, body.light button, body.light a, body.light label {
-      color: inherit;
-    }
-    body.light #header-title,
-    body.light #streak-modal-title,
-    body.light #modal-streak-num { color: #1a1a1a !important; }
-    body.light #header-subtitle,
-    body.light .text-\[\#eff1f699\] { color: #666 !important; }
-    /* Buttons */
-    body.light #settings-btn,
-    body.light #settings-back-btn,
-    body.light #theme-toggle,
-    body.light #focus-info-btn,
-    body.light #freeze-info-btn,
-    body.light #streak-modal-close { color: #999 !important; }
-    body.light #settings-btn:hover,
-    body.light #settings-back-btn:hover,
-    body.light #theme-toggle:hover { color: #1a1a1a !important; }
-    /* Export/import/browse buttons */
-    body.light button[id$="-btn"]:not(#settings-btn):not(#settings-back-btn):not(#theme-toggle):not(#focus-info-btn):not(#freeze-info-btn) {
-      background: #e8e8e8 !important;
-      color: #444 !important;
-    }
-    body.light button[id$="-btn"]:not(#settings-btn):not(#settings-back-btn):not(#theme-toggle):not(#focus-info-btn):not(#freeze-info-btn):hover {
-      background: #d8d8d8 !important;
-      color: #1a1a1a !important;
-    }
-    /* Heatmap cells */
-    body.light .heatmap-cell {
-      border: 1px solid rgba(0,0,0,0.04);
-    }
-    /* Progress bars background */
-    body.light .bg-\[\#ffffff1a\],
-    body.light div[class*="bg-[#ffffff1a]"] {
-      background: rgba(0,0,0,0.08) !important;
-    }
-    /* Separators */
-    body.light .text-\[\#ffffff1a\],
-    body.light span[class*="text-[#ffffff1a]"],
-    body.light .text-\[\#ffffff33\] {
-      color: rgba(0,0,0,0.15) !important;
-    }
-    /* Stats panel text */
-    body.light #total-count,
-    body.light #modal-longest { color: #1a1a1a !important; }
-    /* Tag chips */
-    body.light .tag-chip {
-      background: rgba(0,0,0,0.06) !important;
-      color: #444 !important;
-    }
-    /* Inputs */
-    body.light .tag-text-input {
-      background: #f0f0f0 !important;
-      color: #1a1a1a !important;
-      border-color: rgba(0,0,0,0.1) !important;
-    }
-    body.light .tag-text-input::placeholder { color: rgba(0,0,0,0.3) !important; }
-    body.light select {
-      color: #1a1a1a !important;
-    }
-    body.light select option {
-      background: #fff;
-      color: #1a1a1a;
-    }
-    /* Dropdowns */
-    body.light .combobox-dropdown {
-      background: #ffffff !important;
-      border-color: rgba(0,0,0,0.1) !important;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1) !important;
-    }
-    body.light .combobox-item { color: #444 !important; }
-    body.light .combobox-item:hover, body.light .combobox-item.active {
-      background: rgba(0,0,0,0.05) !important;
-      color: #1a1a1a !important;
-    }
-    /* Streak modal */
-    body.light #streak-modal > div {
-      background: #ffffff !important;
-      border-color: rgba(0,0,0,0.08) !important;
-    }
-    body.light #streak-modal .rounded-xl {
-      background: #f5f5f5 !important;
-    }
-    /* Toast */
-    body.light #toast {
-      background: #ffffff !important;
-      color: #1a1a1a !important;
-      border-color: rgba(0,0,0,0.1) !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    }
-    /* Tooltip */
-    body.light #custom-tooltip {
-      background: #ffffff !important;
-      color: #1a1a1a !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-    }
-    /* Focus info popover */
-    body.light #focus-info-popover,
-    body.light #freeze-info-popover {
-      background: #f5f5f5 !important;
-      border-color: rgba(0,0,0,0.08) !important;
-    }
-    /* Skeleton loading */
-    body.light .skeleton {
-      background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%) !important;
-      background-size: 200% 100%;
-    }
-    /* Login prompt */
-    body.light #login-prompt {
-      background: #ffffff !important;
-    }
-    /* Daily challenge question text */
-    body.light #question { color: #444 !important; }
-    /* Topic/company chips in daily challenge */
-    body.light #question .rounded { border-color: rgba(0,0,0,0.06) !important; }
-    /* Time picker */
-    body.light #ampm-btn { color: #ffa116 !important; }
-    body.light div[class*="bg-[#1a1a1a]"] {
-      background: #f0f0f0 !important;
-      border-color: rgba(0,0,0,0.1) !important;
-    }
+    /* ═══ LIGHT MODE ═══ */
+    /* Handled by JS class swapping — see applyTheme() in popup.js */
 
     /* Settings gear rotation on hover */
     .settings-gear {
@@ -434,6 +294,12 @@
       outline: 2px solid #ffa116;
       outline-offset: 2px;
       border-radius: 4px;
+    }
+    select:focus-visible,
+    #ampm-btn:focus-visible,
+    input[type="checkbox"]:focus-visible,
+    input[type="radio"]:focus-visible {
+      outline: none;
     }
 
     /* Respect reduced motion preference */
