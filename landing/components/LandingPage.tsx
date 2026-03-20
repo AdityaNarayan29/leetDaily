@@ -705,7 +705,7 @@ export default function LandingPage() {
                 icon: Trophy,
                 title: "Dual Streak Tracking",
                 description:
-                  "🎯 Focus streak tracks your prep plan. 🔥 LeetCode streak from the API. Longest streak from your full history.",
+                  "🎯 Focus streak tracks your prep plan. 🔥 LeetCode streak from the API. 3 streak freezes per month. Longest streak from full history.",
                 gradient: "from-orange-500 to-red-500",
               },
               {
@@ -738,9 +738,9 @@ export default function LandingPage() {
               },
               {
                 icon: Settings,
-                title: "Focus Areas",
+                title: "Focus Areas & Themes",
                 description:
-                  "Set your prep focus: Blind 75, company tags, topics, or any submission. Choose which streak shows on the badge.",
+                  "Set your prep focus, choose badge display, and switch between light/dark themes. Fully customizable.",
                 gradient: "from-red-500 to-orange-500",
               },
               {

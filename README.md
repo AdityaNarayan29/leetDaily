@@ -9,21 +9,23 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ---
 
-## What's New in v2.2
+## What's New in v2.3
 
 - **Dual Streak Tracking** — 🎯 Focus streak (days on your prep plan) + 🔥 LeetCode streak (official, from API)
+- **Streak Freezes** — 3 per month, auto-applied when you miss a day. Your focus streak survives
 - **Focus Areas** — Set your prep focus (Blind 75, company tags, topics, etc.) and track daily accountability
 - **Badge Display Choice** — Show Focus streak or LeetCode streak on the extension badge
-- **Longest Streak** — Calculated from your full LeetCode history (all years, not just trailing 12 months)
-- **Daily Challenge Card** — ✓ Solved badge, countdown timer, click heading to open problem
+- **Longest Streak** — Calculated from your full LeetCode history (all years)
+- **Light/Dark Theme** — Toggle between themes in settings
+- **Daily Challenge Card** — ✓ Solved badge, countdown timer, clickable heading to open problem
 - **Clickable Profile** — Click your avatar or username to open your LeetCode profile
-- **Curated List Tracking** — Blind 75, NeetCode 150, and LeetCode 75 with live progress bars and next-unsolved shortcuts
-- **Tag & Company Progress** — Track solved/total for selected topics and companies with intersection view
-- **Problems Explorer** — Full-page browser for 2000+ problems with filters, sorting, list badges, and solved indicators
-- **30-Day Activity Heatmap** — Color-coded daily activity with submission counts and daily challenge checkmarks
-- **Cross-Device Settings Sync** — Your preferences sync across devices via your LeetCode username (only settings, not solve history)
-- **Data Export/Import** — Backup and restore all your progress as JSON
-- **Smooth Animations** — View transitions, accordion expand/collapse, progress bar fills, and milestone celebrations
+- **Toast Notifications** — Smooth slide-up toasts for export, import, and actions
+- **Micro Animations** — Checkbox pop, toggle bounce, heatmap stagger, theme icon spin, solved badge slide-in
+- **Accessibility** — ARIA roles, focus-visible outlines, reduced motion support
+- **Curated List Tracking** — Blind 75, NeetCode 150, and LeetCode 75 with live progress bars
+- **Problems Explorer** — Browse 2000+ problems with filters, sorting, list badges
+- **Cross-Device Settings Sync** — Preferences sync via Cloudflare KV
+- **Data Export/Import** — Backup and restore all progress as JSON
 
 ---
 
@@ -69,7 +71,9 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 ### Focus Areas & Settings
 - **Focus Areas** — Set your prep focus: Blind 75, NeetCode 150, LeetCode 75, Daily Challenge, company tags, topic tags, or any submission
 - **Focus Streak** — 🎯 Tracks consecutive days you solved a problem matching your focus areas
+- **Streak Freezes** — 3 per month, auto-applied on missed days. Freeze counter shown in settings
 - **Badge Display** — Choose which streak to show on the extension icon (Focus or LeetCode)
+- **Light/Dark Theme** — Sun/moon toggle in settings header
 - **Topic & Company Selection** — Combobox inputs to pick which topics and companies to track
 - **Data Export/Import** — Backup and restore all your progress as JSON
 - **Privacy-First** — Solve history stored locally in your browser; only settings/preferences synced to the cloud (no tracking, no ads)

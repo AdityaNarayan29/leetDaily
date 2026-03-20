@@ -1,4 +1,4 @@
-# Chrome Web Store Listing — LeetDaily v2.3.0
+# Chrome Web Store Listing — LeetDaily v2.3.1
 
 ## Name
 LeetDaily — LeetCode Interview Prep & Tracker
@@ -52,7 +52,9 @@ CROSS-DEVICE SETTINGS SYNC
 FOCUS AREAS & SETTINGS
 - Set your prep focus: Blind 75, NeetCode 150, LeetCode 75, Daily Challenge, company tags, topic tags, or any submission
 - Focus streak (🎯) tracks consecutive days you solved a problem matching your focus areas
+- 3 streak freezes per month — miss a day and your focus streak is preserved automatically
 - Choose which streak to show on the badge: Focus streak or LeetCode streak
+- Light/Dark theme toggle
 - Combobox inputs to pick which topics and companies to track
 - Export/import all progress as JSON backup
 - Privacy-first: solve history stored locally, only settings synced to the cloud (no tracking, no ads)
