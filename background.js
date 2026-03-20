@@ -98,10 +98,11 @@ function meetsRequirements(problemsOnDay, reqs) {
   return false;
 }
 
-// Calculate focus streak: consecutive days (backwards from today) where solves match current requirements
-function calculateFocusStreak(solvedProblems, requirements) {
+// Calculate focus streak with streak freezes (3 per month)
+// frozenDates: array of date strings where freezes were used
+function calculateFocusStreak(solvedProblems, requirements, frozenDates = []) {
   if (!solvedProblems || Object.keys(solvedProblems).length === 0) {
-    return { focusStreak: 0, focusGoalMetToday: false };
+    return { focusStreak: 0, focusGoalMetToday: false, newFrozenDates: frozenDates };
   }
 
   // Group by date
@@ -113,8 +114,17 @@ function calculateFocusStreak(solvedProblems, requirements) {
     solvedByDate[date].push(data);
   }
 
-  let focusStreak = 0;
   const today = getTodayDate();
+  const frozenSet = new Set(frozenDates);
+  const newFrozenDates = [...frozenDates];
+
+  // Count freezes used per month
+  function freezesUsedInMonth(dateStr) {
+    const month = dateStr.slice(0, 7); // "YYYY-MM"
+    return newFrozenDates.filter(d => d.slice(0, 7) === month).length;
+  }
+
+  let focusStreak = 0;
   let date = new Date();
 
   while (true) {
@@ -124,12 +134,19 @@ function calculateFocusStreak(solvedProblems, requirements) {
 
     if (met) {
       focusStreak++;
+    } else if (dateStr === today) {
+      // Today not yet met — skip, don't break streak
+      date.setDate(date.getDate() - 1);
+      continue;
+    } else if (frozenSet.has(dateStr)) {
+      // Already frozen — streak preserved but not incremented
+    } else if (freezesUsedInMonth(dateStr) < 3) {
+      // Auto-apply freeze
+      frozenSet.add(dateStr);
+      newFrozenDates.push(dateStr);
+      // Streak preserved but not incremented
     } else {
-      // If today and not yet met, skip (don't break streak for today)
-      if (dateStr === today) {
-        date.setDate(date.getDate() - 1);
-        continue;
-      }
+      // No freeze available — streak breaks
       break;
     }
     date.setDate(date.getDate() - 1);
@@ -139,7 +156,7 @@ function calculateFocusStreak(solvedProblems, requirements) {
   const todayProblems = solvedByDate[today] || [];
   const focusGoalMetToday = meetsRequirements(todayProblems, requirements);
 
-  return { focusStreak, focusGoalMetToday };
+  return { focusStreak, focusGoalMetToday, newFrozenDates };
 }
 
 // Fetch current streak directly from LeetCode API (source of truth)
@@ -374,30 +391,29 @@ function updateBadge() {
     "currentStreak",
     "badgeStreakEnabled",
     "badgeDisplay",
-    "focusStreak",
-    "focusGoalMetToday",
     "solvedProblems",
     "requirements",
-    "orModeRequirements"
+    "orModeRequirements",
+    "frozenDates"
   ], (result) => {
     if (!result) return;
 
     const badgeEnabled = result.badgeStreakEnabled !== false;
-    const badgeDisplay = result.badgeDisplay || 'focus'; // Default to focus streak
+    const badgeDisplay = result.badgeDisplay || 'focus';
     const today = getTodayDate();
     const timeLeft = getTimeUntilMidnightUTC();
     const twoHoursInMs = 2 * 60 * 60 * 1000;
     const lcStreak = result.currentStreak || 0;
     const lastSolved = result.lastSolvedDate || null;
 
-    // Recalculate focus streak fresh
+    // Recalculate focus streak with freezes
     const reqs = result.requirements || result.orModeRequirements || null;
-    const { focusStreak, focusGoalMetToday } = calculateFocusStreak(
-      result.solvedProblems || {}, reqs
+    const { focusStreak, focusGoalMetToday, newFrozenDates } = calculateFocusStreak(
+      result.solvedProblems || {}, reqs, result.frozenDates || []
     );
 
-    // Save focus values so popup can read them
-    chrome.storage.local.set({ focusStreak, focusGoalMetToday });
+    // Save focus values and updated frozen dates
+    chrome.storage.local.set({ focusStreak, focusGoalMetToday, frozenDates: newFrozenDates });
 
     // Decide which streak to show on badge
     const useFocus = badgeDisplay === 'focus';

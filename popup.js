@@ -1859,13 +1859,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       focusSubtitle.textContent = "No focus areas selected";
     }
+
+    // Update freeze counter
+    chrome.storage.local.get(['frozenDates'], (r) => {
+      const frozenDates = r.frozenDates || [];
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      const usedThisMonth = frozenDates.filter(d => d.slice(0, 7) === currentMonth).length;
+      const remaining = Math.max(0, 3 - usedThisMonth);
+      const freezeEl = document.getElementById('freezes-remaining');
+      if (freezeEl) {
+        freezeEl.textContent = `${remaining}/3`;
+        freezeEl.style.color = remaining === 0 ? '#f87171' : '#60a5fa';
+      }
+    });
   }
 
   // ── Export / Import ────────────────────────────────────────────
   const EXPORT_KEYS = [
     'currentStreak', 'longestStreak', 'lastSolvedDate', 'solvedProblems',
     'completedProblemIds', 'requirements', 'orModeRequirements',
-    'badgeDisplay', 'focusStreak', 'topicStreaks', 'companyStreaks',
+    'badgeDisplay', 'focusStreak', 'frozenDates', 'topicStreaks', 'companyStreaks',
     'leetCodeUsername', 'leetCodeAvatar',
     'notificationsEnabled', 'reminderTime', 'badgeStreakEnabled'
   ];
