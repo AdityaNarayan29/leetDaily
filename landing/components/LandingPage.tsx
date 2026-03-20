@@ -465,8 +465,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[11px] text-white/40 tabular-nums">5h 23m</span>
-                    <div className="streak-counter text-[13px] font-semibold text-[#ffa116]">&#x1F525; 7</div>
+                    <div className="streak-counter text-[13px] font-semibold text-[#ffa116]">🎯 7 🔥 12</div>
                     <span className="text-white/10">|</span>
                     <Settings className="w-3.5 h-3.5 text-white/40" />
                   </div>
@@ -492,10 +491,7 @@ export default function LandingPage() {
               <div className="popup-heatmap px-3 sm:px-4 pb-2.5 sm:pb-3">
                 <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
                   <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-semibold">30-Day Activity</span>
-                      <span className="text-[10px] text-emerald-400 font-medium">27/30 daily</span>
-                    </div>
+                    <span className="text-[12px] font-semibold">30-Day Activity</span>
                     <div className="flex items-center gap-1 text-[9px] text-white/40">
                       <span>Less</span>
                       <div className="flex gap-0.5">
@@ -594,19 +590,26 @@ export default function LandingPage() {
               {/* Daily Challenge */}
               <div className="popup-problem px-3 sm:px-4 pb-2.5 sm:pb-3">
                 <div className="p-3 rounded-xl bg-[#282828] border border-white/5">
+                  {/* Header row */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="flex items-center gap-1.5 text-[12px] font-semibold text-white hover:text-[#ffa116] cursor-pointer transition-colors">
+                      Daily Challenge
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-emerald-400">✓ Solved</span>
+                      <span className="text-[10px] text-white/40 tabular-nums">New in: 5h 23m</span>
+                    </div>
+                  </div>
                   {/* Title row */}
-                  <div className="flex items-start gap-2 mb-3">
-                    <div className="flex-1 text-[13px] leading-snug">
-                      <span className="text-white/40">1.</span>{" "}
-                      <span className="font-medium">Two Sum</span>{" "}
+                  <div className="mb-3">
+                    <div className="text-[12px] leading-snug">
+                      <span className="text-white/60">1. Two Sum</span>{" "}
                       <span className="float-right text-[10px] whitespace-nowrap">
                         <span className="font-medium text-[#00b8a3]">Easy</span>
                         <span className="text-white/40">&nbsp;·&nbsp;</span>
                         <span className="text-white/40">54.1%</span>
                       </span>
-                    </div>
-                    <div className="text-white/60 hover:text-[#ffa116] cursor-pointer transition-colors shrink-0 mt-0.5">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </div>
                   </div>
 
