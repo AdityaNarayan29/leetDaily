@@ -726,6 +726,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateTimerDisplay();
   setInterval(updateTimerDisplay, 60 * 1000);
 
+  // Toast notification helper
+  function showToast(message, duration = 2000) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => { toast.style.display = 'none'; }, 200);
+    }, duration);
+  }
+
   function getStreakMilestone(streak) {
     const milestones = [
       { days: 365, emoji: "👑", message: "Legendary! 1 year streak!" },
@@ -852,6 +865,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       loginPrompt.classList.remove("hidden");
       statsPanel.classList.add("hidden");
+
+      // Hide sections that need login
+      const heatmapSection = document.getElementById("heatmap-section");
+      const listProgress = document.getElementById("list-progress-section");
+      const tagProgress = document.getElementById("tag-progress-section");
+      const dailyChallenge = document.getElementById("daily-challenge-section");
+      if (heatmapSection) heatmapSection.classList.add("hidden");
+      if (listProgress) listProgress.classList.add("hidden");
+      if (tagProgress) tagProgress.classList.add("hidden");
+      if (dailyChallenge) dailyChallenge.classList.add("hidden");
 
       // Show logo, hide avatar
       avatar.classList.add("hidden");
@@ -1211,6 +1234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const reminderTimeSection = document.getElementById("reminder-time-section");
 
   function updateNotificationToggleUI(enabled) {
+    notifToggle.setAttribute('aria-checked', String(enabled));
     if (enabled) {
       notifToggle.classList.remove("bg-[#ffffff1a]");
       notifToggle.classList.add("bg-[#2cbb5d]");
@@ -1241,6 +1265,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const badgeDot = document.getElementById("badge-toggle-dot");
 
   function updateBadgeToggleUI(enabled) {
+    badgeToggle.setAttribute('aria-checked', String(enabled));
     if (enabled) {
       badgeToggle.classList.remove("bg-[#ffffff1a]");
       badgeToggle.classList.add("bg-[#2cbb5d]");
@@ -1882,6 +1907,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       a.download = `leetdaily-backup-${new Date().toISOString().slice(0,10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast('Data exported successfully');
     });
   });
 
@@ -1892,24 +1918,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const file = e.target.files[0];
     if (!file) return;
     if (!file.name.endsWith('.json')) {
-      alert('Please select a .json file.');
+      showToast('Please select a .json file.');
       importFileInput.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('File too large. Maximum 10 MB.');
+      showToast('File too large. Maximum 10 MB.');
       importFileInput.value = '';
       return;
     }
     const reader = new FileReader();
     reader.onerror = () => {
-      alert('Failed to read file. Please try again.');
+      showToast('Failed to read file. Please try again.');
       importFileInput.value = '';
     };
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (!data._leetdaily) { alert('Invalid LeetDaily backup file. Missing _leetdaily marker.'); return; }
+        if (!data._leetdaily) { showToast('Invalid backup file.'); return; }
         // Validate expected keys
         const { _leetdaily, exportedAt, ...toRestore } = data;
         const validKeys = new Set(EXPORT_KEYS);
@@ -1920,15 +1946,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         chrome.storage.local.set(toRestore, () => {
           if (chrome.runtime.lastError) {
-            alert('Failed to save imported data: ' + chrome.runtime.lastError.message);
+            showToast('Import failed: ' + chrome.runtime.lastError.message);
             return;
           }
           pushPrefs(); // Sync imported prefs to cloud immediately
-          alert('Data imported! Reloading…');
-          location.reload();
+          showToast('Data imported! Reloading…');
+          setTimeout(() => location.reload(), 1500);
         });
       } catch (err) {
-        alert('Could not parse file. Make sure it is a valid LeetDaily JSON export.');
+        showToast('Invalid file. Must be a LeetDaily JSON export.');
       }
     };
     reader.readAsText(file);

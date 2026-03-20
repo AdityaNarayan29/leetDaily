@@ -277,6 +277,22 @@
     .skeleton-text-lg { height: 16px; }
     .skeleton-bar { height: 8px; border-radius: 9999px; }
     .skeleton-cell { border-radius: 3px; }
+
+    /* Focus-visible outlines for keyboard navigation */
+    *:focus-visible {
+      outline: 2px solid #ffa116;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 
@@ -351,7 +367,7 @@
     </section>
 
     <!-- 30-Day Activity -->
-    <section class="mb-4 p-4 rounded-xl bg-[#282828] border border-[#ffffff0d]">
+    <section id="heatmap-section" class="mb-4 p-4 rounded-xl bg-[#282828] border border-[#ffffff0d]">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <span class="text-[13px] font-semibold text-[#eff1f6]">30-Day Activity</span>
@@ -397,7 +413,7 @@
             <span id="blind75-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#00b8a3] transition-colors" title="Blind 75">Blind 75</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-[#eff1f699]"><span id="blind75-count" class="text-[#eff1f6]">0/74</span> <span id="blind75-percentage" class="text-[#00b8a3] font-semibold">0%</span></span>
-              <button id="blind75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#00b8a3] hover:bg-[#00b8a31a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+              <button id="blind75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#00b8a3] hover:bg-[#00b8a31a] transition-all"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             </div>
           </div>
           <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
@@ -411,7 +427,7 @@
             <span id="neetcode150-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ffa116] transition-colors" title="NeetCode 150">NC 150</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-[#eff1f699]"><span id="neetcode150-count" class="text-[#eff1f6]">0/158</span> <span id="neetcode150-percentage" class="text-[#ffa116] font-semibold">0%</span></span>
-              <button id="neetcode150-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+              <button id="neetcode150-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             </div>
           </div>
           <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
@@ -425,7 +441,7 @@
             <span id="leetcode75-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ff375f] transition-colors" title="LeetCode 75">LC 75</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-[#eff1f699]"><span id="leetcode75-count" class="text-[#eff1f6]">0/75</span> <span id="leetcode75-percentage" class="text-[#ff375f] font-semibold">0%</span></span>
-              <button id="leetcode75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ff375f] hover:bg-[#ff375f1a] transition-all focus:outline-none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+              <button id="leetcode75-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ff375f] hover:bg-[#ff375f1a] transition-all"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
             </div>
           </div>
           <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
@@ -476,7 +492,7 @@
           <p class="text-[11px] text-[#eff1f699] mt-0.5">Browse & filter all LeetCode problems</p>
         </div>
         <button id="explorer-btn"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3a3a3a] text-[#eff1f6] text-[12px] font-medium transition-all hover:bg-[#4a4a4a] active:scale-[0.98] focus:outline-none"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3a3a3a] text-[#eff1f6] text-[12px] font-medium transition-all hover:bg-[#4a4a4a] active:scale-[0.98]"
           title="Browse all problems">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
@@ -507,7 +523,7 @@
         <!-- Daily reminders row -->
         <div class="flex items-center justify-between">
           <span class="text-[13px] text-[#eff1f699]">Daily reminders</span>
-          <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications">
+          <button id="toggle-notifications" class="relative w-9 h-5 rounded-full transition-colors bg-[#ffffff1a]" title="Toggle notifications" role="switch" aria-checked="false">
             <span id="notif-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform"></span>
           </button>
         </div>
@@ -550,7 +566,7 @@
       <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <span class="text-[13px] text-[#eff1f699]">Show streak in badge</span>
-          <button id="toggle-badge-streak" class="relative w-9 h-5 rounded-full transition-colors bg-[#2cbb5d]" title="Toggle streak badge">
+          <button id="toggle-badge-streak" class="relative w-9 h-5 rounded-full transition-colors bg-[#2cbb5d]" title="Toggle streak badge" role="switch" aria-checked="true">
             <span id="badge-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-[#eff1f6] transition-transform translate-x-4"></span>
           </button>
         </div>
@@ -664,10 +680,10 @@
   </div>
 
   <!-- Streak Detail Modal -->
-  <div id="streak-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.7)">
+  <div id="streak-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.7)" role="dialog" aria-modal="true" aria-labelledby="streak-modal-title">
     <div class="bg-[#1e1e1e] rounded-2xl p-5 w-[320px] border border-[#ffffff0d] mx-4">
       <div class="flex items-center justify-between mb-4">
-        <span class="text-[14px] font-semibold text-[#eff1f6]">Streak Details</span>
+        <span id="streak-modal-title" class="text-[14px] font-semibold text-[#eff1f6]">Streak Details</span>
         <button id="streak-modal-close" class="text-[20px] leading-none text-[#eff1f699] hover:text-[#eff1f6] transition-colors">×</button>
       </div>
       <!-- Hero streak number -->
@@ -708,6 +724,9 @@
 
   <!-- Custom Tooltip -->
   <div id="custom-tooltip" class="fixed z-50 px-2 py-1 text-[11px] bg-[#3a3a3a] text-[#eff1f6] rounded shadow-lg pointer-events-none opacity-0 transition-opacity whitespace-nowrap"></div>
+
+  <!-- Toast notification -->
+  <div id="toast" style="display:none; position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#282828; color:#eff1f6; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 16px; font-size:12px; z-index:100; box-shadow:0 4px 12px rgba(0,0,0,0.4); transition:opacity 0.2s ease; white-space:nowrap;"></div>
 
   <script src="sync.js"></script>
   <script src="popup.js"></script>
