@@ -1218,7 +1218,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mainView = document.getElementById("main-view");
   const settingsView = document.getElementById("settings-view");
 
+  // One-time settings tooltip
+  const settingsTooltip = document.getElementById("settings-tooltip");
+  chrome.storage.local.get(['settingsTooltipShown'], (r) => {
+    if (!r.settingsTooltipShown && settingsTooltip) {
+      settingsTooltip.style.display = 'block';
+      // Auto-dismiss after 4 seconds
+      setTimeout(() => {
+        settingsTooltip.style.display = 'none';
+        chrome.storage.local.set({ settingsTooltipShown: true });
+      }, 4000);
+    }
+  });
+
   document.getElementById("settings-btn").addEventListener("click", () => {
+    // Dismiss tooltip on click
+    if (settingsTooltip) {
+      settingsTooltip.style.display = 'none';
+      chrome.storage.local.set({ settingsTooltipShown: true });
+    }
     mainView.style.display = 'none';
     mainView.classList.add("hidden");
     settingsView.classList.remove("hidden");

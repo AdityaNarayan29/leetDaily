@@ -278,6 +278,14 @@
     .skeleton-bar { height: 8px; border-radius: 9999px; }
     .skeleton-cell { border-radius: 3px; }
 
+    /* Settings gear rotation on hover */
+    .settings-gear {
+      transition: transform 0.3s ease-in-out;
+    }
+    #settings-btn:hover .settings-gear {
+      transform: rotate(45deg);
+    }
+
     /* Focus-visible outlines for keyboard navigation */
     *:focus-visible {
       outline: 2px solid #ffa116;
@@ -321,12 +329,17 @@
         <span id="streakDisplay" class="text-[14px] font-semibold text-[#ffa116]"></span>
         <span class="text-[#ffffff1a]">|</span>
         <!-- Settings Icon -->
+        <div class="relative">
+          <span id="settings-tooltip" style="display:none; position:absolute; top:calc(100% + 8px); right:0; background:#ffa116; color:#1e1e1e; font-size:11px; font-weight:600; padding:5px 10px; border-radius:8px; white-space:nowrap; z-index:50;">Set your focus areas
+            <span style="position:absolute; top:-4px; right:10px; width:8px; height:8px; background:#ffa116; transform:rotate(45deg);"></span>
+          </span>
         <button id="settings-btn" class="text-[#eff1f699] hover:text-[#eff1f6] transition-colors" title="Settings">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="w-4 h-4 settings-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
+        </div>
       </div>
     </header>
 
