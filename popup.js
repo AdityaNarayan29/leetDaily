@@ -1277,7 +1277,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const newTheme = isLight ? 'dark' : 'light';
     applyTheme(newTheme);
     chrome.storage.local.set({ theme: newTheme });
-    debouncedPushPrefs();
   });
 
   // Notification toggle

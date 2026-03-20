@@ -7,8 +7,7 @@ const ALLOWED_KEYS = new Set([
   'notificationsEnabled',
   'reminderTime',
   'badgeStreakEnabled',
-  'badgeDisplay',
-  'theme'
+  'badgeDisplay'
 ]);
 
 const USERNAME_RE = /^[a-zA-Z0-9_-]{1,39}$/;
