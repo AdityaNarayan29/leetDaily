@@ -187,8 +187,10 @@ async function checkIfDailyAndUpdate() {
 
     if (anySubmissionEnabled) {
       // "Any submission" is enabled — every accepted problem counts
-      isLoadingActive = true;
-      notifyLoading();
+      if (!isLoadingActive) {
+        isLoadingActive = true;
+        notifyLoading();
+      }
       setTimeout(() => checkAndNotifyCompletion(), 2000);
       return;
     }
@@ -214,8 +216,10 @@ async function checkIfDailyAndUpdate() {
     if (titleSlug !== dailySlug) return;
 
     // It's the daily challenge — start loading blink
-    isLoadingActive = true;
-    notifyLoading();
+    if (!isLoadingActive) {
+      isLoadingActive = true;
+      notifyLoading();
+    }
     setTimeout(() => checkAndNotifyCompletion(), 2000);
   } catch (error) {
     console.log('Daily challenge check failed:', error.message);
