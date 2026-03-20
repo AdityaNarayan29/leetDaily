@@ -1,7 +1,7 @@
 {
   "name": "leetdaily",
   "displayName": "LeetDaily",
-  "version": "2.2.2.2",
+  "version": "2.3.0",
   "description": "Chrome extension for LeetCode interview prep — daily challenges, Blind 75/NeetCode 150/LC 75 tracking, FAANG company tags, focus streak, 2000+ problems explorer, 30-day heatmap & smart reminders.",
   "main": "popup.js",
   "scripts": {
