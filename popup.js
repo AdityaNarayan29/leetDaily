@@ -1262,97 +1262,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let currentTheme = null;
 
-  // Inject light-mode stylesheet dynamically
-  const lightStyleEl = document.createElement('style');
-  lightStyleEl.id = 'light-theme-styles';
-  lightStyleEl.disabled = true;
-  lightStyleEl.textContent = `
-    body { background: #f5f5f5 !important; }
-    /* Backgrounds */
-    .bg-\\[\\#1a1a1a\\] { background-color: #f5f5f5 !important; }
-    .bg-\\[\\#282828\\] { background-color: #ffffff !important; }
-    .bg-\\[\\#3a3a3a\\] { background-color: #e4e4e4 !important; }
-    .hover\\:bg-\\[\\#4a4a4a\\]:hover { background-color: #d4d4d4 !important; }
-    .bg-\\[\\#ffffff0d\\] { background-color: rgba(0,0,0,0.05) !important; }
-    .bg-\\[\\#ffffff1a\\] { background-color: rgba(0,0,0,0.1) !important; }
-    .hover\\:bg-\\[\\#ffffff1a\\]:hover { background-color: rgba(0,0,0,0.08) !important; }
-    button.bg-\\[\\#ffffff1a\\] { background-color: rgba(0,0,0,0.18) !important; }
-    /* Text */
-    .text-\\[\\#eff1f6\\] { color: #1a1a1a !important; }
-    .text-\\[\\#eff1f699\\] { color: #555 !important; }
-    .text-\\[\\#eff1f666\\] { color: #888 !important; }
-    .text-\\[\\#eff1f644\\] { color: #aaa !important; }
-    .text-\\[\\#eff1f6cc\\] { color: #333 !important; }
-    .text-\\[\\#ffffff1a\\] { color: rgba(0,0,0,0.12) !important; }
-    .text-\\[\\#ffffff33\\] { color: rgba(0,0,0,0.15) !important; }
-    /* Hover text — higher specificity beats above */
-    .hover\\:text-\\[\\#eff1f6\\]:hover { color: #000 !important; }
-    .hover\\:text-\\[\\#ffa116\\]:hover { color: #e8920a !important; }
-    .hover\\:text-\\[\\#00b8a3\\]:hover { color: #00a392 !important; }
-    .hover\\:text-\\[\\#ff375f\\]:hover { color: #e8294f !important; }
-    .group:hover .group-hover\\:text-\\[\\#eff1f6\\] { color: #000 !important; }
-    /* Borders */
-    .border-\\[\\#ffffff0d\\] { border-color: rgba(0,0,0,0.06) !important; }
-    .border-\\[\\#ffffff1a\\] { border-color: rgba(0,0,0,0.1) !important; }
-    .hover\\:border-\\[\\#ffffff1a\\]:hover { border-color: rgba(0,0,0,0.15) !important; }
-    /* Checkboxes */
-    input[type="checkbox"] { background: #f0f0f0 !important; border-color: rgba(0,0,0,0.2) !important; }
-    input[type="checkbox"]:checked { background-color: #ffa116 !important; border-color: #ffa116 !important; }
-    input[type="radio"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px; height: 16px; border-radius: 50%;
-      border: 2px solid rgba(0,0,0,0.25);
-      background: #fff !important;
-      position: relative; cursor: pointer;
-    }
-    input[type="radio"]:checked {
-      border-color: #ffa116;
-      background: #fff !important;
-    }
-    input[type="radio"]:checked::after {
-      content: ''; position: absolute;
-      top: 3px; left: 3px; width: 6px; height: 6px;
-      border-radius: 50%; background: #ffa116;
-    }
-    /* Inputs */
-    .tag-text-input { background: #f0f0f0 !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
-    .tag-text-input::placeholder { color: rgba(0,0,0,0.3) !important; }
-    .tag-chip { background: rgba(0,0,0,0.06) !important; }
-    select { color: #1a1a1a !important; }
-    select option { background: #fff; color: #1a1a1a; }
-    /* Dropdowns */
-    .combobox-dropdown { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; box-shadow: 0 6px 16px rgba(0,0,0,0.1) !important; }
-    .combobox-item { color: #444 !important; }
-    .combobox-item:hover, .combobox-item.active { background: rgba(0,0,0,0.05) !important; color: #1a1a1a !important; }
-    /* Modal */
-    #streak-modal > div { background: #fff !important; border-color: rgba(0,0,0,0.08) !important; }
-    #streak-modal .bg-\\[\\#282828\\] { background: #f5f5f5 !important; }
-    /* Toast, tooltip, popovers */
-    #toast { background: #fff !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
-    #custom-tooltip { background: #fff !important; color: #1a1a1a !important; box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important; }
-    #focus-info-popover, #freeze-info-popover { background: #f5f5f5 !important; border-color: rgba(0,0,0,0.08) !important; }
-    /* Skeleton */
-    .skeleton { background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%) !important; background-size: 200% 100%; }
-    /* Heatmap */
-    .heatmap-cell { border: 1px solid rgba(0,0,0,0.04); }
-    .heatmap-cell:hover { box-shadow: 0 0 0 1px rgba(0,0,0,0.2); }
-    /* Question */
-    #question { color: #444 !important; }
-  `;
-  // Only append light stylesheet if light mode is active (prevents repaint on dark mode)
-  // Will be appended in applyTheme() if needed
+  // Light mode is handled by CSS in <style> using html.light selector
+  // No JS stylesheet injection needed — class is set synchronously in <head>
 
   function applyTheme(theme) {
     if (currentTheme === theme) return;
-    if (theme === 'light' && !lightStyleEl.parentNode) {
-      document.head.appendChild(lightStyleEl);
-    }
-    lightStyleEl.disabled = (theme !== 'light');
 
-    // Switch html color-scheme so browser renders form controls correctly
-    document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.classList.toggle('light', theme === 'light');
     document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark';
 
     if (theme === 'light') {
       sunIcon.classList.add('hidden');

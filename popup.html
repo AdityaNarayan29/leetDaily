@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeetDaily</title>
   <link rel="stylesheet" href="styles/output.css" />
+  <script>
+    // Read theme before first paint — body hidden until resolved
+    document.documentElement.style.visibility = 'hidden';
+    chrome.storage.local.get(['theme'], (r) => {
+      if (r.theme === 'light') {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+      }
+      document.documentElement.style.visibility = 'visible';
+    });
+  </script>
   <style>
     /* Hide default select arrow and style */
     select {
@@ -344,8 +356,46 @@
     .skeleton-bar { height: 8px; border-radius: 9999px; }
     .skeleton-cell { border-radius: 3px; }
 
-    /* ═══ LIGHT MODE ═══ */
-    /* Handled by JS class swapping — see applyTheme() in popup.js */
+    /* ═══ LIGHT MODE (applied via html.light class) ═══ */
+    html.light body { background: #f5f5f5 !important; }
+    html.light .bg-\[\#1a1a1a\] { background-color: #f5f5f5 !important; }
+    html.light .bg-\[\#282828\] { background-color: #ffffff !important; }
+    html.light .bg-\[\#3a3a3a\] { background-color: #e4e4e4 !important; }
+    html.light .hover\:bg-\[\#4a4a4a\]:hover { background-color: #d4d4d4 !important; }
+    html.light .bg-\[\#ffffff0d\] { background-color: rgba(0,0,0,0.05) !important; }
+    html.light .bg-\[\#ffffff1a\] { background-color: rgba(0,0,0,0.1) !important; }
+    html.light .hover\:bg-\[\#ffffff1a\]:hover { background-color: rgba(0,0,0,0.08) !important; }
+    html.light button.bg-\[\#ffffff1a\] { background-color: rgba(0,0,0,0.18) !important; }
+    html.light .text-\[\#eff1f6\] { color: #1a1a1a !important; }
+    html.light .text-\[\#eff1f699\] { color: #555 !important; }
+    html.light .text-\[\#eff1f666\] { color: #888 !important; }
+    html.light .text-\[\#eff1f644\] { color: #aaa !important; }
+    html.light .text-\[\#eff1f6cc\] { color: #333 !important; }
+    html.light .text-\[\#ffffff1a\], html.light .text-\[\#ffffff33\] { color: rgba(0,0,0,0.12) !important; }
+    html.light .hover\:text-\[\#eff1f6\]:hover { color: #000 !important; }
+    html.light .hover\:text-\[\#ffa116\]:hover { color: #e8920a !important; }
+    html.light .hover\:text-\[\#00b8a3\]:hover { color: #00a392 !important; }
+    html.light .group:hover .group-hover\:text-\[\#eff1f6\] { color: #000 !important; }
+    html.light .border-\[\#ffffff0d\] { border-color: rgba(0,0,0,0.06) !important; }
+    html.light .border-\[\#ffffff1a\] { border-color: rgba(0,0,0,0.1) !important; }
+    html.light span[class*="bg-[#eff1f6]"] { background: #fff !important; }
+    html.light input[type="checkbox"] { background: #f0f0f0 !important; border-color: rgba(0,0,0,0.2) !important; }
+    html.light input[type="checkbox"]:checked { background-color: #ffa116 !important; border-color: #ffa116 !important; }
+    html.light input[type="radio"] { accent-color: #ffa116; }
+    html.light .tag-text-input { background: #f0f0f0 !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
+    html.light .tag-chip { background: rgba(0,0,0,0.06) !important; }
+    html.light select { color: #1a1a1a !important; }
+    html.light .combobox-dropdown { background: #fff !important; border-color: rgba(0,0,0,0.1) !important; }
+    html.light .combobox-item { color: #444 !important; }
+    html.light .combobox-item:hover, html.light .combobox-item.active { background: rgba(0,0,0,0.05) !important; color: #1a1a1a !important; }
+    html.light #streak-modal > div { background: #fff !important; border-color: rgba(0,0,0,0.08) !important; }
+    html.light #streak-modal .bg-\[\#282828\] { background: #f5f5f5 !important; }
+    html.light #toast { background: #fff !important; color: #1a1a1a !important; border-color: rgba(0,0,0,0.1) !important; }
+    html.light #custom-tooltip { background: #fff !important; color: #1a1a1a !important; }
+    html.light #focus-info-popover, html.light #freeze-info-popover { background: #f5f5f5 !important; border-color: rgba(0,0,0,0.08) !important; }
+    html.light .skeleton { background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%) !important; background-size: 200% 100%; }
+    html.light .heatmap-cell { border: 1px solid rgba(0,0,0,0.04); }
+    html.light #question { color: #444 !important; }
 
     /* Settings gear rotation on hover */
     .settings-gear {
