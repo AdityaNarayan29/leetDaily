@@ -422,7 +422,7 @@ function updateBadge() {
 
     // Colors
     const darkBg = "#1a1a1a";
-    const greenColor = "#4ade80";
+    const greenColor = "#2cbb5d";
     const orangeColor = "#fbbf24";
     const redColor = "#f87171";
 
@@ -534,6 +534,8 @@ async function checkLeetCodeCompletion() {
   }
 }
 
+// Sync streak from LeetCode API immediately on service worker startup
+checkLeetCodeCompletion();
 updateBadge();
 // Check LeetCode API every 5 minutes as fallback (content script handles instant updates)
 setInterval(checkLeetCodeCompletion, 5 * 60 * 1000);

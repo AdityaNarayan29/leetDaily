@@ -1073,9 +1073,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? `<svg class="w-2 h-2 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"></polyline></svg>`
         : '';
 
-      const delay = (29 - i) * 15; // stagger: left to right
       days.push(`
-        <div class="heatmap-cell w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" data-tooltip="${tooltip}" style="animation-delay:${delay}ms">${checkmark}</div>
+        <div class="heatmap-cell w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" data-tooltip="${tooltip}">${checkmark}</div>
       `);
     }
 
