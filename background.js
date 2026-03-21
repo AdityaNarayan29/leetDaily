@@ -465,16 +465,9 @@ function updateBadge() {
 // Check LeetCode API for completion status and update storage/badge
 async function checkLeetCodeCompletion() {
   try {
-    // First check if we already know it's completed today
-    const stored = await chrome.storage.local.get(["lastSolvedDate"]);
     const today = getTodayDate();
 
-    // If already marked as solved today, no need to check API
-    if (stored.lastSolvedDate === today) {
-      return;
-    }
-
-    // Fetch from LeetCode API
+    // Always fetch from LeetCode API to keep streak in sync
     const response = await leetcodeFetch({
         query: `
           query globalData {
