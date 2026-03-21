@@ -1340,10 +1340,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* Question */
     #question { color: #444 !important; }
   `;
-  document.head.appendChild(lightStyleEl);
+  // Only append light stylesheet if light mode is active (prevents repaint on dark mode)
+  // Will be appended in applyTheme() if needed
 
   function applyTheme(theme) {
     if (currentTheme === theme) return;
+    if (theme === 'light' && !lightStyleEl.parentNode) {
+      document.head.appendChild(lightStyleEl);
+    }
     lightStyleEl.disabled = (theme !== 'light');
 
     // Switch html color-scheme so browser renders form controls correctly

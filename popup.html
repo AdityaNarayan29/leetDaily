@@ -6,12 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeetDaily</title>
   <link rel="stylesheet" href="styles/output.css" />
-  <script>
-    // Apply theme immediately to prevent flash
-    chrome.storage.local.get(['theme'], (r) => {
-      if (r.theme === 'light') document.documentElement.style.colorScheme = 'light';
-    });
-  </script>
   <style>
     /* Hide default select arrow and style */
     select {
