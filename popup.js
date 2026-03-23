@@ -650,7 +650,10 @@ function renderQuestion(question, companyData = null) {
 
   document.getElementById("question").innerHTML = `
     <div class="mb-3">
-      <div class="text-[13px] leading-snug"><span class="text-[#eff1f699]">${question.questionFrontendId}. ${escapeHtml(question.title)}</span> <span style="white-space: nowrap; font-size: 11px; float: right; margin-top: 2px;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color: #eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color: #eff1f699;">${acceptanceRate}%</span></span></div>
+      <div class="flex items-start justify-between gap-3">
+        <span class="text-[13px] leading-snug text-[#eff1f699]">${question.questionFrontendId}. ${escapeHtml(question.title)}</span>
+        <span style="white-space:nowrap; font-size:11px; flex-shrink:0;"><span class="font-medium ${difficultyColor}">${question.difficulty}</span><span style="color:#eff1f699;">&nbsp;·&nbsp;</span><span id="acceptance-rate" style="color:#eff1f699;">${acceptanceRate}%</span></span>
+      </div>
     </div>
     <div>
       <!-- Topics row -->
