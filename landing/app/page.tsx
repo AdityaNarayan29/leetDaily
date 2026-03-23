@@ -18,7 +18,7 @@ export default function Home() {
     installUrl:
       "https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf",
     browserRequirements: "Requires Chrome",
-    softwareVersion: "2.3.2",
+    softwareVersion: "2.3.3",
     author: {
       "@type": "Person",
       name: "Aditya Narayan",
