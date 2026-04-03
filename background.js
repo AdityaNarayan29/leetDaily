@@ -281,17 +281,15 @@ async function updateStreaksAndStorage(problemData) {
       const apiStreak = await fetchStreakFromLeetCode();
       const currentStreak = apiStreak !== null ? apiStreak : 0;
 
-      // Mark lastSolvedDate if daily challenge OR "Any submission" is enabled
+      // Always mark lastSolvedDate — badge color uses focusGoalMetToday for focus mode
       const storageData = {
         solvedProblems,
         completedProblemIds,
         currentStreak,
+        lastSolvedDate: solveDate,
         topicStreaks,
         companyStreaks
       };
-      if (problemData.isDailyChallenge || reqs.anySubmission) {
-        storageData.lastSolvedDate = solveDate;
-      }
       chrome.storage.local.set(storageData, () => {
         console.log('✅ Streaks updated:', { currentStreak });
         resolve({ currentStreak });
