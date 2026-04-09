@@ -6,18 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeetDaily</title>
   <link rel="stylesheet" href="styles/output.css" />
-  <script>
-    // Read theme before first paint — body hidden until resolved
-    document.documentElement.style.visibility = 'hidden';
-    chrome.storage.local.get(['theme'], (r) => {
-      if (r.theme === 'light') {
-        document.documentElement.classList.add('light');
-        document.documentElement.classList.remove('dark');
-        document.documentElement.style.colorScheme = 'light';
-      }
-      document.documentElement.style.visibility = 'visible';
-    });
-  </script>
+  <script src="theme-init.js"></script>
   <style>
     /* Hide default select arrow and style */
     select {
