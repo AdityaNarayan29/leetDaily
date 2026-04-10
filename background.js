@@ -34,7 +34,7 @@ async function loadCuratedLists() {
       fetch(chrome.runtime.getURL('data/neetcode150.json')),
       fetch(chrome.runtime.getURL('data/namastedsa.json')),
       fetch(chrome.runtime.getURL('data/frazdsa.json')),
-      fetch(chrome.runtime.getURL('data/striver-sde.json'))
+      fetch(chrome.runtime.getURL('data/striversde.json'))
     ]);
 
     const [lc75Data, blind75Data, nc150Data, namasteData, frazData, striverData] = await Promise.all([
