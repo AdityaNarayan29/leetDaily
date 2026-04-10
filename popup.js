@@ -1323,12 +1323,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     notifToggle.setAttribute('aria-checked', String(enabled));
     if (enabled) {
       notifToggle.classList.remove("bg-[#ffffff1a]");
-      notifToggle.classList.add("bg-[#00b8a3]");
+      notifToggle.style.backgroundColor = "#00b8a3";
       notifDot.classList.add("translate-x-4");
       reminderTimeSection.classList.remove("hidden");
     } else {
       notifToggle.classList.add("bg-[#ffffff1a]");
-      notifToggle.classList.remove("bg-[#00b8a3]");
+      notifToggle.style.backgroundColor = "";
       notifDot.classList.remove("translate-x-4");
       reminderTimeSection.classList.add("hidden");
     }
@@ -1354,11 +1354,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     badgeToggle.setAttribute('aria-checked', String(enabled));
     if (enabled) {
       badgeToggle.classList.remove("bg-[#ffffff1a]");
-      badgeToggle.classList.add("bg-[#00b8a3]");
+      badgeToggle.style.backgroundColor = "#00b8a3";
       badgeDot.classList.add("translate-x-4");
     } else {
       badgeToggle.classList.add("bg-[#ffffff1a]");
-      badgeToggle.classList.remove("bg-[#00b8a3]");
+      badgeToggle.style.backgroundColor = "";
       badgeDot.classList.remove("translate-x-4");
     }
   }
