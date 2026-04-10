@@ -588,6 +588,23 @@
           </div>
         </div>
 
+        <!-- Striver SDE -->
+        <div id="striversde-card" class="mb-2">
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center gap-2">
+              <span id="striversde-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ec4899] transition-colors" title="Striver SDE Sheet">Striver SDE</span>
+              <a href="https://takeuforward.org/interviews/strivers-sde-sheet-top-coding-interview-problems/" target="_blank" title="Open Striver SDE Sheet" class="text-[#eff1f644] hover:text-[#ec4899] transition-colors"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-[#eff1f699] flex items-center gap-1.5"><span id="striversde-count" class="text-[#eff1f6]">0/121</span><span id="striversde-percentage" class="font-semibold" style="color:#ec4899">0%</span></span>
+              <button id="striversde-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ec4899] hover:bg-[#ec48991a] transition-all"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            </div>
+          </div>
+          <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+            <div id="striversde-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ec4899;"></div>
+          </div>
+        </div>
+
         <!-- LeetCode 75 -->
         <div id="leetcode75-card">
           <div class="flex items-center justify-between mb-2.5">
@@ -826,6 +843,21 @@
             <p class="text-[11px] text-[#eff1f6cc] leading-relaxed">
               <strong class="text-[#ffa116]">305 unique LeetCode problems</strong> from the DSA Sheet by Fraz (LeadCoding).
               Covers 18 categories including Arrays, DP, Trees, Graphs, Design, and more.
+            </p>
+          </div>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="req-striversde" class="flex-shrink-0 cursor-pointer">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Striver SDE Sheet</span>
+              <button id="striver-info-btn" class="text-[#eff1f644] hover:text-[#ffa116] transition-colors" title="About Striver SDE Sheet">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              </button>
+            </div>
+          </label>
+          <div id="striver-info-popover" class="hidden bg-[#1a1a1a] border border-[#ffffff1a] rounded-xl p-3 ml-6 -mt-1">
+            <p class="text-[11px] text-[#eff1f6cc] leading-relaxed">
+              <strong class="text-[#ffa116]">121 unique LeetCode problems</strong> from the Striver SDE Sheet (TakeUForward).
+              61 problems are on InterviewBit/TUF only (not on LeetCode). Covers 27 categories across all DSA topics.
             </p>
           </div>
           <label class="flex items-center cursor-pointer group" style="gap: 10px;">

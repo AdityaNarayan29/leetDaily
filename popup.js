@@ -118,7 +118,8 @@ async function getNextUnsolvedForList(listName) {
         }
       }
       // Namaste DSA: sequential (first unsolved in order), others: random
-      resolve(listName === 'namastedsa' ? (candidates[0] || null) : pickRandom(candidates));
+      const sequential = ['namastedsa', 'frazdsa', 'striversde'].includes(listName);
+      resolve(sequential ? (candidates[0] || null) : pickRandom(candidates));
     });
   });
 }
@@ -1145,7 +1146,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         getListStats('neetcode150', completedProblemIds),
         getListStats('leetcode75', completedProblemIds),
         getListStats('namastedsa', completedProblemIds),
-        getListStats('frazdsa', completedProblemIds)
+        getListStats('frazdsa', completedProblemIds),
+        getListStats('striversde', completedProblemIds)
       ]);
 
       updateProgressCard('blind75', blind75Stats.completed, blind75Stats.total, blind75Stats.percentage);
@@ -1153,6 +1155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateProgressCard('leetcode75', leetcode75Stats.completed, leetcode75Stats.total, leetcode75Stats.percentage);
       updateProgressCard('namastedsa', namasteStats.completed, namasteStats.total, namasteStats.percentage);
       updateProgressCard('frazdsa', frazStats.completed, frazStats.total, frazStats.percentage);
+      updateProgressCard('striversde', striverStats.completed, striverStats.total, striverStats.percentage);
 
     } catch (error) {
       console.error('❌ Failed to render list progress:', error);
@@ -1162,6 +1165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateProgressCard('leetcode75', 0, 75, 0);
       updateProgressCard('namastedsa', 0, 147, 0);
       updateProgressCard('frazdsa', 0, 305, 0);
+      updateProgressCard('striversde', 0, 121, 0);
     }
   }
 
@@ -1188,7 +1192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['namastedsa-label', 'namastedsa'], ['frazdsa-label', 'frazdsa'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
+  [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['namastedsa-label', 'namastedsa'], ['frazdsa-label', 'frazdsa'], ['striversde-label', 'striversde'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
     const label = document.getElementById(labelId);
     if (label) {
       label.addEventListener('click', () => {
@@ -1198,7 +1202,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Next unsolved buttons for list cards
-  [['blind75-next', 'blind75'], ['neetcode150-next', 'neetcode150'], ['namastedsa-next', 'namastedsa'], ['frazdsa-next', 'frazdsa'], ['leetcode75-next', 'leetcode75']].forEach(([btnId, listName]) => {
+  [['blind75-next', 'blind75'], ['neetcode150-next', 'neetcode150'], ['namastedsa-next', 'namastedsa'], ['frazdsa-next', 'frazdsa'], ['striversde-next', 'striversde'], ['leetcode75-next', 'leetcode75']].forEach(([btnId, listName]) => {
     const btn = document.getElementById(btnId);
     if (btn) {
       btn.addEventListener('click', async (e) => {
@@ -1510,6 +1514,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const reqNc150 = document.getElementById("req-nc150");
   const reqNamaste = document.getElementById("req-namastedsa");
   const reqFraz = document.getElementById("req-frazdsa");
+  const reqStriver = document.getElementById("req-striversde");
   const reqAny = document.getElementById("req-any");
 
   // Tag input state (initialized after setupTagInput is defined)
@@ -1525,6 +1530,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       neetcode150: reqNc150.checked,
       namastedsa: reqNamaste ? reqNamaste.checked : false,
       frazdsa: reqFraz ? reqFraz.checked : false,
+      striversde: reqStriver ? reqStriver.checked : false,
       anySubmission: reqAny ? reqAny.checked : false,
       companyFocus: companyTags ? companyTags.isEnabled() : false,
       selectedCompanies: companyTags ? companyTags.getTags() : [],
@@ -1555,13 +1561,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       neetcode150: reqNc150.checked,
       leetcode75: reqLc75.checked,
       namastedsa: reqNamaste ? reqNamaste.checked : false,
-      frazdsa: reqFraz ? reqFraz.checked : false
+      frazdsa: reqFraz ? reqFraz.checked : false,
+      striversde: reqStriver ? reqStriver.checked : false
     };
 
     const blind75Card = document.getElementById('blind75-card');
     const neetcode150Card = document.getElementById('neetcode150-card');
     const namastedsaCard = document.getElementById('namastedsa-card');
     const frazdsaCard = document.getElementById('frazdsa-card');
+    const striversdeCard = document.getElementById('striversde-card');
     const leetcode75Card = document.getElementById('leetcode75-card');
     const progressSection = document.getElementById('list-progress-section');
     const dailyChallengeSection = document.getElementById('daily-challenge-section');
@@ -1570,10 +1578,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (neetcode150Card) neetcode150Card.classList.toggle('hidden', !reqs.neetcode150);
     if (namastedsaCard) namastedsaCard.classList.toggle('hidden', !reqs.namastedsa);
     if (frazdsaCard) frazdsaCard.classList.toggle('hidden', !reqs.frazdsa);
+    if (striversdeCard) striversdeCard.classList.toggle('hidden', !reqs.striversde);
     if (leetcode75Card) leetcode75Card.classList.toggle('hidden', !reqs.leetcode75);
 
     if (progressSection) {
-      progressSection.classList.toggle('hidden', !reqs.blind75 && !reqs.neetcode150 && !reqs.namastedsa && !reqs.frazdsa && !reqs.leetcode75);
+      progressSection.classList.toggle('hidden', !reqs.blind75 && !reqs.neetcode150 && !reqs.namastedsa && !reqs.frazdsa && !reqs.striversde && !reqs.leetcode75);
     }
 
     // Show/hide daily challenge section based on checkbox
@@ -1916,7 +1925,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   // Save requirements when checkboxes change
-  [reqDaily, reqLc75, reqBlind75, reqNc150, reqNamaste, reqFraz, reqAny].filter(Boolean).forEach(checkbox => {
+  [reqDaily, reqLc75, reqBlind75, reqNc150, reqNamaste, reqFraz, reqStriver, reqAny].filter(Boolean).forEach(checkbox => {
     checkbox.addEventListener("change", saveRequirements);
   });
 
@@ -1931,6 +1940,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reqNc150.checked = req.neetcode150 ?? true;
     if (reqNamaste) reqNamaste.checked = req.namastedsa || false;
     if (reqFraz) reqFraz.checked = req.frazdsa || false;
+    if (reqStriver) reqStriver.checked = req.striversde || false;
     if (reqAny) reqAny.checked = req.anySubmission || false;
 
     if (req.companyFocus) companyTags.setEnabled(true);
@@ -1984,6 +1994,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  const striverInfoBtn = document.getElementById("striver-info-btn");
+  const striverInfoPopover = document.getElementById("striver-info-popover");
+  if (striverInfoBtn && striverInfoPopover) {
+    striverInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      striverInfoPopover.classList.toggle("hidden");
+    });
+  }
+
   // Dismiss popovers on outside click
   document.addEventListener("click", (e) => {
     if (!focusInfoPopover.contains(e.target) && e.target !== focusInfoBtn) {
@@ -1997,6 +2017,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (frazInfoPopover && !frazInfoPopover.contains(e.target) && e.target !== frazInfoBtn) {
       frazInfoPopover.classList.add("hidden");
+    }
+    if (striverInfoPopover && !striverInfoPopover.contains(e.target) && e.target !== striverInfoBtn) {
+      striverInfoPopover.classList.add("hidden");
     }
   });
 

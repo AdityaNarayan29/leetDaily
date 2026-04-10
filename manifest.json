@@ -41,6 +41,7 @@
         "data/leetcode75.json",
         "data/namastedsa.json",
         "data/frazdsa.json",
+        "data/striver-sde.json",
         "problems-explorer.html",
         "problems-explorer.js",
         "styles/output.css"

@@ -1,0 +1,271 @@
+{
+  "name": "Striver SDE Sheet",
+  "totalProblems": 121,
+  "categories": [
+    {
+      "name": "Arrays",
+      "problemIds": [
+        73,
+        118,
+        31,
+        53,
+        75,
+        121
+      ]
+    },
+    {
+      "name": "Arrays Part-II",
+      "problemIds": [
+        48,
+        56,
+        88,
+        287
+      ]
+    },
+    {
+      "name": "Arrays Part-III",
+      "problemIds": [
+        74,
+        50,
+        169,
+        229,
+        62,
+        493
+      ]
+    },
+    {
+      "name": "Arrays Part-IV",
+      "problemIds": [
+        1,
+        18,
+        128,
+        3
+      ]
+    },
+    {
+      "name": "Linked List",
+      "problemIds": [
+        206,
+        876,
+        21,
+        19,
+        2,
+        237
+      ]
+    },
+    {
+      "name": "Linked List Part-II",
+      "problemIds": [
+        160,
+        141,
+        25,
+        234,
+        142
+      ]
+    },
+    {
+      "name": "Linked List and Arrays",
+      "problemIds": [
+        61,
+        138,
+        15,
+        42,
+        26,
+        485
+      ]
+    },
+    {
+      "name": "Greedy Algorithm",
+      "problemIds": [
+        455
+      ]
+    },
+    {
+      "name": "Recursion",
+      "problemIds": [
+        90,
+        39,
+        40,
+        131,
+        60
+      ]
+    },
+    {
+      "name": "Recursion and Backtracking",
+      "problemIds": [
+        46,
+        51,
+        37
+      ]
+    },
+    {
+      "name": "Binary Search",
+      "problemIds": [
+        540,
+        33,
+        4
+      ]
+    },
+    {
+      "name": "Heaps",
+      "problemIds": [
+        215,
+        295,
+        347
+      ]
+    },
+    {
+      "name": "Stack and Queue",
+      "problemIds": [
+        225,
+        232,
+        20,
+        496
+      ]
+    },
+    {
+      "name": "Stack and Queue Part-II",
+      "problemIds": [
+        146,
+        460,
+        84,
+        239,
+        155,
+        994,
+        901
+      ]
+    },
+    {
+      "name": "String",
+      "problemIds": [
+        151,
+        5,
+        13,
+        8,
+        14,
+        686
+      ]
+    },
+    {
+      "name": "String Part-II",
+      "problemIds": [
+        242,
+        38,
+        165,
+        28,
+        28
+      ]
+    },
+    {
+      "name": "Binary Tree",
+      "problemIds": [
+        94,
+        144,
+        145,
+        94,
+        987,
+        662
+      ]
+    },
+    {
+      "name": "Binary Tree part-II",
+      "problemIds": [
+        102,
+        104,
+        543,
+        110,
+        236,
+        100,
+        103,
+        545
+      ]
+    },
+    {
+      "name": "Binary Tree part-III",
+      "problemIds": [
+        124,
+        105,
+        106,
+        101,
+        114
+      ]
+    },
+    {
+      "name": "Binary Search Tree",
+      "problemIds": [
+        116,
+        700,
+        108,
+        1008,
+        98,
+        235
+      ]
+    },
+    {
+      "name": "Binary Search Tree Part-II",
+      "problemIds": [
+        230,
+        653,
+        173,
+        1373,
+        297
+      ]
+    },
+    {
+      "name": "Binary Trees[Miscellaneous]",
+      "problemIds": [
+        114,
+        295,
+        703,
+        215,
+        733
+      ]
+    },
+    {
+      "name": "Graph",
+      "problemIds": [
+        133,
+        207,
+        207,
+        207,
+        207,
+        200,
+        785,
+        785
+      ]
+    },
+    {
+      "name": "Graph Part-II",
+      "problemIds": [
+        1520
+      ]
+    },
+    {
+      "name": "Dynamic Programming",
+      "problemIds": [
+        152,
+        300,
+        1143,
+        72
+      ]
+    },
+    {
+      "name": "Dynamic Programming Part-II",
+      "problemIds": [
+        64,
+        322,
+        416,
+        1547,
+        139
+      ]
+    },
+    {
+      "name": "Trie",
+      "problemIds": [
+        208,
+        421,
+        1707
+      ]
+    }
+  ]
+}
