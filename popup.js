@@ -1176,6 +1176,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Add click handlers for list labels
+  // Namaste DSA explorer button
+  const namasteExplorerBtn = document.getElementById('namastedsa-explorer');
+  if (namasteExplorerBtn) {
+    namasteExplorerBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('problems-explorer.html?list=namastedsa') });
+    });
+  }
+
   [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['namastedsa-label', 'namastedsa'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
     const label = document.getElementById(labelId);
     if (label) {
