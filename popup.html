@@ -554,6 +554,20 @@
           </div>
         </div>
 
+        <!-- Namaste DSA -->
+        <div id="namastedsa-card" class="mb-2">
+          <div class="flex items-center justify-between mb-2.5">
+            <span id="namastedsa-label" class="text-[13px] font-semibold text-[#eff1f6] cursor-pointer hover:text-[#ffa116] transition-colors" title="Namaste DSA">Namaste DSA</span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-[#eff1f699]"><span id="namastedsa-count" class="text-[#eff1f6]">0/148</span> <span id="namastedsa-percentage" class="text-[#ffa116] font-semibold">0%</span></span>
+              <button id="namastedsa-next" title="Next unsolved" class="cursor-pointer flex items-center justify-center w-5 h-5 rounded text-[#eff1f644] hover:text-[#ffa116] hover:bg-[#ffa1161a] transition-all"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            </div>
+          </div>
+          <div class="w-full h-2 bg-[#ffffff1a] rounded-full overflow-hidden">
+            <div id="namastedsa-progress" class="h-2 rounded-full transition-all duration-300" style="width: 0%; background-color: #ffa116;"></div>
+          </div>
+        </div>
+
         <!-- LeetCode 75 -->
         <div id="leetcode75-card">
           <div class="flex items-center justify-between mb-2.5">
@@ -764,6 +778,21 @@
             <input type="checkbox" id="req-lc75" class="flex-shrink-0 cursor-pointer">
             <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">LeetCode 75</span>
           </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="checkbox" id="req-namastedsa" class="flex-shrink-0 cursor-pointer">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Namaste DSA</span>
+              <button id="namaste-info-btn" class="text-[#eff1f644] hover:text-[#ffa116] transition-colors" title="About Namaste DSA">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              </button>
+            </div>
+          </label>
+          <div id="namaste-info-popover" class="hidden bg-[#1a1a1a] border border-[#ffffff1a] rounded-xl p-3 ml-6 -mt-1">
+            <p class="text-[11px] text-[#eff1f6cc] leading-relaxed">
+              <strong class="text-[#ffa116]">148 LeetCode problems</strong> from the Namaste DSA sheet.
+              6 problems are on namastedev.com only (not on LeetCode): Sum, Count Negative Numbers, Find Smallest Number, Find Largest Number, Detect Cycle (Undirected), Topological Sort.
+            </p>
+          </div>
           <label class="flex items-center cursor-pointer group" style="gap: 10px;">
             <input type="checkbox" id="req-company" class="flex-shrink-0 cursor-pointer">
             <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">Company tags</span>

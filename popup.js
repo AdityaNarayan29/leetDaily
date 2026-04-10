@@ -1137,15 +1137,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       // Get stats for each list
-      const [blind75Stats, neetcode150Stats, leetcode75Stats] = await Promise.all([
+      const [blind75Stats, neetcode150Stats, leetcode75Stats, namasteStats] = await Promise.all([
         getListStats('blind75', completedProblemIds),
         getListStats('neetcode150', completedProblemIds),
-        getListStats('leetcode75', completedProblemIds)
+        getListStats('leetcode75', completedProblemIds),
+        getListStats('namastedsa', completedProblemIds)
       ]);
 
       updateProgressCard('blind75', blind75Stats.completed, blind75Stats.total, blind75Stats.percentage);
       updateProgressCard('neetcode150', neetcode150Stats.completed, neetcode150Stats.total, neetcode150Stats.percentage);
       updateProgressCard('leetcode75', leetcode75Stats.completed, leetcode75Stats.total, leetcode75Stats.percentage);
+      updateProgressCard('namastedsa', namasteStats.completed, namasteStats.total, namasteStats.percentage);
 
     } catch (error) {
       console.error('❌ Failed to render list progress:', error);
@@ -1154,6 +1156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       updateProgressCard('blind75', 0, 74, 0);
       updateProgressCard('neetcode150', 0, 158, 0);
       updateProgressCard('leetcode75', 0, 75, 0);
+      updateProgressCard('namastedsa', 0, 148, 0);
     }
   }
 
@@ -1172,7 +1175,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Add click handlers for list labels
-  [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
+  [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['namastedsa-label', 'namastedsa'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
     const label = document.getElementById(labelId);
     if (label) {
       label.addEventListener('click', () => {
@@ -1182,7 +1185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // Next unsolved buttons for list cards
-  [['blind75-next', 'blind75'], ['neetcode150-next', 'neetcode150'], ['leetcode75-next', 'leetcode75']].forEach(([btnId, listName]) => {
+  [['blind75-next', 'blind75'], ['neetcode150-next', 'neetcode150'], ['namastedsa-next', 'namastedsa'], ['leetcode75-next', 'leetcode75']].forEach(([btnId, listName]) => {
     const btn = document.getElementById(btnId);
     if (btn) {
       btn.addEventListener('click', async (e) => {
@@ -1492,6 +1495,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const reqLc75 = document.getElementById("req-lc75");
   const reqBlind75 = document.getElementById("req-blind75");
   const reqNc150 = document.getElementById("req-nc150");
+  const reqNamaste = document.getElementById("req-namastedsa");
   const reqAny = document.getElementById("req-any");
 
   // Tag input state (initialized after setupTagInput is defined)
@@ -1505,6 +1509,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       leetcode75: reqLc75.checked,
       blind75: reqBlind75.checked,
       neetcode150: reqNc150.checked,
+      namastedsa: reqNamaste ? reqNamaste.checked : false,
       anySubmission: reqAny ? reqAny.checked : false,
       companyFocus: companyTags ? companyTags.isEnabled() : false,
       selectedCompanies: companyTags ? companyTags.getTags() : [],
@@ -1891,7 +1896,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   // Save requirements when checkboxes change
-  [reqDaily, reqLc75, reqBlind75, reqNc150, reqAny].filter(Boolean).forEach(checkbox => {
+  [reqDaily, reqLc75, reqBlind75, reqNc150, reqNamaste, reqAny].filter(Boolean).forEach(checkbox => {
     checkbox.addEventListener("change", saveRequirements);
   });
 
@@ -1904,6 +1909,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     reqLc75.checked = req.leetcode75 ?? true;
     reqBlind75.checked = req.blind75 ?? true;
     reqNc150.checked = req.neetcode150 ?? true;
+    if (reqNamaste) reqNamaste.checked = req.namastedsa || false;
     if (reqAny) reqAny.checked = req.anySubmission || false;
 
     if (req.companyFocus) companyTags.setEnabled(true);
@@ -1935,6 +1941,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     freezeInfoPopover.classList.toggle("hidden");
   });
 
+  // Namaste DSA info popover
+  const namasteInfoBtn = document.getElementById("namaste-info-btn");
+  const namasteInfoPopover = document.getElementById("namaste-info-popover");
+
+  if (namasteInfoBtn && namasteInfoPopover) {
+    namasteInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      namasteInfoPopover.classList.toggle("hidden");
+    });
+  }
+
   // Dismiss popovers on outside click
   document.addEventListener("click", (e) => {
     if (!focusInfoPopover.contains(e.target) && e.target !== focusInfoBtn) {
@@ -1942,6 +1960,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (!freezeInfoPopover.contains(e.target) && e.target !== freezeInfoBtn) {
       freezeInfoPopover.classList.add("hidden");
+    }
+    if (namasteInfoPopover && !namasteInfoPopover.contains(e.target) && e.target !== namasteInfoBtn) {
+      namasteInfoPopover.classList.add("hidden");
     }
   });
 

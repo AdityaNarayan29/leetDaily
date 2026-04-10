@@ -28,32 +28,36 @@ async function loadCuratedLists() {
   if (curatedListsCache) return curatedListsCache;
 
   try {
-    const [lc75Response, blind75Response, nc150Response] = await Promise.all([
+    const [lc75Response, blind75Response, nc150Response, namasteResponse] = await Promise.all([
       fetch(chrome.runtime.getURL('data/leetcode75.json')),
       fetch(chrome.runtime.getURL('data/blind75.json')),
-      fetch(chrome.runtime.getURL('data/neetcode150.json'))
+      fetch(chrome.runtime.getURL('data/neetcode150.json')),
+      fetch(chrome.runtime.getURL('data/namastedsa.json'))
     ]);
 
-    const [lc75Data, blind75Data, nc150Data] = await Promise.all([
+    const [lc75Data, blind75Data, nc150Data, namasteData] = await Promise.all([
       lc75Response.json(),
       blind75Response.json(),
-      nc150Response.json()
+      nc150Response.json(),
+      namasteResponse.json()
     ]);
 
     // Extract all problem IDs from each list
     const lc75Ids = new Set();
     const blind75Ids = new Set();
     const nc150Ids = new Set();
+    const namasteIds = new Set();
 
     lc75Data.categories?.forEach(cat => cat.problemIds?.forEach(id => lc75Ids.add(id)));
     blind75Data.categories?.forEach(cat => cat.problemIds?.forEach(id => blind75Ids.add(id)));
     nc150Data.categories?.forEach(cat => cat.problemIds?.forEach(id => nc150Ids.add(id)));
+    namasteData.categories?.forEach(cat => cat.problemIds?.forEach(id => namasteIds.add(id)));
 
-    curatedListsCache = { lc75Ids, blind75Ids, nc150Ids };
+    curatedListsCache = { lc75Ids, blind75Ids, nc150Ids, namasteIds };
     return curatedListsCache;
   } catch (error) {
     console.error('Failed to load curated lists:', error);
-    return { lc75Ids: new Set(), blind75Ids: new Set(), nc150Ids: new Set() };
+    return { lc75Ids: new Set(), blind75Ids: new Set(), nc150Ids: new Set(), namasteIds: new Set() };
   }
 }
 
@@ -63,7 +67,8 @@ async function getProblemListMembership(problemId) {
   return {
     leetcode75: lists.lc75Ids.has(problemId),
     blind75: lists.blind75Ids.has(problemId),
-    neetcode150: lists.nc150Ids.has(problemId)
+    neetcode150: lists.nc150Ids.has(problemId),
+    namastedsa: lists.namasteIds.has(problemId)
   };
 }
 
@@ -76,6 +81,7 @@ function meetsRequirements(problemsOnDay, reqs) {
     reqs.leetcode75 ||
     reqs.blind75 ||
     reqs.neetcode150 ||
+    reqs.namastedsa ||
     (reqs.companyFocus && reqs.selectedCompanies?.length > 0) ||
     (reqs.topicFocus && reqs.selectedTopics?.length > 0);
 
@@ -86,6 +92,7 @@ function meetsRequirements(problemsOnDay, reqs) {
   if (reqs.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
   if (reqs.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
   if (reqs.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
+  if (reqs.namastedsa && problemsOnDay.some(p => p.inLists?.namastedsa)) return true;
 
   if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
     const companies = reqs.selectedCompanies.map(c => c.toLowerCase());
