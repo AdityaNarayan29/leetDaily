@@ -117,7 +117,8 @@ async function getNextUnsolvedForList(listName) {
           }
         }
       }
-      resolve(pickRandom(candidates));
+      // Namaste DSA: sequential (first unsolved in order), others: random
+      resolve(listName === 'namastedsa' ? (candidates[0] || null) : pickRandom(candidates));
     });
   });
 }
