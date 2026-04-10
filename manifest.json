@@ -40,6 +40,7 @@
         "data/neetcode150.json",
         "data/leetcode75.json",
         "data/namastedsa.json",
+        "data/frazdsa.json",
         "problems-explorer.html",
         "problems-explorer.js",
         "styles/output.css"
