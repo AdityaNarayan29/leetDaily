@@ -1141,7 +1141,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       // Get stats for each list
-      const [blind75Stats, neetcode150Stats, leetcode75Stats, namasteStats, frazStats] = await Promise.all([
+      const [blind75Stats, neetcode150Stats, leetcode75Stats, namasteStats, frazStats, striverStats] = await Promise.all([
         getListStats('blind75', completedProblemIds),
         getListStats('neetcode150', completedProblemIds),
         getListStats('leetcode75', completedProblemIds),
