@@ -266,7 +266,7 @@ export default function LandingPage() {
                 ref={subtextRef}
                 className="text-sm sm:text-base text-white/60 max-w-sm sm:max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed"
               >
-                Ace coding interviews with 6 curated DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz DSA, LeetCode 75), FAANG company tags, 2000+ problems explorer & streak reminders — free Chrome extension.
+                Ace coding interviews with 6 curated DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz DSA, LeetCode 75), FAANG company tags, 3800+ problems explorer & streak reminders — free Chrome extension.
               </p>
 
               {/* CTA Buttons */}
@@ -701,7 +701,7 @@ export default function LandingPage() {
                 icon: Search,
                 title: "Problems Explorer",
                 description:
-                  "Browse 2000+ problems with filters for difficulty, topics, companies, and curated lists.",
+                  "Browse 3800+ problems with filters for difficulty, topics, companies, and curated lists.",
                 gradient: "from-indigo-500 to-purple-500",
               },
               {

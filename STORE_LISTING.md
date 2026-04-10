@@ -36,7 +36,7 @@ TAG & COMPANY PROGRESS
 - Accordion breakdown with color-coded individual tag progress
 
 PROBLEMS EXPLORER
-- Browse and search all 2000+ LeetCode problems in a full-page view
+- Browse and search all 3800+ LeetCode problems in a full-page view
 - Filter by difficulty, topics, companies, and curated lists (Blind 75, NeetCode 150, LC 75)
 - Sort by ID, title, difficulty, acceptance rate, or frequency
 - List badges (B75, NC, LC) and solved checkmarks on every row

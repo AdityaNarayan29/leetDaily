@@ -21,7 +21,7 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 - **Daily Challenge Card** — ✓ Solved badge, countdown timer, clickable heading to open problem
 - **Reliable Background Sync** — chrome.alarms for badge updates and API polling (survives service worker suspension)
 - **Feedback** — GitHub Issues and email links in settings
-- **Problems Explorer** — Browse 2000+ problems with 6 list badges (B75, NC, ND, FZ, SV, LC)
+- **Problems Explorer** — Browse 3800+ problems with 6 list badges (B75, NC, ND, FZ, SV, LC)
 - **Cross-Device Settings Sync** — Preferences sync via Cloudflare KV
 - **Data Export/Import** — Backup and restore all progress as JSON
 
@@ -53,7 +53,7 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 - **Accordion Breakdown** — Expand to see individual tag progress with color-coded bars
 
 ### Problems Explorer
-- **Full Problem Database** — Browse and search all 2000+ LeetCode problems
+- **Full Problem Database** — Browse and search all 3800+ LeetCode problems
 - **Advanced Filters** — Filter by difficulty, topics, companies, and curated lists
 - **Sortable Columns** — Sort by ID, title, difficulty, acceptance rate, or frequency
 - **Company Frequency** — See how often each company asks a specific problem
@@ -121,7 +121,7 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 ```
 leetDaily/
 ├── data/                  # Problem metadata
-│   ├── leetcode-problems.json   # 2000+ problems with company tags
+│   ├── leetcode-problems.json   # 3800+ problems with company tags
 │   ├── blind75.json             # Blind 75 list by category
 │   ├── neetcode150.json         # NeetCode 150 list by category
 │   └── leetcode75.json          # LeetCode 75 list by category

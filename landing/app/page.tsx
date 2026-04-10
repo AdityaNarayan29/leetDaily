@@ -13,7 +13,7 @@ export default function Home() {
       priceCurrency: "USD",
     },
     description:
-      "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 2000+ problems explorer, streaks & smart reminders.",
+      "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 3800+ problems explorer, streaks & smart reminders.",
     url: "https://leetdaily.masst.dev",
     installUrl:
       "https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf",

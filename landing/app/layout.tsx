@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://leetdaily.masst.dev"),
   title: "LeetDaily — LeetCode Interview Prep & Tracker",
   description:
-    "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 2000+ problems explorer, streaks & smart reminders.",
+    "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 3800+ problems explorer, streaks & smart reminders.",
   keywords: [
     "LeetCode",
     "interview prep",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LeetDaily — LeetCode Interview Prep & Tracker",
     description:
-      "Ace coding interviews with LeetCode. Blind 75, NeetCode 150, 2000+ problems explorer, FAANG company tags, streaks & smart reminders.",
+      "Ace coding interviews with LeetCode. Blind 75, NeetCode 150, 3800+ problems explorer, FAANG company tags, streaks & smart reminders.",
     url: "https://leetdaily.masst.dev",
     type: "website",
     locale: "en_US",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "LeetDaily — LeetCode Interview Prep & Tracker",
     description:
-      "Ace coding interviews with LeetCode. Blind 75, NeetCode 150, 2000+ problems, FAANG tags, streaks & smart reminders.",
+      "Ace coding interviews with LeetCode. Blind 75, NeetCode 150, 3800+ problems, FAANG tags, streaks & smart reminders.",
     images: ["/og-image.png"],
     creator: "@Adityanaraynn29",
   },
