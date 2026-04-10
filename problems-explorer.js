@@ -179,8 +179,11 @@ async function loadProblems() {
           headerSubtitle.parentNode.insertBefore(descriptionDiv, headerSubtitle);
         }
 
-        // Update total problems count to show list size
-        document.getElementById('total-problems').textContent = listProblemIds.length;
+        // Update total problems count to show list size with unique info
+        const totalEl = document.getElementById('total-problems');
+        totalEl.textContent = listProblemIds.length;
+        // Add "unique problems" tooltip for lists with deduplication
+        totalEl.innerHTML = `${listProblemIds.length} unique problems <span style="cursor:help;color:rgba(255,255,255,0.3);font-size:11px;" title="Some problems appear in multiple categories. This count shows unique problems only.">ⓘ</span>`;
       }
     } else {
       document.getElementById('total-problems').textContent = allProblems.length;
