@@ -1539,22 +1539,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       dailyChallenge: reqDaily.checked,
       blind75: reqBlind75.checked,
       neetcode150: reqNc150.checked,
-      leetcode75: reqLc75.checked
+      leetcode75: reqLc75.checked,
+      namastedsa: reqNamaste ? reqNamaste.checked : false
     };
 
     const blind75Card = document.getElementById('blind75-card');
     const neetcode150Card = document.getElementById('neetcode150-card');
+    const namastedsaCard = document.getElementById('namastedsa-card');
     const leetcode75Card = document.getElementById('leetcode75-card');
     const progressSection = document.getElementById('list-progress-section');
     const dailyChallengeSection = document.getElementById('daily-challenge-section');
 
     if (blind75Card) blind75Card.classList.toggle('hidden', !reqs.blind75);
     if (neetcode150Card) neetcode150Card.classList.toggle('hidden', !reqs.neetcode150);
+    if (namastedsaCard) namastedsaCard.classList.toggle('hidden', !reqs.namastedsa);
     if (leetcode75Card) leetcode75Card.classList.toggle('hidden', !reqs.leetcode75);
 
     // Hide the entire progress section if no list is selected
     if (progressSection) {
-      progressSection.classList.toggle('hidden', !reqs.blind75 && !reqs.neetcode150 && !reqs.leetcode75);
+      progressSection.classList.toggle('hidden', !reqs.blind75 && !reqs.neetcode150 && !reqs.namastedsa && !reqs.leetcode75);
     }
 
     // Show/hide daily challenge section based on checkbox
