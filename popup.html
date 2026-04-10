@@ -521,11 +521,20 @@
 
     <!-- List Progress -->
     <section id="list-progress-section" class="mb-4 p-4 rounded-xl bg-[#282828] border border-[#ffffff0d]">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-[13px] font-semibold text-[#eff1f6]">Your Progress</span>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-1.5">
+          <span class="text-[13px] font-semibold text-[#eff1f6]">Your Progress</span>
+          <button id="progress-info-btn" class="text-[#eff1f644] hover:text-[#ffa116] transition-colors" title="About curated lists">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </button>
+        </div>
         <span class="text-[11px] text-[#eff1f699]">Track curated lists</span>
       </div>
-      <p class="text-[10px] text-[#eff1f644] mb-4">Namaste DSA (6), Striver SDE (61), and Fraz DSA (1) have some problems on other platforms — only LeetCode problems are tracked. Full support coming soon.</p>
+      <div id="progress-info-popover" class="hidden bg-[#1a1a1a] border border-[#ffffff1a] rounded-xl p-3 -mt-2 mb-3">
+        <p class="text-[10px] text-[#eff1f6cc] leading-relaxed">
+          Only LeetCode problems are tracked. <strong class="text-[#ffa116]">Namaste DSA</strong> (6), <strong class="text-[#ffa116]">Striver SDE</strong> (61), and <strong class="text-[#ffa116]">Fraz DSA</strong> (1) have some problems on other platforms — full support coming soon.
+        </p>
+      </div>
       <div class="space-y-5">
         <!-- Blind 75 -->
         <div id="blind75-card" class="mb-2">

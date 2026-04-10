@@ -1996,6 +1996,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const striverInfoBtn = document.getElementById("striver-info-btn");
   const striverInfoPopover = document.getElementById("striver-info-popover");
+  const progressInfoBtn = document.getElementById("progress-info-btn");
+  const progressInfoPopover = document.getElementById("progress-info-popover");
+  if (progressInfoBtn && progressInfoPopover) {
+    progressInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      progressInfoPopover.classList.toggle("hidden");
+    });
+  }
+
   if (striverInfoBtn && striverInfoPopover) {
     striverInfoBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -2020,6 +2029,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (striverInfoPopover && !striverInfoPopover.contains(e.target) && e.target !== striverInfoBtn) {
       striverInfoPopover.classList.add("hidden");
+    }
+    if (progressInfoPopover && !progressInfoPopover.contains(e.target) && e.target !== progressInfoBtn) {
+      progressInfoPopover.classList.add("hidden");
     }
   });
 
