@@ -427,7 +427,7 @@ function updateBadge() {
 
     // Colors
     const darkBg = "#1a1a1a";
-    const greenColor = "#2cbb5d";
+    const greenColor = "#00b8a3";
     const orangeColor = "#fbbf24";
     const redColor = "#f87171";
 

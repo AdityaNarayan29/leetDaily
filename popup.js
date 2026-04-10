@@ -1040,9 +1040,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Get color class based on submission count
     function getIntensityClass(count) {
       if (count === 0) return "bg-[#ffffff0d]";
-      if (count <= 2) return "bg-[#2cbb5d40]";
-      if (count <= 5) return "bg-[#2cbb5d80]";
-      return "bg-[#2cbb5d]";
+      if (count <= 2) return "bg-[#00b8a340]";
+      if (count <= 5) return "bg-[#00b8a380]";
+      return "bg-[#00b8a3]";
     }
 
     // Build grid: 30 cells for last 30 days
@@ -1321,12 +1321,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     notifToggle.setAttribute('aria-checked', String(enabled));
     if (enabled) {
       notifToggle.classList.remove("bg-[#ffffff1a]");
-      notifToggle.classList.add("bg-[#2cbb5d]");
+      notifToggle.classList.add("bg-[#00b8a3]");
       notifDot.classList.add("translate-x-4");
       reminderTimeSection.classList.remove("hidden");
     } else {
       notifToggle.classList.add("bg-[#ffffff1a]");
-      notifToggle.classList.remove("bg-[#2cbb5d]");
+      notifToggle.classList.remove("bg-[#00b8a3]");
       notifDot.classList.remove("translate-x-4");
       reminderTimeSection.classList.add("hidden");
     }
@@ -1352,11 +1352,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     badgeToggle.setAttribute('aria-checked', String(enabled));
     if (enabled) {
       badgeToggle.classList.remove("bg-[#ffffff1a]");
-      badgeToggle.classList.add("bg-[#2cbb5d]");
+      badgeToggle.classList.add("bg-[#00b8a3]");
       badgeDot.classList.add("translate-x-4");
     } else {
       badgeToggle.classList.add("bg-[#ffffff1a]");
-      badgeToggle.classList.remove("bg-[#2cbb5d]");
+      badgeToggle.classList.remove("bg-[#00b8a3]");
       badgeDot.classList.remove("translate-x-4");
     }
   }
@@ -2190,7 +2190,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const dot = document.createElement('div');
       dot.className = 'w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold';
       if (count > 0) {
-        dot.style.cssText = 'background:#2cbb5d22; color:#2cbb5d; border:1px solid #2cbb5d44;';
+        dot.style.cssText = 'background:#00b8a322; color:#00b8a3; border:1px solid #00b8a344;';
         dot.textContent = count;
       } else {
         dot.style.cssText = 'background:rgba(255,255,255,0.05); color:rgba(239,241,246,0.2); border:1px solid rgba(255,255,255,0.07);';
