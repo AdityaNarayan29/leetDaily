@@ -528,10 +528,10 @@ async function checkLeetCodeCompletion() {
 // Sync streak from LeetCode API immediately on service worker startup
 checkLeetCodeCompletion();
 updateBadge();
-// Check LeetCode API every 5 minutes as fallback (content script handles instant updates)
-setInterval(checkLeetCodeCompletion, 5 * 60 * 1000);
-// Update badge display every minute (doesn't call API, just updates badge state)
-setInterval(updateBadge, 60 * 1000);
+
+// Use chrome.alarms instead of setInterval (MV3 service workers get killed, killing setInterval)
+chrome.alarms.create("leetcodeApiPoll", { periodInMinutes: 5 });
+chrome.alarms.create("badgeUpdate", { periodInMinutes: 1 });
 
 // Notification system
 function setupDailyReminder(time = "10:00") {
@@ -657,10 +657,18 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       }
     });
   }
-});
 
-// Check urgent reminder every 30 minutes
-setInterval(checkUrgentReminder, 30 * 60 * 1000);
+  // API poll — replaces setInterval which dies when service worker sleeps
+  if (alarm.name === "leetcodeApiPoll") {
+    checkLeetCodeCompletion();
+  }
+
+  // Badge update — replaces setInterval
+  if (alarm.name === "badgeUpdate") {
+    updateBadge();
+    checkUrgentReminder();
+  }
+});
 
 // Setup reminders on extension load with stored time
 chrome.storage.local.get(["reminderTime"], (result) => {
