@@ -1038,11 +1038,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     let dailyChallengeCount = 0;
 
     // Get color class based on submission count
-    function getIntensityClass(count) {
-      if (count === 0) return "bg-[#ffffff0d]";
-      if (count <= 2) return "bg-[#00b8a340]";
-      if (count <= 5) return "bg-[#00b8a380]";
-      return "bg-[#00b8a3]";
+    function getIntensityStyle(count) {
+      if (count === 0) return "background:rgba(255,255,255,0.05)";
+      if (count <= 2) return "background:rgba(0,184,163,0.25)";
+      if (count <= 5) return "background:rgba(0,184,163,0.5)";
+      return "background:#00b8a3";
     }
 
     // Build grid: 30 cells for last 30 days
@@ -1059,13 +1059,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (dailyCompleted) dailyChallengeCount++;
 
       // Color intensity based on submission count
-      let cellClass = getIntensityClass(submissionCount);
+      let cellStyle = getIntensityStyle(submissionCount);
+      let extraClass = "";
 
       // Add today's ring indicator
       if (isToday && submissionCount === 0) {
-        cellClass = "bg-[#ffa11640] ring-1 ring-[#ffa116]";
+        cellStyle = "background:rgba(255,161,22,0.25)";
+        extraClass = "ring-1 ring-[#ffa116]";
       } else if (isToday) {
-        cellClass += " ring-1 ring-[#ffa116]";
+        extraClass = "ring-1 ring-[#ffa116]";
       }
 
       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -1078,7 +1080,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         : '';
 
       days.push(`
-        <div class="heatmap-cell w-full aspect-square rounded-sm ${cellClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" data-tooltip="${tooltip}">${checkmark}</div>
+        <div class="heatmap-cell w-full aspect-square rounded-sm ${extraClass} transition-all hover:scale-110 cursor-default flex items-center justify-center" style="${cellStyle}" data-tooltip="${tooltip}">${checkmark}</div>
       `);
     }
 
