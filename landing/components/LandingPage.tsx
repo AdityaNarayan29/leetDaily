@@ -266,7 +266,7 @@ export default function LandingPage() {
                 ref={subtextRef}
                 className="text-sm sm:text-base text-white/60 max-w-sm sm:max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed"
               >
-                Ace coding interviews with daily LeetCode challenges, Blind 75 / NeetCode 150 tracking, FAANG company tags, 2000+ problems explorer & streak reminders — free Chrome extension.
+                Ace coding interviews with 6 curated DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz DSA, LeetCode 75), FAANG company tags, 2000+ problems explorer & streak reminders — free Chrome extension.
               </p>
 
               {/* CTA Buttons */}
@@ -692,9 +692,9 @@ export default function LandingPage() {
               },
               {
                 icon: BookOpen,
-                title: "Curated Study Lists",
+                title: "6 Curated DSA Sheets",
                 description:
-                  "Track Blind 75, NeetCode 150, and LeetCode 75 with live progress bars and next-unsolved navigation.",
+                  "Track Blind 75, NeetCode 150, LeetCode 75, Namaste DSA, Fraz DSA, and Striver SDE Sheet — with live progress bars and sequential next-unsolved.",
                 gradient: "from-cyan-500 to-blue-500",
               },
               {

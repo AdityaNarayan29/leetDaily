@@ -4,7 +4,7 @@
 LeetDaily — LeetCode Interview Prep & Tracker
 
 ## Short Description (132 chars max)
-Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, streaks & smart reminders.
+Ace coding interviews with 6 DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz), FAANG tags, streaks & reminders.
 
 ## Detailed Description
 
@@ -19,11 +19,15 @@ DASHBOARD
 - Click your streak to see longest streak (calculated from your full LeetCode history), milestones, and last 7 days
 - Click your avatar or username to open your LeetCode profile
 
-CURATED STUDY LISTS
-- Blind 75 — Track progress across the classic 75 interview problems
-- NeetCode 150 — Follow the NeetCode 150 roadmap with live progress bars
-- LeetCode 75 — LeetCode's own 75-problem study plan
-- One-click jump to the next unsolved problem in any list
+6 CURATED DSA SHEETS
+- Blind 75 — The classic 75 interview problems (74 problems)
+- NeetCode 150 — NeetCode's comprehensive roadmap (158 problems)
+- Namaste DSA — Namaste Dev's DSA sheet (147 LeetCode problems)
+- Fraz DSA — LeadCoding's DSA sheet by Fraz (305 LeetCode problems)
+- Striver SDE Sheet — TakeUForward's SDE sheet (121 LeetCode problems)
+- LeetCode 75 — LeetCode's own study plan (75 problems)
+- Live progress bars with percentage for each list
+- One-click sequential next-unsolved problem navigation
 
 TAG & COMPANY PROGRESS
 - Track solved/total for selected topics (Arrays, DP, Graphs, etc.)

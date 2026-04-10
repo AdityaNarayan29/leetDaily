@@ -9,21 +9,19 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ---
 
-## What's New in v2.3
+## What's New in v2.4
 
+- **6 Curated DSA Sheets** — Blind 75, NeetCode 150, Namaste DSA (147), Fraz DSA (305), Striver SDE (121), LeetCode 75
 - **Dual Streak Tracking** — 🎯 Focus streak (days on your prep plan) + 🔥 LeetCode streak (official, from API)
 - **Streak Freezes** — 3 per month, auto-applied when you miss a day. Your focus streak survives
-- **Focus Areas** — Set your prep focus (Blind 75, company tags, topics, etc.) and track daily accountability
+- **Focus Areas** — Set your prep focus (any curated list, company tags, topics) and track daily accountability
 - **Badge Display Choice** — Show Focus streak or LeetCode streak on the extension badge
 - **Longest Streak** — Calculated from your full LeetCode history (all years)
 - **Light/Dark Theme** — Toggle between themes in settings
 - **Daily Challenge Card** — ✓ Solved badge, countdown timer, clickable heading to open problem
-- **Clickable Profile** — Click your avatar or username to open your LeetCode profile
-- **Toast Notifications** — Smooth slide-up toasts for export, import, and actions
-- **Micro Animations** — Checkbox pop, toggle bounce, heatmap stagger, theme icon spin, solved badge slide-in
-- **Accessibility** — ARIA roles, focus-visible outlines, reduced motion support
-- **Curated List Tracking** — Blind 75, NeetCode 150, and LeetCode 75 with live progress bars
-- **Problems Explorer** — Browse 2000+ problems with filters, sorting, list badges
+- **Reliable Background Sync** — chrome.alarms for badge updates and API polling (survives service worker suspension)
+- **Feedback** — GitHub Issues and email links in settings
+- **Problems Explorer** — Browse 2000+ problems with 6 list badges (B75, NC, ND, FZ, SV, LC)
 - **Cross-Device Settings Sync** — Preferences sync via Cloudflare KV
 - **Data Export/Import** — Backup and restore all progress as JSON
 
@@ -39,11 +37,14 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 - **Streak Detail Modal** — Click your streak to see longest streak (full history), milestones, and last 7 days
 - **Profile Link** — Click your avatar or username to open your LeetCode profile
 
-### Curated Study Lists
-- **Blind 75** — Track progress across the classic 75 interview problems
-- **NeetCode 150** — Follow the NeetCode 150 roadmap with live progress bars
-- **LeetCode 75** — LeetCode's own curated 75-problem study plan
-- **Next Unsolved** — One-click jump to the next unsolved problem in any list
+### 6 Curated DSA Sheets
+- **Blind 75** — The classic 75 interview problems (74 problems)
+- **NeetCode 150** — NeetCode's comprehensive roadmap (158 problems)
+- **Namaste DSA** — Namaste Dev's DSA sheet (147 LeetCode problems)
+- **Fraz DSA** — LeadCoding's DSA sheet by Fraz (305 LeetCode problems)
+- **Striver SDE Sheet** — TakeUForward's SDE sheet (121 LeetCode problems)
+- **LeetCode 75** — LeetCode's own study plan (75 problems)
+- **Next Unsolved** — Sequential next-unsolved navigation for each list
 
 ### Tag & Company Progress
 - **Topic Progress** — Track solved/total for selected topics (Arrays, DP, Graphs, etc.)
