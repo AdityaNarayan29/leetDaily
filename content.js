@@ -172,58 +172,19 @@ async function notifyIndividualProblemSolved() {
   console.log('✅ Individual problem solved notification sent:', metadata.title);
 }
 
-// Check if this submission should trigger badge update (daily challenge or "Any submission" enabled)
+// Always trigger badge update on accepted submission
+// The background script handles checking if it matches focus areas
 async function checkIfDailyAndUpdate() {
   const titleSlug = getProblemSlugFromURL();
   if (!titleSlug) return;
 
-  try {
-    // Check user's requirements from storage
-    const stored = await new Promise(resolve => {
-      chrome.storage.local.get(['requirements', 'orModeRequirements'], resolve);
-    });
-    const reqs = stored.requirements || stored.orModeRequirements || {};
-    const anySubmissionEnabled = reqs.anySubmission === true;
-
-    if (anySubmissionEnabled) {
-      // "Any submission" is enabled — every accepted problem counts
-      if (!isLoadingActive) {
-        isLoadingActive = true;
-        notifyLoading();
-      }
-      setTimeout(() => checkAndNotifyCompletion(), 2000);
-      return;
-    }
-
-    // Otherwise, only trigger for the daily challenge
-    const dcResponse = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        query: `
-          query questionOfToday {
-            activeDailyCodingChallengeQuestion {
-              question { titleSlug }
-            }
-          }
-        `
-      })
-    });
-    const dcData = await dcResponse.json();
-    const dailySlug = dcData?.data?.activeDailyCodingChallengeQuestion?.question?.titleSlug;
-
-    if (titleSlug !== dailySlug) return;
-
-    // It's the daily challenge — start loading blink
-    if (!isLoadingActive) {
-      isLoadingActive = true;
-      notifyLoading();
-    }
-    setTimeout(() => checkAndNotifyCompletion(), 2000);
-  } catch (error) {
-    console.log('Daily challenge check failed:', error.message);
+  // Always start loading blink — background will update badge correctly
+  if (!isLoadingActive) {
+    isLoadingActive = true;
+    notifyLoading();
   }
+  // Small delay to let LeetCode's backend update
+  setTimeout(() => checkAndNotifyCompletion(), 2000);
 }
 
 // Listen for submission results by watching for success indicators
