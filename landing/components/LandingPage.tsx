@@ -206,6 +206,12 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <a
+              href="/dsa"
+              className="text-sm text-white/60 hover:text-white transition-colors"
+            >
+              DSA Reference
+            </a>
+            <a
               href="/blog"
               className="text-sm text-white/60 hover:text-white transition-colors"
             >
@@ -1149,6 +1155,12 @@ export default function LandingPage() {
             </div>
 
             <div className="flex items-center gap-6">
+              <a
+                href="/dsa"
+                className="text-white/40 hover:text-white transition-colors text-sm"
+              >
+                DSA Reference
+              </a>
               <a
                 href="/blog"
                 className="text-white/40 hover:text-white transition-colors text-sm"
