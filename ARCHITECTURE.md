@@ -1,0 +1,323 @@
+# LeetDaily — Architecture & Feature Diagrams
+
+## 1. Feature Map
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                          LEETDAILY v2.4.0                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────┐  ┌──────────────────┐  ┌───────────────────┐  │
+│  │   DASHBOARD      │  │  STREAK SYSTEM    │  │  CURATED SHEETS   │  │
+│  ├─────────────────┤  ├──────────────────┤  ├───────────────────┤  │
+│  │ • Daily Challenge│  │ 🔥 LeetCode      │  │ • Blind 75  (74)  │  │
+│  │   - ✓ Solved     │  │   (from API)      │  │ • NeetCode  (158) │  │
+│  │   - Timer        │  │                   │  │ • Namaste   (147) │  │
+│  │   - Topic chips  │  │ 🎯 Focus          │  │ • Fraz DSA  (305) │  │
+│  │   - Company chips│  │   (local calc)    │  │ • Striver   (121) │  │
+│  │   - Difficulty   │  │                   │  │ • LeetCode  (75)  │  │
+│  │   - Acceptance % │  │ ❄️ 3 Freezes/mo   │  │                   │  │
+│  │                  │  │                   │  │ • Progress bars   │  │
+│  │ • Stats Panel    │  │ • Badge display   │  │ • Next unsolved   │  │
+│  │   - Total solved │  │   (focus / lc)    │  │ • Explorer filter │  │
+│  │   - Easy/Med/Hard│  │ • Longest streak  │  │ • Sequential nav  │  │
+│  │                  │  │   (all years)     │  └───────────────────┘  │
+│  │ • 30-Day Heatmap │  │ • Streak modal    │                        │
+│  │   - Color cells  │  │   - Milestones    │  ┌───────────────────┐  │
+│  │   - DC checkmarks│  │   - Last 7 days   │  │  FOCUS AREAS      │  │
+│  │   - Less → More  │  └──────────────────┘  ├───────────────────┤  │
+│  │                  │                        │ • Blind 75         │  │
+│  │ • Profile link   │  ┌──────────────────┐  │ • NeetCode 150     │  │
+│  │   (→ LeetCode)   │  │  NOTIFICATIONS    │  │ • Namaste DSA      │  │
+│  └─────────────────┘  ├──────────────────┤  │ • Fraz DSA         │  │
+│                        │ • Daily reminder  │  │ • Striver SDE      │  │
+│  ┌─────────────────┐  │   (custom time)   │  │ • LeetCode 75      │  │
+│  │ PROBLEMS EXPLORER│  │ • Urgent alert    │  │ • Company tags     │  │
+│  ├─────────────────┤  │   (<2hrs left)    │  │ • Topic tags       │  │
+│  │ • 3800+ problems │  │ • Badge colors    │  │ • Daily Challenge  │  │
+│  │ • Filter by:     │  │   green/orange/red│  │ • Any submission   │  │
+│  │   - Difficulty   │  └──────────────────┘  └───────────────────┘  │
+│  │   - Topics       │                                               │
+│  │   - Companies    │  ┌──────────────────┐  ┌───────────────────┐  │
+│  │   - Curated lists│  │  SETTINGS         │  │  DATA & SYNC      │  │
+│  │ • Sort columns   │  ├──────────────────┤  ├───────────────────┤  │
+│  │ • List badges    │  │ • Light/Dark theme│  │ • Export JSON      │  │
+│  │   B75 NC ND FZ   │  │ • Badge toggle   │  │ • Import JSON      │  │
+│  │   SV LC          │  │ • Badge display   │  │ • Cloud sync       │  │
+│  │ • Solved checks  │  │ • Focus areas     │  │   (prefs only)     │  │
+│  │ • Frequency data │  │ • Freeze counter  │  │ • Feedback links   │  │
+│  └─────────────────┘  │ • Info popovers   │  │   (GitHub + email) │  │
+│                        └──────────────────┘  └───────────────────┘  │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## 2. Architecture Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           CHROME BROWSER                                  │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │                        LEETCODE.COM                                  │ │
+│  │                                                                     │ │
+│  │  ┌──────────────┐                                                   │ │
+│  │  │  content.js   │──── Watches DOM for "Accepted" ──────┐           │ │
+│  │  │              │                                        │           │ │
+│  │  │  • Detect     │                                        ▼           │ │
+│  │  │    submission │                              ┌─────────────────┐  │ │
+│  │  │  • Get problem│                              │  background.js  │  │ │
+│  │  │    metadata   │◄──── chrome.runtime ────────│  (Service Worker)│  │ │
+│  │  │  • Badge blink│      .sendMessage()          │                 │  │ │
+│  │  └──────────────┘                              │  • updateBadge()│  │ │
+│  │                                                 │  • fetchStreak()│  │ │
+│  └─────────────────────────────────────────────────│  • calcFocus() │──┘ │
+│                                                    │  • alarms (1m, │    │
+│  ┌─────────────────────────────────────────────┐  │    5m polls)   │    │
+│  │                  POPUP                       │  │  • notifications│   │
+│  │                                              │  │  • freeze logic│    │
+│  │  ┌────────────┐  ┌────────────────────────┐ │  └────────┬────────┘   │
+│  │  │ popup.html  │  │     popup.js            │ │           │           │
+│  │  │            │  │                        │ │           │           │
+│  │  │ • Layout   │  │ • syncFromLeetCode()   │ │           │           │
+│  │  │ • Skeleton │  │ • renderListProgress() │ │           │           │
+│  │  │ • Modals   │  │ • updateStreakDisplay() │ │           │           │
+│  │  │ • Settings │  │ • saveRequirements()   │ │           │           │
+│  │  │ • Theme CSS│  │ • export / import      │ │           │           │
+│  │  └────────────┘  │ • theme toggle         │ │           │           │
+│  │                   └───────────┬────────────┘ │           │           │
+│  │  ┌────────────┐               │              │           │           │
+│  │  │ theme-init │ (sync theme   │              │           │           │
+│  │  │    .js     │  before paint)│              │           │           │
+│  │  └────────────┘               │              │           │           │
+│  │  ┌────────────┐               │              │           │           │
+│  │  │  sync.js   │◄──────────────┘              │           │           │
+│  │  │            │                              │           │           │
+│  │  │ • pushPrefs│──────────────────────────────│───────┐   │           │
+│  │  │ • pullPrefs│                              │       │   │           │
+│  │  └────────────┘                              │       │   │           │
+│  │                                              │       │   │           │
+│  │  ┌──────────────────────────────────────┐   │       │   │           │
+│  │  │  problems-explorer.html/.js           │   │       │   │           │
+│  │  │  • Full-page problem browser          │   │       │   │           │
+│  │  │  • 3800+ problems with filters        │   │       │   │           │
+│  │  │  • 6 list badges (B75,NC,ND,FZ,SV,LC)│   │       │   │           │
+│  │  └──────────────────────────────────────┘   │       │   │           │
+│  └──────────────────────────────────────────────┘       │   │           │
+│                                                          │   │           │
+└──────────────────────────────────────────────────────────│───│───────────┘
+                                                           │   │
+                              ┌─────────────────────────┐  │   │
+                              │    EXTERNAL SERVICES     │  │   │
+                              ├─────────────────────────┤  │   │
+                              │                         │  │   │
+          ┌───────────────────│  LeetCode GraphQL API   │◄─│───┘
+          │                   │  leetcode.com/graphql    │  │
+          │                   │                         │  │
+          │                   │  • streakCounter        │  │
+          │                   │  • userStatus            │  │
+          │                   │  • submissionCalendar    │  │
+          │                   │  • dailyChallengeQuestion│  │
+          │                   │  • problemsetQuestionList│  │
+          │                   └─────────────────────────┘  │
+          │                                                │
+          │                   ┌─────────────────────────┐  │
+          │                   │  Cloudflare Workers KV   │◄─┘
+          │                   │  leetdaily-prefs.*       │
+          │                   │                         │
+          │                   │  • GET /prefs/:username  │
+          │                   │  • PUT /prefs/:username  │
+          │                   │                         │
+          │                   │  Syncs:                  │
+          │                   │  • requirements          │
+          │                   │  • reminderTime          │
+          │                   │  • badgeStreakEnabled     │
+          │                   │  • badgeDisplay          │
+          │                   └─────────────────────────┘
+          │
+          │                   ┌─────────────────────────┐
+          │                   │  LOCAL STORAGE            │
+          │                   │  chrome.storage.local     │
+          │                   ├─────────────────────────┤
+          └──────────────────►│  • solvedProblems        │
+                              │  • completedProblemIds   │
+                              │  • currentStreak         │
+                              │  • focusStreak           │
+                              │  • lastSolvedDate        │
+                              │  • requirements          │
+                              │  • frozenDates           │
+                              │  • longestStreak         │
+                              │  • theme                 │
+                              │  • topicStreaks           │
+                              │  • companyStreaks         │
+                              └─────────────────────────┘
+
+
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │                        DATA FILES (bundled)                         │
+  ├─────────────────────────────────────────────────────────────────────┤
+  │  data/leetcode-problems.json  ─── 3846 problems (5.5MB)            │
+  │  data/blind75.json            ─── 74 problems, 15 categories       │
+  │  data/neetcode150.json        ─── 158 problems, 18 categories      │
+  │  data/namastedsa.json         ─── 147 problems, 14 categories      │
+  │  data/frazdsa.json            ─── 305 problems, 18 categories      │
+  │  data/striversde.json         ─── 121 problems, 27 categories      │
+  │  data/leetcode75.json         ─── 75 problems, 17 categories       │
+  └─────────────────────────────────────────────────────────────────────┘
+```
+
+## 3. User Flow
+
+```
+┌──────────────┐
+│  USER OPENS   │
+│  BROWSER      │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────────────────────────────┐
+│  Service worker starts                    │
+│  • checkLeetCodeCompletion() ─── API call │
+│  • updateBadge()                          │
+│  • chrome.alarms set (1m, 5m)            │
+└──────────────────┬───────────────────────┘
+                   │
+       ┌───────────┴───────────┐
+       ▼                       ▼
+┌──────────────┐     ┌──────────────────┐
+│  Badge shows  │     │  Every 5 min:     │
+│  streak number│     │  fetch streak     │
+│  with color:  │     │  from LeetCode    │
+│               │     │  API, update      │
+│  🟢 = goal met│     │  badge            │
+│  🟠 = pending │     │                   │
+│  🔴 = <2hrs   │     │  Every 1 min:     │
+│    (blinking) │     │  update badge     │
+└──────┬───────┘     │  color/state      │
+       │              └──────────────────┘
+       ▼
+┌──────────────┐
+│  USER CLICKS  │
+│  BADGE/ICON   │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────────────────────────────────────────────┐
+│                     POPUP OPENS                           │
+│                                                          │
+│  ┌─ theme-init.js ────────────────────────────────────┐  │
+│  │  Read theme from storage (async)                    │  │
+│  │  Apply light/dark before paint                      │  │
+│  └────────────────────────────────────────────────────┘  │
+│                         │                                │
+│                         ▼                                │
+│  ┌─ Show cached data immediately ──────────────────────┐ │
+│  │  • Username, avatar (from storage)                   │ │
+│  │  • Streak numbers (from storage)                     │ │
+│  │  • Skeleton loaders for API data                     │ │
+│  └──────────────────────────┬──────────────────────────┘ │
+│                              │                            │
+│                              ▼                            │
+│  ┌─ syncFromLeetCode() ── parallel API calls ──────────┐ │
+│  │                                                      │ │
+│  │  ┌──────────────┐ ┌──────────────┐ ┌─────────────┐ │ │
+│  │  │ User stats    │ │ Daily        │ │ Submission  │ │ │
+│  │  │ (total/easy/  │ │ challenge    │ │ calendar    │ │ │
+│  │  │  med/hard)    │ │ (title,diff) │ │ (30 days)   │ │ │
+│  │  └──────┬───────┘ └──────┬───────┘ └──────┬──────┘ │ │
+│  │         │                │                 │        │ │
+│  │         ▼                ▼                 ▼        │ │
+│  │  ┌──────────────────────────────────────────────┐  │ │
+│  │  │  Update UI:                                   │  │ │
+│  │  │  • Stats panel (replace skeleton)             │  │ │
+│  │  │  • Daily challenge card + ✓ Solved badge      │  │ │
+│  │  │  • 30-day heatmap (color intensity + checks)  │  │ │
+│  │  │  • Streak display (🎯 focus + 🔥 leetcode)    │  │ │
+│  │  └──────────────────────────────────────────────┘  │ │
+│  │                                                      │ │
+│  │  ┌──────────────┐  ┌──────────────────────────────┐ │ │
+│  │  │ syncCompleted│  │ renderListProgress()          │ │ │
+│  │  │ ProblemIds() │─►│ • Blind 75: 19/74 (26%)      │ │ │
+│  │  │ (3000 limit) │  │ • NeetCode: 32/158 (20%)     │ │ │
+│  │  └──────────────┘  │ • Namaste: 30/147 (20%)      │ │ │
+│  │                     │ • Fraz: 85/305 (28%)         │ │ │
+│  │                     │ • Striver: 31/121 (26%)      │ │ │
+│  │                     │ • LC 75: 2/75 (3%)           │ │ │
+│  │                     └──────────────────────────────┘ │ │
+│  └──────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────┐
+│                    USER SOLVES A PROBLEM                   │
+│                                                          │
+│  ┌─ On LeetCode ─────────────────────────────────────┐  │
+│  │  1. User clicks "Submit"                           │  │
+│  │  2. content.js watches DOM for "Accepted"          │  │
+│  │  3. Immediately:                                   │  │
+│  │     • Badge starts blinking (orange loading)       │  │
+│  │     • individualProblemSolved → background.js      │  │
+│  │  4. After 2 seconds:                               │  │
+│  │     • checkAndNotifyCompletion() → API call        │  │
+│  │     • Fetch streakCount from LeetCode              │  │
+│  └───────────────────────────┬───────────────────────┘  │
+│                               │                          │
+│                               ▼                          │
+│  ┌─ background.js ──────────────────────────────────┐   │
+│  │  updateStreaksAndStorage():                        │   │
+│  │  • Save problem to solvedProblems                 │   │
+│  │  • Check list membership (B75? NC? ND? FZ? SV?)   │   │
+│  │  • Update completedProblemIds                     │   │
+│  │  • Fetch currentStreak from API                   │   │
+│  │  • Set lastSolvedDate                             │   │
+│  │  • Calculate topicStreaks, companyStreaks           │   │
+│  │                                                    │   │
+│  │  updateBadge():                                    │   │
+│  │  • calculateFocusStreak(solvedProblems, reqs,      │   │
+│  │    frozenDates) → { focusStreak, goalMetToday }    │   │
+│  │  • Stop blinking                                   │   │
+│  │  • Badge → green (goal met) or orange (pending)    │   │
+│  └──────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────┐
+│              STREAK FREEZE FLOW (automatic)               │
+│                                                          │
+│  calculateFocusStreak() loops backwards from today:       │
+│                                                          │
+│  Day 0 (today): solved matching problem? ─── YES → +1    │
+│  Day 1 (yesterday): solved? ─── YES → +1                 │
+│  Day 2: solved? ─── NO                                   │
+│    └─ Freezes used this month < 3?                       │
+│       ├─ YES → auto-apply freeze, streak preserved       │
+│       │        (frozen date recorded, not incremented)    │
+│       └─ NO  → streak BREAKS, return count               │
+│  Day 3: solved? ─── YES → +1                             │
+│  ... continue until break                                 │
+│                                                          │
+│  Returns: { focusStreak, focusGoalMetToday, frozenDates } │
+└──────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌──────────────────────────────────────────────────────────┐
+│                  SETTINGS / PREFERENCES                   │
+│                                                          │
+│  User changes settings in popup:                          │
+│                                                          │
+│  saveRequirements()                                       │
+│    │                                                      │
+│    ├─► chrome.storage.local.set({ requirements })         │
+│    ├─► recalculate focus streak                           │
+│    ├─► updateBadge()                                      │
+│    ├─► updateProgressCardVisibility()                     │
+│    └─► debouncedPushPrefs() ──► Cloudflare KV             │
+│                                    │                      │
+│                                    ▼                      │
+│                          ┌─────────────────┐              │
+│                          │  On other device: │             │
+│                          │  pullPrefs()      │             │
+│                          │  → apply remote   │             │
+│                          │    if newer        │             │
+│                          └─────────────────┘              │
+└──────────────────────────────────────────────────────────┘
+```
