@@ -118,7 +118,8 @@ async function getNextUnsolvedForList(listName) {
         }
       }
       // Namaste DSA: sequential (first unsolved in order), others: random
-      const sequential = ['namastedsa', 'frazdsa', 'striversde'].includes(listName);
+      const listConfig = CURATED_LIST_MAP[listName];
+      const sequential = listConfig ? listConfig.sequential : false;
       resolve(sequential ? (candidates[0] || null) : pickRandom(candidates));
     });
   });
@@ -783,9 +784,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Build focus area label
       const reqs = result.requirements || result.orModeRequirements || {};
       const focusLabels = [];
-      if (reqs.blind75) focusLabels.push('Blind 75');
-      if (reqs.neetcode150) focusLabels.push('NC 150');
-      if (reqs.leetcode75) focusLabels.push('LC 75');
+      CURATED_LISTS.forEach(list => { if (reqs[list.id]) focusLabels.push(list.focusLabel); });
       if (reqs.dailyChallenge) focusLabels.push('Daily');
       if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
         focusLabels.push(reqs.selectedCompanies.slice(0, 2).join(', '));
@@ -1140,32 +1139,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         chrome.storage.local.get(['completedProblemIds'], resolve);
       });
 
-      // Get stats for each list
-      const [blind75Stats, neetcode150Stats, leetcode75Stats, namasteStats, frazStats, striverStats] = await Promise.all([
-        getListStats('blind75', completedProblemIds),
-        getListStats('neetcode150', completedProblemIds),
-        getListStats('leetcode75', completedProblemIds),
-        getListStats('namastedsa', completedProblemIds),
-        getListStats('frazdsa', completedProblemIds),
-        getListStats('striversde', completedProblemIds)
-      ]);
-
-      updateProgressCard('blind75', blind75Stats.completed, blind75Stats.total, blind75Stats.percentage);
-      updateProgressCard('neetcode150', neetcode150Stats.completed, neetcode150Stats.total, neetcode150Stats.percentage);
-      updateProgressCard('leetcode75', leetcode75Stats.completed, leetcode75Stats.total, leetcode75Stats.percentage);
-      updateProgressCard('namastedsa', namasteStats.completed, namasteStats.total, namasteStats.percentage);
-      updateProgressCard('frazdsa', frazStats.completed, frazStats.total, frazStats.percentage);
-      updateProgressCard('striversde', striverStats.completed, striverStats.total, striverStats.percentage);
+      // Get stats for each list dynamically
+      const stats = await Promise.all(
+        CURATED_LISTS.map(list => getListStats(list.id, completedProblemIds))
+      );
+      CURATED_LISTS.forEach((list, i) => {
+        updateProgressCard(list.id, stats[i].completed, stats[i].total, stats[i].percentage);
+      });
 
     } catch (error) {
       console.error('❌ Failed to render list progress:', error);
       console.error(error.stack);
-      updateProgressCard('blind75', 0, 74, 0);
-      updateProgressCard('neetcode150', 0, 158, 0);
-      updateProgressCard('leetcode75', 0, 75, 0);
-      updateProgressCard('namastedsa', 0, 147, 0);
-      updateProgressCard('frazdsa', 0, 305, 0);
-      updateProgressCard('striversde', 0, 121, 0);
+      CURATED_LISTS.forEach(list => {
+        updateProgressCard(list.id, 0, list.totalFallback, 0);
+      });
     }
   }
 
@@ -1183,31 +1170,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (countText) countText.textContent = `${completed}/${total}`;
   }
 
-  // Add click handlers for list labels
-  // Namaste DSA explorer button
-  const namasteExplorerBtn = document.getElementById('namastedsa-explorer');
-  if (namasteExplorerBtn) {
-    namasteExplorerBtn.addEventListener('click', () => {
-      chrome.tabs.create({ url: chrome.runtime.getURL('problems-explorer.html?list=namastedsa') });
-    });
-  }
-
-  [['blind75-label', 'blind75'], ['neetcode150-label', 'neetcode150'], ['namastedsa-label', 'namastedsa'], ['frazdsa-label', 'frazdsa'], ['striversde-label', 'striversde'], ['leetcode75-label', 'leetcode75']].forEach(([labelId, listName]) => {
-    const label = document.getElementById(labelId);
+  // Add click handlers for list labels and next-unsolved buttons
+  CURATED_LISTS.forEach(list => {
+    const label = document.getElementById(list.id + '-label');
     if (label) {
       label.addEventListener('click', () => {
-        chrome.tabs.create({ url: chrome.runtime.getURL(`problems-explorer.html?list=${listName}`) });
+        chrome.tabs.create({ url: chrome.runtime.getURL('problems-explorer.html?list=' + list.id) });
       });
     }
-  });
-
-  // Next unsolved buttons for list cards
-  [['blind75-next', 'blind75'], ['neetcode150-next', 'neetcode150'], ['namastedsa-next', 'namastedsa'], ['frazdsa-next', 'frazdsa'], ['striversde-next', 'striversde'], ['leetcode75-next', 'leetcode75']].forEach(([btnId, listName]) => {
-    const btn = document.getElementById(btnId);
-    if (btn) {
-      btn.addEventListener('click', async (e) => {
+    const nextBtn = document.getElementById(list.id + '-next');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const url = await getNextUnsolvedForList(listName);
+        const url = await getNextUnsolvedForList(list.id);
         if (url) chrome.tabs.create({ url });
       });
     }
@@ -1507,14 +1482,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     ampmBtn.textContent = selectedAmPm;
   });
 
-  // Streak requirement checkboxes
+  // Streak requirement checkboxes (non-list ones)
   const reqDaily = document.getElementById("req-daily");
-  const reqLc75 = document.getElementById("req-lc75");
-  const reqBlind75 = document.getElementById("req-blind75");
-  const reqNc150 = document.getElementById("req-nc150");
-  const reqNamaste = document.getElementById("req-namastedsa");
-  const reqFraz = document.getElementById("req-frazdsa");
-  const reqStriver = document.getElementById("req-striversde");
   const reqAny = document.getElementById("req-any");
 
   // Tag input state (initialized after setupTagInput is defined)
@@ -1525,18 +1494,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   function saveRequirements() {
     const req = {
       dailyChallenge: reqDaily.checked,
-      leetcode75: reqLc75.checked,
-      blind75: reqBlind75.checked,
-      neetcode150: reqNc150.checked,
-      namastedsa: reqNamaste ? reqNamaste.checked : false,
-      frazdsa: reqFraz ? reqFraz.checked : false,
-      striversde: reqStriver ? reqStriver.checked : false,
       anySubmission: reqAny ? reqAny.checked : false,
       companyFocus: companyTags ? companyTags.isEnabled() : false,
       selectedCompanies: companyTags ? companyTags.getTags() : [],
       topicFocus: topicTags ? topicTags.isEnabled() : false,
       selectedTopics: topicTags ? topicTags.getTags() : []
     };
+    // Add each curated list's checkbox state
+    CURATED_LISTS.forEach(list => {
+      const el = document.getElementById(list.reqCheckboxId);
+      req[list.id] = el ? el.checked : false;
+    });
     // Throttle storage writes (150ms)
     clearTimeout(_saveReqTimer);
     _saveReqTimer = setTimeout(() => {
@@ -1556,39 +1524,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function updateProgressCardVisibility() {
     const reqs = {
-      dailyChallenge: reqDaily.checked,
-      blind75: reqBlind75.checked,
-      neetcode150: reqNc150.checked,
-      leetcode75: reqLc75.checked,
-      namastedsa: reqNamaste ? reqNamaste.checked : false,
-      frazdsa: reqFraz ? reqFraz.checked : false,
-      striversde: reqStriver ? reqStriver.checked : false
+      dailyChallenge: reqDaily.checked
     };
+    CURATED_LISTS.forEach(list => {
+      const el = document.getElementById(list.reqCheckboxId);
+      reqs[list.id] = el ? el.checked : false;
+    });
 
-    const blind75Card = document.getElementById('blind75-card');
-    const neetcode150Card = document.getElementById('neetcode150-card');
-    const namastedsaCard = document.getElementById('namastedsa-card');
-    const frazdsaCard = document.getElementById('frazdsa-card');
-    const striversdeCard = document.getElementById('striversde-card');
-    const leetcode75Card = document.getElementById('leetcode75-card');
+    let anyListEnabled = false;
+    CURATED_LISTS.forEach(list => {
+      const card = document.getElementById(list.id + '-card');
+      if (card) card.classList.toggle('hidden', !reqs[list.id]);
+      if (reqs[list.id]) anyListEnabled = true;
+    });
+
     const progressSection = document.getElementById('list-progress-section');
+    if (progressSection) progressSection.classList.toggle('hidden', !anyListEnabled);
+
     const dailyChallengeSection = document.getElementById('daily-challenge-section');
-
-    if (blind75Card) blind75Card.classList.toggle('hidden', !reqs.blind75);
-    if (neetcode150Card) neetcode150Card.classList.toggle('hidden', !reqs.neetcode150);
-    if (namastedsaCard) namastedsaCard.classList.toggle('hidden', !reqs.namastedsa);
-    if (frazdsaCard) frazdsaCard.classList.toggle('hidden', !reqs.frazdsa);
-    if (striversdeCard) striversdeCard.classList.toggle('hidden', !reqs.striversde);
-    if (leetcode75Card) leetcode75Card.classList.toggle('hidden', !reqs.leetcode75);
-
-    if (progressSection) {
-      progressSection.classList.toggle('hidden', !reqs.blind75 && !reqs.neetcode150 && !reqs.namastedsa && !reqs.frazdsa && !reqs.striversde && !reqs.leetcode75);
-    }
-
-    // Show/hide daily challenge section based on checkbox
-    if (dailyChallengeSection) {
-      dailyChallengeSection.classList.toggle('hidden', !reqs.dailyChallenge);
-    }
+    if (dailyChallengeSection) dailyChallengeSection.classList.toggle('hidden', !reqs.dailyChallenge);
   }
 
   // Render tag progress bars for selected topics/companies in main view
@@ -1925,23 +1879,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   // Save requirements when checkboxes change
-  [reqDaily, reqLc75, reqBlind75, reqNc150, reqNamaste, reqFraz, reqStriver, reqAny].filter(Boolean).forEach(checkbox => {
+  [reqDaily, reqAny, ...CURATED_LISTS.map(l => document.getElementById(l.reqCheckboxId))].filter(Boolean).forEach(checkbox => {
     checkbox.addEventListener("change", saveRequirements);
   });
 
   // Load initial requirements
   chrome.storage.local.get(["requirements", "orModeRequirements"], (result) => {
-    const defaults = { dailyChallenge: true, leetcode75: true, blind75: true, neetcode150: true };
+    const defaults = { dailyChallenge: true };
+    CURATED_LISTS.forEach(list => { defaults[list.id] = list.defaultEnabled; });
     const req = result.requirements || result.orModeRequirements || defaults;
 
     reqDaily.checked = req.dailyChallenge ?? true;
-    reqLc75.checked = req.leetcode75 ?? true;
-    reqBlind75.checked = req.blind75 ?? true;
-    reqNc150.checked = req.neetcode150 ?? true;
-    if (reqNamaste) reqNamaste.checked = req.namastedsa || false;
-    if (reqFraz) reqFraz.checked = req.frazdsa || false;
-    if (reqStriver) reqStriver.checked = req.striversde || false;
     if (reqAny) reqAny.checked = req.anySubmission || false;
+    CURATED_LISTS.forEach(list => {
+      const el = document.getElementById(list.reqCheckboxId);
+      if (el) el.checked = req[list.id] ?? list.defaultEnabled;
+    });
 
     if (req.companyFocus) companyTags.setEnabled(true);
     if (req.selectedCompanies?.length) companyTags.setTags(req.selectedCompanies);
@@ -2143,9 +2096,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Build focus label
     const focusLabels = [];
-    if (reqs.blind75) focusLabels.push('Blind 75');
-    if (reqs.neetcode150) focusLabels.push('NC 150');
-    if (reqs.leetcode75) focusLabels.push('LC 75');
+    CURATED_LISTS.forEach(list => { if (reqs[list.id]) focusLabels.push(list.focusLabel); });
     if (reqs.dailyChallenge) focusLabels.push('Daily');
     if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) focusLabels.push(reqs.selectedCompanies.slice(0, 2).join(', '));
     if (reqs.topicFocus && reqs.selectedTopics?.length > 0) focusLabels.push(reqs.selectedTopics.slice(0, 2).join(', '));
