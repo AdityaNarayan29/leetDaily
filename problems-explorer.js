@@ -31,7 +31,7 @@ const filters = {
 function getListFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   const list = urlParams.get('list');
-  if (list && ['blind75', 'neetcode150', 'leetcode75', 'namastedsa', 'frazdsa', 'striversde'].includes(list)) {
+  if (list && CURATED_LIST_IDS.includes(list)) {
     return list;
   }
   return null;
@@ -96,20 +96,12 @@ async function loadListData(listName) {
 
 // Load list membership for all 3 curated lists
 async function loadListMembership() {
-  const lists = [
-    { name: 'blind75', badge: 'B75' },
-    { name: 'neetcode150', badge: 'NC' },
-    { name: 'leetcode75', badge: 'LC' },
-    { name: 'namastedsa', badge: 'ND' },
-    { name: 'frazdsa', badge: 'FZ' },
-    { name: 'striversde', badge: 'SV' }
-  ];
-  for (const { name, badge } of lists) {
-    const data = await loadListData(name);
+  for (const list of CURATED_LISTS) {
+    const data = await loadListData(list.id);
     if (data) {
       for (const id of data.problemIds) {
         if (!listMembership[id]) listMembership[id] = new Set();
-        listMembership[id].add(badge);
+        listMembership[id].add(list.shortName);
       }
     }
   }
@@ -674,7 +666,7 @@ function renderProblems() {
     const isSolved = completedProblemIds.has(problem.id);
     const isPremium = problem.isPaidOnly;
     const badges = listMembership[problem.id];
-    const badgeHtml = badges ? `<span class="list-badges">${badges.has('B75') ? '<span class="list-badge list-badge-b75">B75</span>' : ''}${badges.has('NC') ? '<span class="list-badge list-badge-nc">NC</span>' : ''}${badges.has('LC') ? '<span class="list-badge list-badge-lc">LC</span>' : ''}${badges.has('ND') ? '<span class="list-badge list-badge-nd">ND</span>' : ''}${badges.has('FZ') ? '<span class="list-badge list-badge-fz">FZ</span>' : ''}${badges.has('SV') ? '<span class="list-badge list-badge-sv">SV</span>' : ''}</span>` : '';
+    const badgeHtml = badges ? `<span class="list-badges">${CURATED_LISTS.filter(l => badges.has(l.shortName)).map(l => `<span class="list-badge ${l.badgeCssClass}">${l.shortName}</span>`).join('')}</span>` : '';
     const lockHtml = isPremium ? `<span class="premium-lock" title="Premium"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg></span>` : '';
     const rowClass = [isSolved ? 'solved' : '', isPremium ? 'premium' : ''].filter(Boolean).join(' ');
 
