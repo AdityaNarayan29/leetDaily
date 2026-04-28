@@ -1,4 +1,5 @@
-// Import sync utilities for cross-device preference syncing
+// Import config and sync utilities
+importScripts('list-config.js');
 importScripts('sync.js');
 
 // Set uninstall feedback URL
@@ -23,75 +24,44 @@ function getTodayDate() {
 // Cache for curated lists
 let curatedListsCache = null;
 
-// Load curated lists (LeetCode 75, Blind 75, NeetCode 150)
+// Load curated lists dynamically from CURATED_LISTS config
 async function loadCuratedLists() {
   if (curatedListsCache) return curatedListsCache;
-
   try {
-    const [lc75Response, blind75Response, nc150Response, namasteResponse] = await Promise.all([
-      fetch(chrome.runtime.getURL('data/leetcode75.json')),
-      fetch(chrome.runtime.getURL('data/blind75.json')),
-      fetch(chrome.runtime.getURL('data/neetcode150.json')),
-      fetch(chrome.runtime.getURL('data/namastedsa.json')),
-      fetch(chrome.runtime.getURL('data/frazdsa.json')),
-      fetch(chrome.runtime.getURL('data/striversde.json'))
-    ]);
-
-    const [lc75Data, blind75Data, nc150Data, namasteData, frazData, striverData] = await Promise.all([
-      lc75Response.json(),
-      blind75Response.json(),
-      nc150Response.json(),
-      namasteResponse.json(),
-      frazResponse.json(),
-      striverResponse.json()
-    ]);
-
-    const lc75Ids = new Set();
-    const blind75Ids = new Set();
-    const nc150Ids = new Set();
-    const namasteIds = new Set();
-    const frazIds = new Set();
-    const striverIds = new Set();
-
-    lc75Data.categories?.forEach(cat => cat.problemIds?.forEach(id => lc75Ids.add(id)));
-    blind75Data.categories?.forEach(cat => cat.problemIds?.forEach(id => blind75Ids.add(id)));
-    nc150Data.categories?.forEach(cat => cat.problemIds?.forEach(id => nc150Ids.add(id)));
-    namasteData.categories?.forEach(cat => cat.problemIds?.forEach(id => namasteIds.add(id)));
-    frazData.categories?.forEach(cat => cat.problemIds?.forEach(id => frazIds.add(id)));
-    striverData.categories?.forEach(cat => cat.problemIds?.forEach(id => striverIds.add(id)));
-
-    curatedListsCache = { lc75Ids, blind75Ids, nc150Ids, namasteIds, frazIds, striverIds };
-    return curatedListsCache;
+    const responses = await Promise.all(
+      CURATED_LISTS.map(list => fetch(chrome.runtime.getURL('data/' + list.dataFile)))
+    );
+    const datasets = await Promise.all(responses.map(r => r.json()));
+    const cache = {};
+    CURATED_LISTS.forEach((list, i) => {
+      const ids = new Set();
+      datasets[i].categories?.forEach(cat => cat.problemIds?.forEach(id => ids.add(id)));
+      cache[list.id] = ids;
+    });
+    curatedListsCache = cache;
+    return cache;
   } catch (error) {
     console.error('Failed to load curated lists:', error);
-    return { lc75Ids: new Set(), blind75Ids: new Set(), nc150Ids: new Set(), namasteIds: new Set(), frazIds: new Set(), striverIds: new Set() };
+    const cache = {};
+    CURATED_LISTS.forEach(list => { cache[list.id] = new Set(); });
+    curatedListsCache = cache;
+    return cache;
   }
 }
 
 async function getProblemListMembership(problemId) {
   const lists = await loadCuratedLists();
-  return {
-    leetcode75: lists.lc75Ids.has(problemId),
-    blind75: lists.blind75Ids.has(problemId),
-    neetcode150: lists.nc150Ids.has(problemId),
-    namastedsa: lists.namasteIds.has(problemId),
-    frazdsa: lists.frazIds.has(problemId),
-    striversde: lists.striverIds.has(problemId)
-  };
+  const membership = {};
+  CURATED_LISTS.forEach(list => { membership[list.id] = lists[list.id].has(problemId); });
+  return membership;
 }
 
 // Check if a day's solved problems meet the given requirements (OR mode)
 function meetsRequirements(problemsOnDay, reqs) {
   if (!reqs) return problemsOnDay.length > 0;
 
-  const hasAnyReq = reqs.anySubmission ||
-    reqs.dailyChallenge ||
-    reqs.leetcode75 ||
-    reqs.blind75 ||
-    reqs.neetcode150 ||
-    reqs.namastedsa ||
-    reqs.frazdsa ||
-    reqs.striversde ||
+  const hasListReq = CURATED_LISTS.some(list => reqs[list.id]);
+  const hasAnyReq = reqs.anySubmission || reqs.dailyChallenge || hasListReq ||
     (reqs.companyFocus && reqs.selectedCompanies?.length > 0) ||
     (reqs.topicFocus && reqs.selectedTopics?.length > 0);
 
@@ -99,12 +69,9 @@ function meetsRequirements(problemsOnDay, reqs) {
 
   if (reqs.anySubmission && problemsOnDay.length > 0) return true;
   if (reqs.dailyChallenge && problemsOnDay.some(p => p.isDailyChallenge)) return true;
-  if (reqs.leetcode75 && problemsOnDay.some(p => p.inLists?.leetcode75)) return true;
-  if (reqs.blind75 && problemsOnDay.some(p => p.inLists?.blind75)) return true;
-  if (reqs.neetcode150 && problemsOnDay.some(p => p.inLists?.neetcode150)) return true;
-  if (reqs.namastedsa && problemsOnDay.some(p => p.inLists?.namastedsa)) return true;
-  if (reqs.frazdsa && problemsOnDay.some(p => p.inLists?.frazdsa)) return true;
-  if (reqs.striversde && problemsOnDay.some(p => p.inLists?.striversde)) return true;
+  for (const list of CURATED_LISTS) {
+    if (reqs[list.id] && problemsOnDay.some(p => p.inLists?.[list.id])) return true;
+  }
 
   if (reqs.companyFocus && reqs.selectedCompanies?.length > 0) {
     const companies = reqs.selectedCompanies.map(c => c.toLowerCase());

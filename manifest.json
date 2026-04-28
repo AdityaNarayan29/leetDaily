@@ -35,6 +35,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "list-config.js",
         "data/leetcode-problems.json",
         "data/blind75.json",
         "data/neetcode150.json",
