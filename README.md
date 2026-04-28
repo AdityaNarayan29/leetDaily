@@ -70,7 +70,7 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 - **Settings Only** — Only preferences are synced to the cloud; all solve history and progress stay local on your device
 
 ### Focus Areas & Settings
-- **Focus Areas** — Set your prep focus: Blind 75, NeetCode 150, LeetCode 75, Daily Challenge, company tags, topic tags, or any submission
+- **Focus Areas** — Set your prep focus: any curated list, Daily Challenge, company tags, topic tags, or any submission
 - **Focus Streak** — 🎯 Tracks consecutive days you solved a problem matching your focus areas
 - **Streak Freezes** — 3 per month, auto-applied on missed days. Freeze counter shown in settings
 - **Badge Display** — Choose which streak to show on the extension icon (Focus or LeetCode)
@@ -109,7 +109,7 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 1. Click the LeetDaily icon in your browser toolbar
 2. View today's daily challenge with topic tags and company tags
-3. Track your progress across Blind 75, NeetCode 150, and LeetCode 75
+3. Track your progress across 6 curated DSA sheets (Blind 75, NeetCode 150, Namaste DSA, Fraz DSA, Striver SDE, LeetCode 75)
 4. Use the Problems Explorer to browse, filter, and find problems by company or topic
 5. Configure streak rules and reminders in Settings
 6. Maintain your streak and hit milestones
@@ -120,32 +120,45 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ```
 leetDaily/
-├── data/                  # Problem metadata
-│   ├── leetcode-problems.json   # 3800+ problems with company tags
-│   ├── blind75.json             # Blind 75 list by category
-│   ├── neetcode150.json         # NeetCode 150 list by category
-│   └── leetcode75.json          # LeetCode 75 list by category
-├── scripts/               # Dev tooling
-│   └── fetch-problems.js  # Fetch/update problem data from LeetCode API
-├── styles/                # Tailwind CSS
+├── list-config.js               # ★ Single source of truth for all curated DSA lists
+├── data/                        # Problem metadata
+│   ├── leetcode-problems.json   # 3846 problems with company tags
+│   ├── blind75.json             # Blind 75 (74 problems)
+│   ├── neetcode150.json         # NeetCode 150 (158 problems)
+│   ├── namastedsa.json          # Namaste DSA (147 LeetCode problems)
+│   ├── frazdsa.json             # Fraz DSA (305 LeetCode problems)
+│   ├── striversde.json          # Striver SDE (121 LeetCode problems)
+│   └── leetcode75.json          # LeetCode 75 (75 problems)
+├── styles/                      # Tailwind CSS
 │   ├── input.css
 │   └── output.css
-├── utils/                 # Shared utilities
-│   └── list-helpers.js
-├── landing/               # Landing page (Next.js + TypeScript)
-├── sync.js                # Cross-device settings sync (Cloudflare KV)
-├── worker/                # Cloudflare Worker for preferences sync
-│   ├── src/index.js       # Worker API (GET/PUT /prefs/:username)
-│   └── wrangler.toml      # Wrangler config
-├── popup.html             # Extension popup UI
-├── popup.js               # Extension popup logic
-├── background.js          # Service worker (streak calc, alarms, notifications)
-├── content.js             # Content script (LeetCode page integration)
-├── problems-explorer.html # Full-page problems browser
-├── problems-explorer.js   # Problems explorer logic
-├── manifest.json          # Chrome extension manifest (MV3)
-└── tailwind.config.js     # Tailwind configuration
+├── landing/                     # Landing page (Next.js)
+│   └── app/
+│       ├── dsa/                 # DSA Master Reference page
+│       ├── privacy/             # Privacy policy
+│       └── blog/                # Blog
+├── worker/                      # Cloudflare Worker for preferences sync
+│   └── src/index.js             # Worker API (GET/PUT /prefs/:username)
+├── popup.html                   # Extension popup UI
+├── popup.js                     # Extension popup logic (~2200 lines)
+├── background.js                # Service worker (streaks, badge, alarms, notifications)
+├── content.js                   # Content script (submission detection)
+├── sync.js                      # Cross-device settings sync (Cloudflare KV)
+├── theme-init.js                # Sync theme before first paint
+├── problems-explorer.html       # Full-page problems browser
+├── problems-explorer.js         # Problems explorer logic
+├── manifest.json                # Chrome extension manifest (MV3)
+├── ARCHITECTURE.md              # Architecture diagrams
+└── icon.png                     # Extension icon
 ```
+
+### Adding a New Curated List
+
+1. Create `data/newlist.json` with `{ name, totalProblems, categories: [{ name, problemIds }] }`
+2. Add one entry to `CURATED_LISTS` in `list-config.js`
+3. Add `data/newlist.json` to `manifest.json` web_accessible_resources
+4. Add badge CSS in `problems-explorer.html` (optional, for explorer badges)
+5. Add progress card HTML in `popup.html` (or skip if using dynamic generation)
 
 ### Running the Landing Page
 
@@ -184,7 +197,7 @@ LeetDaily respects your privacy:
 - No passwords, personal data, or solve history is ever transmitted
 - No tracking, no ads, no analytics
 
-See our full [Privacy Policy](privacy.html) for details.
+See our full [Privacy Policy](https://leetdaily.masst.dev/privacy) for details.
 
 ---
 

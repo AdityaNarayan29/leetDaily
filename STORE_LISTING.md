@@ -37,9 +37,9 @@ TAG & COMPANY PROGRESS
 
 PROBLEMS EXPLORER
 - Browse and search all 3800+ LeetCode problems in a full-page view
-- Filter by difficulty, topics, companies, and curated lists (Blind 75, NeetCode 150, LC 75)
+- Filter by difficulty, topics, companies, and 6 curated lists
 - Sort by ID, title, difficulty, acceptance rate, or frequency
-- List badges (B75, NC, LC) and solved checkmarks on every row
+- List badges (B75, NC, ND, FZ, SV, LC) and solved checkmarks on every row
 - Click any topic or company chip to filter instantly
 
 SMART REMINDERS
