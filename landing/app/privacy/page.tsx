@@ -1,6 +1,15 @@
-export const metadata = {
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Privacy Policy — LeetDaily",
-  description: "Privacy policy for the LeetDaily Chrome extension.",
+  description: "Privacy policy for the LeetDaily Chrome extension. Learn how your data is stored, synced, and protected.",
+  alternates: {
+    canonical: "https://leetdaily.masst.dev/privacy",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function PrivacyPolicy() {

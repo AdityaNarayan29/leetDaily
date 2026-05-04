@@ -29,14 +29,21 @@ export const metadata: Metadata = {
     "streak milestones",
     "LeetCode tracker",
     "coding interview prep",
+    "Striver SDE sheet",
+    "Namaste DSA",
+    "Fraz DSA",
+    "DSA sheet",
   ],
+  icons: {
+    icon: "/favicon.ico",
+  },
   alternates: {
     canonical: "https://leetdaily.masst.dev",
   },
   openGraph: {
     title: "LeetDaily — LeetCode Interview Prep & Tracker",
     description:
-      "Ace coding interviews with LeetCode. Blind 75, NeetCode 150, 3800+ problems explorer, FAANG company tags, streaks & smart reminders.",
+      "Ace coding interviews with 6 DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz DSA), 3800+ problems explorer, FAANG tags & streaks.",
     url: "https://leetdaily.masst.dev",
     type: "website",
     locale: "en_US",

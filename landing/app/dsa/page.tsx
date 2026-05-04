@@ -4,7 +4,23 @@ import "./dsa.css";
 export const metadata: Metadata = {
   title: "DSA Master Reference — Decision Tree + Complete Patterns | LeetDaily",
   description: "Visual decision trees, complete pattern library, frameworks, and cheat sheet for DSA interview preparation. Free resource by LeetDaily.",
-  keywords: ["DSA cheat sheet", "DSA decision tree", "leetcode patterns", "coding interview patterns", "algorithm patterns", "data structures cheat sheet", "DSA reference"],
+  keywords: ["DSA cheat sheet", "DSA decision tree", "leetcode patterns", "coding interview patterns", "algorithm patterns", "data structures cheat sheet", "DSA reference", "DSA roadmap", "interview preparation guide"],
+  alternates: {
+    canonical: "https://leetdaily.masst.dev/dsa",
+  },
+  openGraph: {
+    title: "DSA Master Reference — Decision Trees + Patterns | LeetDaily",
+    description: "Visual decision trees, complete pattern library, frameworks, and cheat sheet for coding interviews. 50+ patterns, 11 complexity tiers, 6 decision trees.",
+    url: "https://leetdaily.masst.dev/dsa",
+    siteName: "LeetDaily",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DSA Master Reference — Decision Trees + Patterns",
+    description: "Visual decision trees, complete pattern library, frameworks, and cheat sheet for coding interviews.",
+  },
 };
 
 function N({ t, children }: { t: string; children: React.ReactNode }) {
