@@ -299,7 +299,7 @@ export default function LandingPage() {
                   <span className="w-1 h-1 rounded-full bg-white/30" />
                   <div className="flex items-center gap-1">
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    <span>1000+ users</span>
+                    <span>Free forever</span>
                   </div>
                 </div>
               </div>
@@ -1036,11 +1036,11 @@ export default function LandingPage() {
       <section aria-label="Developer reviews and testimonials" className="py-12 sm:py-24 px-4 sm:px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="sr-only">Trusted by 1000+ LeetCode developers</h2>
+            <h2 className="sr-only">What developers say about LeetDaily</h2>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
               <Users className="w-4 h-4 text-orange-400" />
               <span className="text-sm text-white/70">
-                Trusted by 1000+ developers
+                What developers say
               </span>
             </div>
           </div>
