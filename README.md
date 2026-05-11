@@ -2,117 +2,131 @@
 
 **The all-in-one Chrome extension for LeetCode interview prep.**
 
-LeetDaily brings your daily LeetCode challenge, curated study lists, company tags, streak tracking, and a full problems explorer — all one click from your browser toolbar.
+Track 6 curated DSA sheets, daily challenges, FAANG company tags, dual streaks, and browse 3800+ problems — all one click from your browser toolbar.
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/kpmmlpoonleloofchbbfnmicchmhehcf?style=flat-square)](https://chromewebstore.google.com/detail/leetcode-daily-challenge/kpmmlpoonleloofchbbfnmicchmhehcf)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/kpmmlpoonleloofchbbfnmicchmhehcf?style=flat-square)](https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+
+**[Install](https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf)** · **[Landing Page](https://leetdaily.masst.dev)** · **[DSA Reference](https://leetdaily.masst.dev/dsa)** · **[Blog](https://leetdaily.masst.dev/blog)**
 
 ---
 
-## What's New in v2.4
+## Highlights
 
-- **6 Curated DSA Sheets** — Blind 75, NeetCode 150, Namaste DSA (147), Fraz DSA (305), Striver SDE (121), LeetCode 75
+- **6 Curated DSA Sheets** — Blind 75, NeetCode 150, Namaste DSA (147), Fraz DSA (305), Striver SDE (121), LeetCode 75 — with live progress bars and sequential next-unsolved
 - **Dual Streak Tracking** — 🎯 Focus streak (days on your prep plan) + 🔥 LeetCode streak (official, from API)
-- **Streak Freezes** — 3 per month, auto-applied when you miss a day. Your focus streak survives
-- **Focus Areas** — Set your prep focus (any curated list, company tags, topics) and track daily accountability
-- **Badge Display Choice** — Show Focus streak or LeetCode streak on the extension badge
-- **Longest Streak** — Calculated from your full LeetCode history (all years)
-- **Light/Dark Theme** — Toggle between themes in settings
-- **Daily Challenge Card** — ✓ Solved badge, countdown timer, clickable heading to open problem
-- **Reliable Background Sync** — chrome.alarms for badge updates and API polling (survives service worker suspension)
-- **Feedback** — GitHub Issues and email links in settings
-- **Problems Explorer** — Browse 3800+ problems with 6 list badges (B75, NC, ND, FZ, SV, LC)
-- **Cross-Device Settings Sync** — Preferences sync via Cloudflare KV
-- **Data Export/Import** — Backup and restore all progress as JSON
+- **Streak Freezes** — 3 per month, auto-applied when you miss a day
+- **3800+ Problems Explorer** — Browse, filter by difficulty/topics/companies/lists, sort, 6 list badges
+- **Daily Challenge Card** — ✓ Solved badge, countdown timer, topic & company tags
+- **Smart Reminders** — Daily reminder + urgent alert 2 hours before midnight reset
+- **Cross-Device Settings Sync** — Preferences sync via Cloudflare Workers + KV
+- **Light/Dark Theme** — Toggle in settings
+- **Privacy-First** — Solve history stays local. No tracking, no ads.
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      Chrome Extension                         │
+│                                                              │
+│  content.js ──► background.js (service worker) ◄── popup.js │
+│  (detect        (streaks, badge,    (UI, settings,           │
+│   submissions)   alarms, API)        progress, theme)        │
+│                      │                     │                 │
+│              list-config.js ◄──────────────┘                 │
+│              (single source of truth for 6 DSA sheets)       │
+└──────────────────┬───────────────┬───────────────────────────┘
+                   │               │
+          LeetCode GraphQL    Cloudflare KV
+          (streaks, stats,    (settings sync)
+           daily challenge)
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for full diagrams including feature map, data flow, and user flows.
 
 ---
 
 ## Features
 
 ### Dashboard
-- **Daily Challenge** — Today's problem with difficulty, acceptance rate, topic & company tags, ✓ Solved badge, and countdown timer
-- **Your Stats** — Total solved with Easy/Medium/Hard breakdown, synced from your LeetCode account
-- **30-Day Heatmap** — Activity visualization with color intensity showing daily solve counts
-- **Dual Streak Display** — 🎯 Focus streak (days on your plan) + 🔥 LeetCode streak (official) in the header
-- **Streak Detail Modal** — Click your streak to see longest streak (full history), milestones, and last 7 days
-- **Profile Link** — Click your avatar or username to open your LeetCode profile
+- **Daily Challenge** — Today's problem with difficulty, acceptance rate, topic & company tags, ✓ Solved badge, countdown timer
+- **Your Stats** — Total solved with Easy/Medium/Hard breakdown, synced from LeetCode
+- **30-Day Heatmap** — Activity visualization with color-coded intensity and daily challenge checkmarks
+- **Dual Streak Display** — 🎯 Focus streak + 🔥 LeetCode streak in the header
+- **Streak Detail Modal** — Longest streak (calculated from full history, all years), milestones, last 7 days
+- **Profile Link** — Click avatar/username to open your LeetCode profile
 
 ### 6 Curated DSA Sheets
-- **Blind 75** — The classic 75 interview problems (74 problems)
-- **NeetCode 150** — NeetCode's comprehensive roadmap (158 problems)
-- **Namaste DSA** — Namaste Dev's DSA sheet (147 LeetCode problems)
-- **Fraz DSA** — LeadCoding's DSA sheet by Fraz (305 LeetCode problems)
-- **Striver SDE Sheet** — TakeUForward's SDE sheet (121 LeetCode problems)
-- **LeetCode 75** — LeetCode's own study plan (75 problems)
-- **Next Unsolved** — Sequential next-unsolved navigation for each list
 
-### Tag & Company Progress
-- **Topic Progress** — Track solved/total for selected topics (Arrays, DP, Graphs, etc.)
-- **Company Progress** — Track solved/total for target companies (Google, Meta, Amazon, etc.)
-- **Intersection View** — See problems that match both your selected topics AND companies
-- **Accordion Breakdown** — Expand to see individual tag progress with color-coded bars
+| Sheet | Problems | Color | Badge | Source |
+|-------|----------|-------|-------|--------|
+| Blind 75 | 74 | Teal | B75 | Yangshun Tay |
+| NeetCode 150 | 158 | Orange | NC | NeetCode |
+| Namaste DSA | 147 | Purple | ND | NamasteDev |
+| Fraz DSA | 305 | Amber | FZ | LeadCoding |
+| Striver SDE | 121 | Pink | SV | TakeUForward |
+| LeetCode 75 | 75 | Red | LC | LeetCode |
+
+Each sheet has: live progress bar, percentage, sequential next-unsolved, click-to-explore, external sheet link (where applicable).
 
 ### Problems Explorer
-- **Full Problem Database** — Browse and search all 3800+ LeetCode problems
-- **Advanced Filters** — Filter by difficulty, topics, companies, and curated lists
-- **Sortable Columns** — Sort by ID, title, difficulty, acceptance rate, or frequency
-- **Company Frequency** — See how often each company asks a specific problem
-- **Clickable Chips** — Click any topic or company tag to jump straight to the explorer with that filter
+- Browse and search 3800+ LeetCode problems in a full-page view
+- Filter by difficulty, topics, companies, and 6 curated lists
+- Sort by ID, title, difficulty, acceptance rate, or frequency
+- 6 list badges (B75, NC, ND, FZ, SV, LC) on every problem row
+- Solved checkmarks synced from your LeetCode account
+
+### Streak System
+- **🔥 LeetCode Streak** — From LeetCode's API (daily challenge streak)
+- **🎯 Focus Streak** — Consecutive days solving from your selected focus areas
+- **❄️ Streak Freezes** — 3 per month, auto-applied. Frozen days preserve streak without incrementing
+- **Badge Display** — Choose which streak appears on the toolbar icon
+- **Badge Colors** — Green (goal met), orange (pending), red blink (<2hrs to midnight)
+- **Longest Streak** — Calculated from full submission history (fetches all years)
+
+### Focus Areas
+Set your prep focus in settings — any combination of:
+- Curated lists (Blind 75, NeetCode 150, Striver SDE, etc.)
+- Company tags (Google, Meta, Amazon, etc.)
+- Topic tags (Arrays, DP, Graphs, etc.)
+- Daily Challenge
+- Any submission
+
+Your focus streak (🎯) tracks consecutive days meeting your selected requirements (OR mode — any one match counts).
 
 ### Smart Reminders
-- **Daily Reminder** — Configurable notification at your chosen time
-- **Streak at Risk** — Urgent alert 2 hours before midnight reset
-- **Badge Display** — Choose Focus streak or LeetCode streak on the icon; green/orange/red color shows goal status
+- Daily reminder at your chosen time (12h format, AM/PM)
+- Urgent streak-at-risk notification 2 hours before midnight UTC
+- Uses `chrome.alarms` for reliability (survives service worker suspension)
 
-### Cross-Device Settings Sync
-- **Automatic Sync** — Your streak preferences, reminder settings, and badge options sync across devices
-- **LeetCode Identity** — Just log into LeetCode on any device and your settings appear instantly
-- **Settings Only** — Only preferences are synced to the cloud; all solve history and progress stay local on your device
+### Cross-Device Sync
+- Preferences sync via Cloudflare Workers + KV, keyed by LeetCode username
+- Synced: requirements, reminder time, badge settings, theme
+- NOT synced: solve history, progress, streaks (stays local)
+- Offline-first: local storage is always source of truth
 
-### Focus Areas & Settings
-- **Focus Areas** — Set your prep focus: any curated list, Daily Challenge, company tags, topic tags, or any submission
-- **Focus Streak** — 🎯 Tracks consecutive days you solved a problem matching your focus areas
-- **Streak Freezes** — 3 per month, auto-applied on missed days. Freeze counter shown in settings
-- **Badge Display** — Choose which streak to show on the extension icon (Focus or LeetCode)
-- **Light/Dark Theme** — Sun/moon toggle in settings header
-- **Topic & Company Selection** — Combobox inputs to pick which topics and companies to track
-- **Data Export/Import** — Backup and restore all your progress as JSON
-- **Privacy-First** — Solve history stored locally in your browser; only settings/preferences synced to the cloud (no tracking, no ads)
+### Data & Settings
+- Export all progress as JSON backup
+- Import from backup (validates structure)
+- Light/dark theme toggle
+- Feedback links (GitHub Issues + email)
 
 ---
 
-## Installation
+## Tech Stack
 
-### Chrome Web Store (Recommended)
-1. Visit the [Chrome Web Store listing](https://chromewebstore.google.com/detail/leetcode-daily-challenge/kpmmlpoonleloofchbbfnmicchmhehcf)
-2. Click "Add to Chrome"
-3. Pin the extension to your toolbar for quick access
-
-### Manual Installation (Development)
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/adityanarayan/leetdaily.git
-   cd leetdaily
-   ```
-2. Install dependencies and build:
-   ```bash
-   npm install
-   npm run build:css
-   ```
-3. Open Chrome and navigate to `chrome://extensions/`
-4. Enable "Developer mode" (top right)
-5. Click "Load unpacked" and select the project folder
-
----
-
-## Usage
-
-1. Click the LeetDaily icon in your browser toolbar
-2. View today's daily challenge with topic tags and company tags
-3. Track your progress across 6 curated DSA sheets (Blind 75, NeetCode 150, Namaste DSA, Fraz DSA, Striver SDE, LeetCode 75)
-4. Use the Problems Explorer to browse, filter, and find problems by company or topic
-5. Configure streak rules and reminders in Settings
-6. Maintain your streak and hit milestones
+| Component | Technology |
+|-----------|-----------|
+| Extension | Chrome Manifest V3, vanilla JavaScript |
+| Service Worker | `chrome.alarms`, `chrome.storage.local`, `chrome.notifications` |
+| Content Script | DOM mutation observer for submission detection |
+| Popup | HTML + Tailwind CSS + vanilla JS |
+| Cloud Sync | Cloudflare Workers + KV |
+| Landing Page | Next.js 15, TypeScript, Tailwind CSS |
+| Blog | MDX with custom rendering |
+| Deployment | Vercel (landing), Cloudflare (worker) |
 
 ---
 
@@ -120,110 +134,111 @@ LeetDaily brings your daily LeetCode challenge, curated study lists, company tag
 
 ```
 leetDaily/
-├── list-config.js               # ★ Single source of truth for all curated DSA lists
-├── data/                        # Problem metadata
-│   ├── leetcode-problems.json   # 3846 problems with company tags
-│   ├── blind75.json             # Blind 75 (74 problems)
-│   ├── neetcode150.json         # NeetCode 150 (158 problems)
-│   ├── namastedsa.json          # Namaste DSA (147 LeetCode problems)
-│   ├── frazdsa.json             # Fraz DSA (305 LeetCode problems)
-│   ├── striversde.json          # Striver SDE (121 LeetCode problems)
-│   └── leetcode75.json          # LeetCode 75 (75 problems)
-├── styles/                      # Tailwind CSS
-│   ├── input.css
-│   └── output.css
-├── landing/                     # Landing page (Next.js)
-│   └── app/
-│       ├── dsa/                 # DSA Master Reference page
-│       ├── privacy/             # Privacy policy
-│       └── blog/                # Blog
-├── worker/                      # Cloudflare Worker for preferences sync
-│   └── src/index.js             # Worker API (GET/PUT /prefs/:username)
-├── popup.html                   # Extension popup UI
-├── popup.js                     # Extension popup logic (~2200 lines)
-├── background.js                # Service worker (streaks, badge, alarms, notifications)
-├── content.js                   # Content script (submission detection)
+├── list-config.js               # ★ Single source of truth for all 6 curated DSA lists
+├── data/                        # Problem metadata (JSON)
+│   ├── leetcode-problems.json   # 3846 problems with company tags (5.5MB)
+│   ├── blind75.json             # Blind 75 — 74 problems, 15 categories
+│   ├── neetcode150.json         # NeetCode 150 — 158 problems, 18 categories
+│   ├── namastedsa.json          # Namaste DSA — 147 problems, 14 categories
+│   ├── frazdsa.json             # Fraz DSA — 305 problems, 18 categories
+│   ├── striversde.json          # Striver SDE — 121 problems, 27 categories
+│   └── leetcode75.json          # LeetCode 75 — 75 problems, 17 categories
+├── background.js                # Service worker — streaks, badge, alarms, notifications, API
+├── content.js                   # Content script — submission detection on leetcode.com
+├── popup.html / popup.js        # Extension popup UI and logic
+├── problems-explorer.html/.js   # Full-page problem browser with filters and badges
 ├── sync.js                      # Cross-device settings sync (Cloudflare KV)
-├── theme-init.js                # Sync theme before first paint
-├── problems-explorer.html       # Full-page problems browser
-├── problems-explorer.js         # Problems explorer logic
+├── theme-init.js                # Apply saved theme before first paint (prevents flash)
 ├── manifest.json                # Chrome extension manifest (MV3)
-├── ARCHITECTURE.md              # Architecture diagrams
-└── icon.png                     # Extension icon
+├── icon.png                     # Extension icon
+├── styles/                      # Tailwind CSS (input + compiled output)
+├── worker/                      # Cloudflare Worker for preferences sync
+│   └── src/index.js             # GET/PUT /prefs/:username API
+├── landing/                     # Next.js landing site
+│   └── app/
+│       ├── page.tsx             # Homepage with JSON-LD structured data
+│       ├── dsa/                 # DSA Master Reference (decision trees + patterns)
+│       ├── privacy/             # Privacy policy
+│       └── blog/                # Blog with MDX posts
+├── ARCHITECTURE.md              # Feature map, system architecture, user flow diagrams
+└── test_streak.js               # Streak logic test suite (85 tests)
 ```
 
-### Adding a New Curated List
+---
 
-1. Create `data/newlist.json` with `{ name, totalProblems, categories: [{ name, problemIds }] }`
-2. Add one entry to `CURATED_LISTS` in `list-config.js`
+## Adding a New Curated List
+
+The codebase uses a data-driven config. Adding a new DSA sheet:
+
+1. Create `data/newlist.json` with standard format: `{ name, totalProblems, categories: [{ name, problemIds }] }`
+2. Add one entry to `CURATED_LISTS` in `list-config.js` (id, name, color, badge, etc.)
 3. Add `data/newlist.json` to `manifest.json` web_accessible_resources
-4. Add badge CSS in `problems-explorer.html` (optional, for explorer badges)
-5. Add progress card HTML in `popup.html` (or skip if using dynamic generation)
+4. Add badge CSS class in `problems-explorer.html`
+5. Add progress card HTML block in `popup.html`
 
-### Running the Landing Page
+No changes needed in `background.js`, `popup.js`, `problems-explorer.js`, `content.js`, or `sync.js`.
 
+---
+
+## Installation
+
+### Chrome Web Store (Recommended)
+1. Visit the [Chrome Web Store listing](https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf)
+2. Click "Add to Chrome"
+3. Pin the extension to your toolbar
+
+### Manual / Development
+```bash
+git clone https://github.com/AdityaNarayan29/leetDaily.git
+cd leetDaily
+```
+1. Open `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked" and select the project folder
+
+### Landing Page (local dev)
 ```bash
 cd landing
 npm install
-npm run dev      # Start dev server
-npm run build    # Build for production
+npm run dev
 ```
 
-### Building the Extension
-
+### Cloudflare Worker
 ```bash
-npm install
-npm run build:css    # Compile Tailwind CSS
+cd worker
+npx wrangler deploy
 ```
-
-### Updating Problem Data
-
-The problem database can be refreshed from the LeetCode API:
-
-```bash
-npm run fetch-problems          # Fetch all problems (basic data)
-npm run fetch-problems:full     # Fetch with company frequency tags (slower, rate-limited)
-```
-
-This updates `data/leetcode-problems.json` with the latest problems, difficulty, topics, acceptance rates, and company tags.
 
 ---
 
 ## Privacy
 
-LeetDaily respects your privacy:
-- **Solve history, progress, and streaks** are stored locally on your device — never sent to any server
-- **Only settings/preferences** (streak rules, reminder time, badge settings) are synced to a secure cloud server, keyed by your LeetCode username
-- No passwords, personal data, or solve history is ever transmitted
+- **Solve history, progress, and streaks** — stored locally on your device, never sent to any server
+- **Only settings/preferences** — synced to Cloudflare KV, keyed by LeetCode username
+- No passwords, personal data, or solve history is transmitted
 - No tracking, no ads, no analytics
 
-See our full [Privacy Policy](https://leetdaily.masst.dev/privacy) for details.
+See our full [Privacy Policy](https://leetdaily.masst.dev/privacy).
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions welcome! Please open an issue first for major changes.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. Commit your changes
+4. Push and open a Pull Request
 
----
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/adityanarayan/leetdaily/issues)
-- **Email**: masst.dev@gmail.com
+**Report bugs or suggest features:** [GitHub Issues](https://github.com/AdityaNarayan29/leetDaily/issues)
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-**Built for developers preparing for coding interviews.**
+**Built by [Aditya Narayan](https://adityanarayan.co.in/) for developers preparing for coding interviews.**
