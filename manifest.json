@@ -20,6 +20,7 @@
   "permissions": ["storage", "alarms", "notifications"],
   "host_permissions": [
     "https://leetcode.com/*",
+    "https://leetcode.cn/*",
     "https://leetdaily-prefs.leetdaily.workers.dev/*"
   ],
   "background": {
@@ -27,7 +28,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://leetcode.com/*"],
+      "matches": ["https://leetcode.com/*", "https://leetcode.cn/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }

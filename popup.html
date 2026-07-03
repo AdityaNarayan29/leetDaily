@@ -461,7 +461,7 @@
     <section id="login-prompt" class="mb-4 px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] hidden">
       <div class="flex items-center justify-between">
         <span class="text-[12px] text-[#eff1f699]">Sign in to LeetCode to see your stats</span>
-        <a href="https://leetcode.com/accounts/login/" target="_blank" class="text-[12px] font-medium text-[#ffa116] hover:underline">Sign in</a>
+        <a id="login-link" href="https://leetcode.com/accounts/login/" target="_blank" class="text-[12px] font-medium text-[#ffa116] hover:underline">Sign in</a>
       </div>
     </section>
 
@@ -772,6 +772,23 @@
             <input type="radio" name="badge-display" id="badge-display-leetcode" value="leetcode" class="flex-shrink-0 cursor-pointer" style="accent-color: #ffa116;">
             <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🔥 LeetCode streak <span class="text-[10px] text-[#eff1f644]">— official streak</span></span>
           </label>
+        </div>
+      </div>
+
+      <!-- LeetCode Region -->
+      <div class="px-4 py-3 rounded-xl bg-[#282828] border border-[#ffffff0d] flex flex-col gap-3">
+        <span class="text-[13px] font-semibold text-[#eff1f6]">LeetCode region</span>
+        <div id="domain-options" class="space-y-2">
+          <p class="text-[11px] text-[#eff1f666]">Used for problem links and your account data:</p>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="radio" name="leetcode-domain" id="domain-com" value="com" class="flex-shrink-0 cursor-pointer" style="accent-color: #ffa116;">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🌐 Global <span class="text-[10px] text-[#eff1f644]">— leetcode.com</span></span>
+          </label>
+          <label class="flex items-center cursor-pointer group" style="gap: 10px;">
+            <input type="radio" name="leetcode-domain" id="domain-cn" value="cn" class="flex-shrink-0 cursor-pointer" style="accent-color: #ffa116;">
+            <span class="text-[12px] text-[#eff1f699] group-hover:text-[#eff1f6]">🇨🇳 China <span class="text-[10px] text-[#eff1f644]">— leetcode.cn</span></span>
+          </label>
+          <p class="text-[10px] text-[#eff1f644] leading-relaxed">Falls back to the other region if you're not signed in there.</p>
         </div>
       </div>
 

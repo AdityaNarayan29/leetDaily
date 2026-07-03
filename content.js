@@ -4,6 +4,16 @@
 let lastCheck = 0;
 const CHECK_COOLDOWN = 5000; // 5 seconds between checks
 
+// The GraphQL endpoint for the domain this page is served from (leetcode.com or
+// leetcode.cn). Using the page's own host guarantees we query the account the
+// user is actually logged into for this tab.
+function leetcodeGraphqlEndpoint() {
+  const host = window.location.hostname.endsWith('leetcode.cn')
+    ? 'leetcode.cn'
+    : 'leetcode.com';
+  return `https://${host}/graphql`;
+}
+
 // Safe sendMessage wrapper (extension context may be invalidated on update)
 function safeSendMessage(msg) {
   try {
@@ -28,7 +38,7 @@ let isLoadingActive = false;
 
 // Extract problem titleSlug from current URL
 function getProblemSlugFromURL() {
-  const match = window.location.href.match(/leetcode\.com\/problems\/([^/?]+)/);
+  const match = window.location.href.match(/leetcode\.(?:com|cn)\/problems\/([^/?]+)/);
   return match ? match[1] : null;
 }
 
@@ -74,7 +84,7 @@ async function checkAndNotifyCompletion() {
   lastCheck = now;
 
   try {
-    const response = await fetch("https://leetcode.com/graphql", {
+    const response = await fetch(leetcodeGraphqlEndpoint(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

@@ -5,14 +5,48 @@ importScripts('sync.js');
 // Set uninstall feedback URL
 chrome.runtime.setUninstallURL('https://leetdaily.masst.dev/uninstall');
 
-// Helper for LeetCode GraphQL requests
-async function leetcodeFetch(body) {
-  return fetch("https://leetcode.com/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(body)
+// Returns ordered list of LeetCode domains based on saved preference.
+// Preferred domain is tried first; the other is the fallback.
+async function getDomainOrder() {
+  return new Promise(resolve => {
+    chrome.storage.local.get(['preferredDomain'], (r) => {
+      resolve(r.preferredDomain === 'cn'
+        ? ['leetcode.cn', 'leetcode.com']
+        : ['leetcode.com', 'leetcode.cn']);
+    });
   });
+}
+
+// Host to use when building user-facing links (problem/problemset).
+async function getPreferredHost() {
+  return (await getDomainOrder())[0];
+}
+
+// Helper for LeetCode GraphQL requests.
+// Returns parsed JSON (not a Response). Tries the preferred domain first and
+// falls back to the other domain on network error or when the response reports
+// the user is signed out (separate .com / .cn accounts).
+async function leetcodeFetch(body) {
+  const domains = await getDomainOrder();
+  let lastJson = null;
+  for (const domain of domains) {
+    try {
+      const res = await fetch(`https://${domain}/graphql`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body)
+      });
+      const json = await res.json();
+      lastJson = json;
+      // If this query carries auth state and we're signed out, try the next domain.
+      if (json?.data?.userStatus && json.data.userStatus.isSignedIn === false) continue;
+      return json;
+    } catch (e) {
+      // network/permission error → try the next domain
+    }
+  }
+  return lastJson; // both domains failed/signed-out → return last seen JSON (may be null)
 }
 
 function getTodayDate() {
@@ -148,7 +182,7 @@ function calculateFocusStreak(solvedProblems, requirements, frozenDates = []) {
 // Fetch current streak directly from LeetCode API (source of truth)
 async function fetchStreakFromLeetCode() {
   try {
-    const response = await leetcodeFetch({
+    const data = await leetcodeFetch({
       query: `
         query globalData {
           userStatus {
@@ -160,7 +194,6 @@ async function fetchStreakFromLeetCode() {
         }
       `
     });
-    const data = await response.json();
     if (!data?.data?.userStatus?.isSignedIn) return null;
     return data?.data?.streakCounter?.streakCount || 0;
   } catch (e) {
@@ -452,7 +485,7 @@ async function checkLeetCodeCompletion() {
     const today = getTodayDate();
 
     // Always fetch from LeetCode API to keep streak in sync
-    const response = await leetcodeFetch({
+    const data = await leetcodeFetch({
         query: `
           query globalData {
             userStatus {
@@ -470,7 +503,6 @@ async function checkLeetCodeCompletion() {
         `
     });
 
-    const data = await response.json();
     const userStatus = data?.data?.userStatus;
 
     // Only proceed if user is signed in
@@ -484,12 +516,17 @@ async function checkLeetCodeCompletion() {
 
     const currentStreak = streakData?.streakCount || 0;
 
+    // Timestamp of this successful sync, so the frequent badge alarm can tell
+    // whether the streak data is fresh or needs a re-fetch.
+    const lastStreakSync = Date.now();
+
     if (completedToday) {
       // Update storage with completion status and streak from LeetCode API
       await chrome.storage.local.set({
         lastVisitedDate: today,
         lastSolvedDate: today,
         currentStreak,
+        lastStreakSync,
         leetCodeUsername: userStatus.username,
         leetCodeAvatar: userStatus.avatar
       });
@@ -500,6 +537,7 @@ async function checkLeetCodeCompletion() {
       // Even if not completed today, update streak from API
       await chrome.storage.local.set({
         currentStreak,
+        lastStreakSync,
         leetCodeUsername: userStatus.username,
         leetCodeAvatar: userStatus.avatar
       });
@@ -511,13 +549,42 @@ async function checkLeetCodeCompletion() {
   }
 }
 
-// Sync streak from LeetCode API immediately on service worker startup
+// How stale (ms) the streak data may be before the frequent badge alarm
+// re-fetches it from the API. Guards against the 5-min poll being throttled or
+// skipped while the service worker sleeps (MV3 behavior).
+const STREAK_STALE_MS = 5 * 60 * 1000;
+
+// Re-fetch the streak if it hasn't been synced recently, then update the badge.
+// Called from the 1-min badge alarm so the badge self-heals even when the 5-min
+// API poll gets throttled by Chrome.
+async function refreshBadgeIfStale() {
+  const { lastStreakSync } = await chrome.storage.local.get(["lastStreakSync"]);
+  if (!lastStreakSync || Date.now() - lastStreakSync > STREAK_STALE_MS) {
+    await checkLeetCodeCompletion(); // fetches + writes + updates badge
+  } else {
+    updateBadge(); // data is fresh; just re-render from storage
+  }
+}
+
+// Idempotent: chrome.alarms.create with the same name replaces the existing
+// alarm, so calling this on both startup and install is safe.
+function ensureAlarms() {
+  chrome.alarms.create("leetcodeApiPoll", { periodInMinutes: 5 });
+  chrome.alarms.create("badgeUpdate", { periodInMinutes: 1 });
+}
+
+// Sync streak from LeetCode API immediately whenever the service worker spins up
+// (install, update, browser start, or event-driven wake).
 checkLeetCodeCompletion();
 updateBadge();
+ensureAlarms();
 
-// Use chrome.alarms instead of setInterval (MV3 service workers get killed, killing setInterval)
-chrome.alarms.create("leetcodeApiPoll", { periodInMinutes: 5 });
-chrome.alarms.create("badgeUpdate", { periodInMinutes: 1 });
+// Re-prime alarms + streak on browser startup — top-level code alone isn't
+// guaranteed to re-create alarms after a browser restart.
+chrome.runtime.onStartup.addListener(() => {
+  ensureAlarms();
+  checkLeetCodeCompletion();
+});
 
 // Notification system
 function setupDailyReminder(time = "10:00") {
@@ -600,29 +667,30 @@ chrome.notifications.onClicked.addListener((notificationId) => {
   // Clear the notification immediately
   chrome.notifications.clear(notificationId);
   // Fetch today's problem and open it
-  leetcodeFetch({
-      query: `
-        query questionOfToday {
-          activeDailyCodingChallengeQuestion {
-            question {
-              titleSlug
+  (async () => {
+    const host = await getPreferredHost();
+    try {
+      const data = await leetcodeFetch({
+        query: `
+          query questionOfToday {
+            activeDailyCodingChallengeQuestion {
+              question {
+                titleSlug
+              }
             }
           }
-        }
-      `
-  })
-    .then(response => response.json())
-    .then(data => {
+        `
+      });
       const slug = data?.data?.activeDailyCodingChallengeQuestion?.question?.titleSlug;
       if (slug) {
-        chrome.tabs.create({ url: `https://leetcode.com/problems/${slug}` });
+        chrome.tabs.create({ url: `https://${host}/problems/${slug}` });
       } else {
-        chrome.tabs.create({ url: "https://leetcode.com/problemset/" });
+        chrome.tabs.create({ url: `https://${host}/problemset/` });
       }
-    })
-    .catch(() => {
-      chrome.tabs.create({ url: "https://leetcode.com/problemset/" });
-    });
+    } catch (e) {
+      chrome.tabs.create({ url: `https://${host}/problemset/` });
+    }
+  })();
 });
 
 // Handle alarm triggers
@@ -649,9 +717,10 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     checkLeetCodeCompletion();
   }
 
-  // Badge update — replaces setInterval
+  // Badge update — replaces setInterval. Self-heals a stale streak by
+  // re-fetching if the 5-min poll was throttled while the worker slept.
   if (alarm.name === "badgeUpdate") {
-    updateBadge();
+    refreshBadgeIfStale();
     checkUrgentReminder();
   }
 });
@@ -731,7 +800,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
         console.log('📝 Individual problem solved:', problemData.title);
 
         // Check if this is today's daily challenge
-        const response = await leetcodeFetch({
+        const data = await leetcodeFetch({
             query: `
               query questionOfToday {
                 activeDailyCodingChallengeQuestion {
@@ -743,7 +812,6 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
             `
         });
 
-        const data = await response.json();
         const dailySlug = data?.data?.activeDailyCodingChallengeQuestion?.question?.titleSlug;
         problemData.isDailyChallenge = (problemData.titleSlug === dailySlug);
 

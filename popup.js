@@ -9,14 +9,48 @@ function escapeHtml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Helper for LeetCode GraphQL requests
-async function leetcodeFetch(body) {
-  return fetch("https://leetcode.com/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(body)
+// Returns ordered list of LeetCode domains based on saved preference.
+// Preferred domain is tried first; the other is the fallback.
+async function getDomainOrder() {
+  return new Promise(resolve => {
+    chrome.storage.local.get(['preferredDomain'], (r) => {
+      resolve(r.preferredDomain === 'cn'
+        ? ['leetcode.cn', 'leetcode.com']
+        : ['leetcode.com', 'leetcode.cn']);
+    });
   });
+}
+
+// Host to use when building user-facing links (problem/profile/problemset/login).
+async function getPreferredHost() {
+  return (await getDomainOrder())[0];
+}
+
+// Helper for LeetCode GraphQL requests.
+// Returns parsed JSON (not a Response). Tries the preferred domain first and
+// falls back to the other domain on network error or when the response reports
+// the user is signed out (separate .com / .cn accounts).
+async function leetcodeFetch(body) {
+  const domains = await getDomainOrder();
+  let lastJson = null;
+  for (const domain of domains) {
+    try {
+      const res = await fetch(`https://${domain}/graphql`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body)
+      });
+      const json = await res.json();
+      lastJson = json;
+      // If this query carries auth state and we're signed out, try the next domain.
+      if (json?.data?.userStatus && json.data.userStatus.isSignedIn === false) continue;
+      return json;
+    } catch (e) {
+      // network/permission error → try the next domain
+    }
+  }
+  return lastJson; // both domains failed/signed-out → return last seen JSON (may be null)
 }
 
 // List helpers - inlined for Chrome extension compatibility
@@ -213,7 +247,7 @@ async function getProblemCompanyData(titleSlug) {
 
 async function fetchLeetCodeUserData() {
   try {
-    const response = await leetcodeFetch({
+    const data = await leetcodeFetch({
         query: `
           query globalData {
             userStatus {
@@ -231,7 +265,6 @@ async function fetchLeetCodeUserData() {
         `
     });
 
-    const data = await response.json();
     const userStatus = data?.data?.userStatus;
     if (!userStatus?.isSignedIn) {
       return null;
@@ -271,7 +304,7 @@ async function calculateAndSaveLongestStreak(username) {
           }
         }`,
         variables: { username, year }
-      }).then(r => r.json()).catch(() => null)
+      }).catch(() => null)
     ));
 
     let allDates = [];
@@ -335,9 +368,8 @@ async function getDailyQuestionSlug() {
     `
   };
 
-  const response = await leetcodeFetch(query);
+  const data = await leetcodeFetch(query);
 
-  const data = await response.json();
   const challenge = data.data.activeDailyCodingChallengeQuestion;
   return { ...challenge.question, date: challenge.date };
 }
@@ -351,7 +383,7 @@ async function syncCompletedProblemIds() {
       chrome.storage.local.get(['completedProblemIds'], r => resolve(r.completedProblemIds || []));
     });
 
-    const response = await leetcodeFetch({
+    const data = await leetcodeFetch({
         query: `query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
           problemsetQuestionList: questionList(categorySlug: $categorySlug, limit: $limit, skip: $skip, filters: $filters) {
             totalNum
@@ -361,7 +393,6 @@ async function syncCompletedProblemIds() {
         variables: { categorySlug: "", limit: 3000, skip: 0, filters: {} }
     });
 
-    const data = await response.json();
     const questions = data?.data?.problemsetQuestionList?.data || [];
     const apiIds = questions
       .filter(q => q.status === "ac")
@@ -388,7 +419,7 @@ async function syncCompletedProblemIds() {
 
 async function fetchUserSolvedStats(username) {
   try {
-    const response = await leetcodeFetch({
+    const data = await leetcodeFetch({
         query: `
           query userProblemsSolved($username: String!) {
             matchedUser(username: $username) {
@@ -404,7 +435,6 @@ async function fetchUserSolvedStats(username) {
         variables: { username }
     });
 
-    const data = await response.json();
     const stats = data?.data?.matchedUser?.submitStatsGlobal?.acSubmissionNum || [];
 
     return {
@@ -427,7 +457,7 @@ async function fetchLast30DaysHistory(username) {
 
     // Fetch daily challenge status for current and last month
     const fetchDailyChallenges = async (y, m) => {
-      const response = await leetcodeFetch({
+      const data = await leetcodeFetch({
           query: `
             query dailyCodingQuestionRecords($year: Int!, $month: Int!) {
               dailyCodingChallengeV2(year: $year, month: $month) {
@@ -440,14 +470,13 @@ async function fetchLast30DaysHistory(username) {
           `,
           variables: { year: y, month: m }
       });
-      const data = await response.json();
       return data?.data?.dailyCodingChallengeV2?.challenges || [];
     };
 
     // Fetch submission calendar (problems solved per day)
     const fetchSubmissionCalendar = async () => {
       if (!username) return {};
-      const response = await leetcodeFetch({
+      const data = await leetcodeFetch({
           query: `
             query userProfileCalendar($username: String!) {
               matchedUser(username: $username) {
@@ -459,7 +488,6 @@ async function fetchLast30DaysHistory(username) {
           `,
           variables: { username }
       });
-      const data = await response.json();
       const calendarStr = data?.data?.matchedUser?.userCalendar?.submissionCalendar;
       return calendarStr ? JSON.parse(calendarStr) : {};
     };
@@ -644,7 +672,7 @@ function renderQuestion(question, companyData = null) {
   const hasCompanyData = companyData && companyData.companies && companyData.companies.length > 0;
   const companiesArray = hasCompanyData ? companyData.companies : [];
 
-  const problemUrl = `https://leetcode.com/problems/${question.titleSlug}`;
+  const problemSlug = question.titleSlug;
 
   // Book icon for topics
   const bookIcon = `<svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
@@ -703,8 +731,9 @@ function renderQuestion(question, companyData = null) {
   }
 
   // Open problem — clicking "Daily Challenge ↗" header
-  document.getElementById("open-problem-header").addEventListener("click", () => {
-    chrome.tabs.create({ url: problemUrl });
+  document.getElementById("open-problem-header").addEventListener("click", async () => {
+    const host = await getPreferredHost();
+    chrome.tabs.create({ url: `https://${host}/problems/${problemSlug}` });
   });
 
   // Acceptance rate tooltip
@@ -725,7 +754,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error('Failed to load daily challenge:', err);
     const questionEl = document.getElementById("question");
     if (questionEl) {
-      questionEl.innerHTML = `<div class="text-[12px] text-[#eff1f699]">Could not load daily challenge. <a href="https://leetcode.com/problemset/" target="_blank" class="text-[#ffa116] hover:underline">Open LeetCode</a></div>`;
+      const host = await getPreferredHost();
+      questionEl.innerHTML = `<div class="text-[12px] text-[#eff1f699]">Could not load daily challenge. <a href="https://${host}/problemset/" target="_blank" class="text-[#ffa116] hover:underline">Open LeetCode</a></div>`;
     }
   }
 
@@ -845,7 +875,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   // Show/hide login prompt and stats panel based on login state
-  function updateLoginState(isLoggedIn, userData = null) {
+  async function updateLoginState(isLoggedIn, userData = null) {
     const loginPrompt = document.getElementById("login-prompt");
     const statsPanel = document.getElementById("stats-panel");
     const avatar = document.getElementById("user-avatar");
@@ -872,12 +902,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Make avatar/username clickable to open LeetCode profile
       const profileLink = document.getElementById("user-profile-link");
       profileLink.title = `Open ${userData.username}'s LeetCode profile`;
-      profileLink.onclick = () => {
-        chrome.tabs.create({ url: `https://leetcode.com/u/${userData.username}/` });
+      profileLink.onclick = async () => {
+        const host = await getPreferredHost();
+        chrome.tabs.create({ url: `https://${host}/u/${userData.username}/` });
       };
     } else {
       loginPrompt.classList.remove("hidden");
       statsPanel.classList.add("hidden");
+
+      // Point the sign-in link at the preferred region
+      const loginLink = document.getElementById("login-link");
+      if (loginLink) {
+        const host = await getPreferredHost();
+        loginLink.href = `https://${host}/accounts/login/`;
+      }
 
       // Hide sections that need login
       const heatmapSection = document.getElementById("heatmap-section");
@@ -959,14 +997,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           );
           if (!hasTodaySolve) {
             try {
-              const dcResp = await leetcodeFetch({
+              const dcData = await leetcodeFetch({
                 query: `query questionOfToday {
                   activeDailyCodingChallengeQuestion {
                     question { titleSlug title questionFrontendId difficulty topicTags { name } }
                   }
                 }`
               });
-              const dcData = await dcResp.json();
               const q = dcData?.data?.activeDailyCodingChallengeQuestion?.question;
               if (q) {
                 await new Promise(resolve => {
@@ -1393,6 +1430,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       chrome.runtime.sendMessage({ action: "updateBadge" });
       debouncedPushPrefs();
     });
+  });
+
+  // LeetCode region (leetcode.com vs leetcode.cn)
+  const domainCom = document.getElementById("domain-com");
+  const domainCn = document.getElementById("domain-cn");
+
+  chrome.storage.local.get(["preferredDomain"], (result) => {
+    if (result.preferredDomain === 'cn') {
+      domainCn.checked = true;
+    } else {
+      domainCom.checked = true;
+    }
+  });
+
+  domainCom.addEventListener("change", () => {
+    chrome.storage.local.set({ preferredDomain: 'com' });
+  });
+
+  domainCn.addEventListener("change", () => {
+    chrome.storage.local.set({ preferredDomain: 'cn' });
   });
 
   // Custom Time Picker
@@ -2142,7 +2199,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
           }`,
           variables: { username, year }
-        }).then(r => r.json()).catch(() => null)
+        }).catch(() => null)
       ));
 
       for (const data of responses) {
