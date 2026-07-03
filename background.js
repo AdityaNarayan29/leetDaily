@@ -402,6 +402,9 @@ function stopLoadingBlink() {
   updateBadge();
 }
 
+// INVARIANT: updateBadge() must stay network-independent — it reads only from
+// storage and ALWAYS renders the badge. Never gate it on a fetch/network result,
+// or the badge goes blank/stale when offline. See BADGE_SYSTEM.md before editing.
 function updateBadge() {
   chrome.storage.local.get([
     "lastSolvedDate",
