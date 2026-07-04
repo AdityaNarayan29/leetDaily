@@ -1,87 +1,68 @@
 # Chrome Web Store Listing — LeetDaily v3.0.0
 
-## Name
+> This file mirrors the **live** Chrome Web Store listing copy. Paste the Title,
+> Summary, and Description below into the Developer Dashboard when publishing.
+
+## Title
 LeetDaily — LeetCode Interview Prep & Tracker
 
-## Short Description (132 chars max)
-Daily LeetCode challenges, 6 DSA sheets (Blind 75, NeetCode 150), FAANG tags, streaks & reminders. Global & China (leetcode.cn).
+## Summary (132 chars max)
+Daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, streaks & reminders. Works with LeetCode Global & China.
 
-## Detailed Description
+## Description
 
-LeetDaily is the all-in-one LeetCode interview prep companion — daily challenges, curated study lists, FAANG company tags, streak tracking, and a full problems explorer, all one click from your browser toolbar.
+🔥 LeetDaily – Daily LeetCode Tracker & Coding Habit Builder
 
-DASHBOARD
-- Today's daily challenge with difficulty, acceptance rate, topic tags, company tags, and ✓ Solved status
-- Click "Daily Challenge" to jump straight to the problem on LeetCode
-- Total solved with Easy/Medium/Hard breakdown, synced from your LeetCode account
-- 30-day activity heatmap with color-coded submission counts and daily challenge checkmarks
-- Dual streak display: 🎯 Focus streak (days on your plan) + 🔥 LeetCode streak (official)
-- Click your streak to see longest streak (calculated from your full LeetCode history), milestones, and last 7 days
-- Click your avatar or username to open your LeetCode profile
+Stay consistent with your coding goals — and never miss a LeetCode Daily Challenge again. LeetDaily is a fast, lightweight Chrome extension that delivers the LeetCode Daily Challenge directly to your browser, helping you stay sharp, focused, and committed to daily problem-solving. Now with full support for both LeetCode Global (leetcode.com) and LeetCode China (leetcode.cn / 力扣).
 
-LEETCODE CHINA (力扣) SUPPORT
-- Choose your region in settings: Global (leetcode.com) or China (leetcode.cn)
-- Problem links, daily challenge, streak, and stats all follow your selected region
-- Automatic fallback: if you're not signed in to your chosen region, LeetDaily fetches your data from the other one
-- Works whether you use leetcode.com, leetcode.cn, or both
+🚀 Core Features:
 
-6 CURATED DSA SHEETS
-- Blind 75 — The classic 75 interview problems (74 problems)
-- NeetCode 150 — NeetCode's comprehensive roadmap (158 problems)
-- Namaste DSA — Namaste Dev's DSA sheet (147 LeetCode problems)
-- Fraz DSA — LeadCoding's DSA sheet by Fraz (305 LeetCode problems)
-- Striver SDE Sheet — TakeUForward's SDE sheet (121 LeetCode problems)
-- LeetCode 75 — LeetCode's own study plan (75 problems)
-- Live progress bars with percentage for each list
-- One-click sequential next-unsolved problem navigation
+🌐 LeetCode Global & China (力扣) Support
+Choose your region in settings — leetcode.com or leetcode.cn. Your daily challenge, problem links, streak, and stats all follow the region you pick. Not signed in there? LeetDaily automatically falls back to your other account, so it works whether you use LeetCode.com, LeetCode China, or both.
 
-TAG & COMPANY PROGRESS
-- Track solved/total for selected topics (Arrays, DP, Graphs, etc.)
-- Track solved/total for target companies (Google, Meta, Amazon, etc.)
-- Intersection view: see problems matching both your topics AND companies
-- Accordion breakdown with color-coded individual tag progress
+🔥 Instant Access to Daily LeetCode Challenge
+Automatically displays the latest LeetCode Daily Problem with the full problem title. One click to solve — no searching required.
 
-PROBLEMS EXPLORER
-- Browse and search all 3800+ LeetCode problems in a full-page view
-- Filter by difficulty, topics, companies, and 6 curated lists
-- Sort by ID, title, difficulty, acceptance rate, or frequency
-- List badges (B75, NC, ND, FZ, SV, LC) and solved checkmarks on every row
-- Click any topic or company chip to filter instantly
+🏢 Company Tags
+See which companies have asked this problem in interviews — with frequency data showing how often each company asks it.
 
-SMART REMINDERS
-- Daily reminder at your chosen time
-- Streak-at-risk alert 2 hours before midnight reset
-- Extension icon badge shows your streak count (choose Focus or LeetCode streak in settings)
-- Badge color: green (goal met), orange (pending), red blink (urgent)
+👤 LeetCode Account Sync
+Automatically syncs with your LeetCode account to display your profile photo, username, and real stats. See your actual solved count and streak directly from LeetCode.
 
-CROSS-DEVICE SETTINGS SYNC
-- Your streak preferences, reminder settings, and badge options sync across devices automatically
-- Just log into LeetCode on any device — your settings appear instantly
-- Only preferences are synced to the cloud; all solve history and progress stay local on your device
+📊 Your Solved Stats at a Glance
+View your total problems solved, broken down by Easy, Medium, and Hard — synced live from your LeetCode profile.
 
-FOCUS AREAS & SETTINGS
-- Set your prep focus: Blind 75, NeetCode 150, LeetCode 75, Daily Challenge, company tags, topic tags, or any submission
-- Focus streak (🎯) tracks consecutive days you solved a problem matching your focus areas
-- 3 streak freezes per month — miss a day and your focus streak is preserved automatically
-- Choose which streak to show on the badge: Focus streak or LeetCode streak
-- Light/Dark theme toggle
-- Combobox inputs to pick which topics and companies to track
-- Export/import all progress as JSON backup
-- Privacy-first: solve history stored locally, only settings synced to the cloud (no tracking, no ads)
+📅 30-Day Activity Heatmap
+Visual heatmap showing your submission activity over the last 30 days. Color intensity reflects how many problems you solved each day, with checkmarks for daily challenge completions.
 
-HOW TO USE
-1. Sign in to LeetCode in your browser (leetcode.com or leetcode.cn)
-2. Click the LeetDaily icon in your toolbar
-3. Your stats, streak, and progress sync automatically
-4. Set your focus areas and reminders in Settings
-5. Use the Problems Explorer to find your next challenge
+🏆 Streak Tracking with Milestones
+Automatic streak tracking synced with LeetCode. Hit 7, 14, 30, 50, 100, or 365 days? Celebrate with milestone badges and banners!
 
-PERMISSIONS
-- Storage: Save your progress and settings locally
-- Alarms: Schedule daily reminder notifications
-- Notifications: Show streak reminders
-- leetcode.com / leetcode.cn: Sync your solved status and daily challenge from your chosen region
-- leetdaily-prefs.leetdaily.workers.dev: Sync your settings/preferences only (no solve history or personal data is sent)
+🔔 Smart Notifications
+Daily reminder at 9 AM to solve the challenge
+Urgent alert 2 hours before midnight UTC if you haven't solved yet
+Toggle notifications on/off in settings
+
+🎯 Difficulty & Acceptance Insights
+Quickly evaluate the challenge with clear indicators for difficulty (Easy / Medium / Hard) and real-time global acceptance rate.
+
+🏷️ Topic Tags at a Glance
+Expandable topic tags like Arrays, Heap, Greedy, or Dynamic Programming — click any tag to explore related problems on LeetCode.
+
+📋 Copy Problem Link
+One-click copy button to share the daily challenge with friends or save for later.
+
+⏰ Countdown Timer
+See exactly how much time remains before the next daily challenge drops.
+
+📌 Yesterday's Problem
+Missed yesterday? Quick link to catch up on the previous day's challenge.
+
+🔗 One-Click Navigation
+Jump straight to the problem on LeetCode. Button shows "Solved" when you've completed today's challenge.
+
+🎯 Why LeetDaily?
+Whether you're preparing for software engineering interviews, building a daily coding habit, or participating in #100DaysOfCode, LeetDaily keeps your progress visible, your mind engaged, and your goals within reach. Works with LeetCode Global and LeetCode China (力扣). No ads. No clutter. Just pure LeetCode consistency.
 
 ---
 
@@ -93,7 +74,7 @@ English
 
 ## Screenshots Needed (1280x800 or 640x400)
 1. Dashboard — Main popup showing daily challenge, stats, heatmap, and streak
-2. Study Lists — Blind 75, NeetCode 150, LC 75 progress bars
-3. Tag Progress — Topic and company progress with intersection view
+2. Region Setting — Global (leetcode.com) vs China (leetcode.cn) toggle in Settings
+3. Study Lists — Blind 75, NeetCode 150, LC 75 progress bars
 4. Problems Explorer — Full-page table with filters, badges, and solved checks
 5. Settings — Focus areas, badge display, reminders, and data export/import
