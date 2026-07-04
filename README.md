@@ -13,6 +13,7 @@ Track 6 curated DSA sheets, daily challenges, FAANG company tags, dual streaks, 
 
 ## Highlights
 
+- **LeetCode China (leetcode.cn) Support** — Choose Global or China region in settings; links, streak & stats follow your choice, with automatic fallback to the other region
 - **6 Curated DSA Sheets** — Blind 75, NeetCode 150, Namaste DSA (147), Fraz DSA (305), Striver SDE (121), LeetCode 75 — with live progress bars and sequential next-unsolved
 - **Dual Streak Tracking** — 🎯 Focus streak (days on your prep plan) + 🔥 LeetCode streak (official, from API)
 - **Streak Freezes** — 3 per month, auto-applied when you miss a day

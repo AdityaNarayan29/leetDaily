@@ -4,7 +4,7 @@
 LeetDaily — LeetCode Interview Prep & Tracker
 
 ## Short Description (132 chars max)
-Ace coding interviews with 6 DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz), FAANG tags, streaks & reminders.
+Daily LeetCode challenges, 6 DSA sheets (Blind 75, NeetCode 150), FAANG tags, streaks & reminders. Global & China (leetcode.cn).
 
 ## Detailed Description
 

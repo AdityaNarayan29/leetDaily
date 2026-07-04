@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://leetdaily.masst.dev"),
   title: "LeetDaily — LeetCode Interview Prep & Tracker",
   description:
-    "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 3800+ problems explorer, streaks & smart reminders.",
+    "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 3800+ problems explorer, streaks & smart reminders. Supports LeetCode Global & China (leetcode.cn).",
   keywords: [
     "LeetCode",
     "interview prep",
@@ -33,6 +33,10 @@ export const metadata: Metadata = {
     "Namaste DSA",
     "Fraz DSA",
     "DSA sheet",
+    "LeetCode China",
+    "leetcode.cn",
+    "力扣",
+    "LeetCode CN tracker",
   ],
   icons: {
     icon: "/favicon.ico",
