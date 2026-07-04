@@ -7,7 +7,7 @@
 LeetDaily — LeetCode Interview Prep & Tracker
 
 ## Summary (132 chars max)
-Daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, streaks & reminders. Works with LeetCode Global & China.
+Daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG tags, streaks & reminders. Works with Global & China.
 
 ## Description
 
