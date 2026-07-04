@@ -1,4 +1,4 @@
-# Chrome Web Store Listing — LeetDaily v2.4.0
+# Chrome Web Store Listing — LeetDaily v3.0.0
 
 ## Name
 LeetDaily — LeetCode Interview Prep & Tracker
@@ -18,6 +18,12 @@ DASHBOARD
 - Dual streak display: 🎯 Focus streak (days on your plan) + 🔥 LeetCode streak (official)
 - Click your streak to see longest streak (calculated from your full LeetCode history), milestones, and last 7 days
 - Click your avatar or username to open your LeetCode profile
+
+LEETCODE CHINA (力扣) SUPPORT
+- Choose your region in settings: Global (leetcode.com) or China (leetcode.cn)
+- Problem links, daily challenge, streak, and stats all follow your selected region
+- Automatic fallback: if you're not signed in to your chosen region, LeetDaily fetches your data from the other one
+- Works whether you use leetcode.com, leetcode.cn, or both
 
 6 CURATED DSA SHEETS
 - Blind 75 — The classic 75 interview problems (74 problems)

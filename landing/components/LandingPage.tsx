@@ -697,6 +697,13 @@ export default function LandingPage() {
                 gradient: "from-orange-500 to-red-500",
               },
               {
+                icon: Globe,
+                title: "LeetCode China Support",
+                description:
+                  "Choose your region — leetcode.com or leetcode.cn (力扣). Problem links, streak, and stats follow your choice, with automatic fallback to the other region if you're signed in there.",
+                gradient: "from-red-500 to-rose-500",
+              },
+              {
                 icon: BookOpen,
                 title: "6 Curated DSA Sheets",
                 description:
