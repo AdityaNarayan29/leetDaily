@@ -70,7 +70,7 @@ FOCUS AREAS & SETTINGS
 - Privacy-first: solve history stored locally, only settings synced to the cloud (no tracking, no ads)
 
 HOW TO USE
-1. Sign in to leetcode.com in your browser
+1. Sign in to LeetCode in your browser (leetcode.com or leetcode.cn)
 2. Click the LeetDaily icon in your toolbar
 3. Your stats, streak, and progress sync automatically
 4. Set your focus areas and reminders in Settings
@@ -80,7 +80,7 @@ PERMISSIONS
 - Storage: Save your progress and settings locally
 - Alarms: Schedule daily reminder notifications
 - Notifications: Show streak reminders
-- leetcode.com: Sync your solved status and daily challenge
+- leetcode.com / leetcode.cn: Sync your solved status and daily challenge from your chosen region
 - leetdaily-prefs.leetdaily.workers.dev: Sync your settings/preferences only (no solve history or personal data is sent)
 
 ---
