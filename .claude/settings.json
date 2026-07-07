@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('manifest.json','utf8'\\)\\); console.log\\('manifest.json OK'\\)\")",
+      "Bash(node scratch-domain-test.mjs)",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(git check-ignore *)",
+      "Bash(git reset *)",
+      "Bash(unzip -p leetdaily.zip manifest.json)",
+      "Bash(unzip -p leetdaily.zip background.js)",
+      "Bash(zip -r leetdaily.zip manifest.json background.js content.js popup.html popup.js sync.js theme-init.js list-config.js icon.png problems-explorer.html problems-explorer.js styles/input.css styles/output.css data/namastedsa.json data/leetcode75.json data/frazdsa.json data/striversde.json data/leetcode-problems.json data/blind75.json data/neetcode150.json -x *.DS_Store)",
+      "Bash(unzip -p leetdaily.zip popup.js)",
+      "Bash(unzip -p leetdaily.zip content.js)",
+      "Bash(awk 'NR>3 && NF>=4 {print $4}')",
+      "Bash(grep -v '^$')",
+      "Bash(grep -qE \"Compiled successfully|Failed to compile|error|Error:|✓ Generating|Export encountered\" /private/tmp/claude-501/-Users-adityanarayan-Projects-leetDaily/eb8ce023-510e-4694-b880-d8f20d8011fc/tasks/bca8z6fja.output)",
+      "Bash(break)"
+    ]
+  }
+}

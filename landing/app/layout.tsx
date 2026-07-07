@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://leetdaily.masst.dev"),
+  metadataBase: new URL("https://leetdaily.com"),
   title: "LeetDaily — LeetCode Interview Prep & Tracker",
   description:
     "Ace coding interviews with daily LeetCode challenges, Blind 75/NeetCode 150 tracking, FAANG company tags, 3800+ problems explorer, streaks & smart reminders. Supports LeetCode Global & China (leetcode.cn).",
@@ -42,13 +42,13 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
   },
   alternates: {
-    canonical: "https://leetdaily.masst.dev",
+    canonical: "https://leetdaily.com",
   },
   openGraph: {
     title: "LeetDaily — LeetCode Interview Prep & Tracker",
     description:
       "Ace coding interviews with 6 DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz DSA), 3800+ problems explorer, FAANG tags & streaks.",
-    url: "https://leetdaily.masst.dev",
+    url: "https://leetdaily.com",
     type: "website",
     locale: "en_US",
     siteName: "LeetDaily",

@@ -5,7 +5,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts();
 
   const blogEntries: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `https://leetdaily.masst.dev/blog/${post.slug}`,
+    url: `https://leetdaily.com/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: "monthly",
     priority: 0.8,
@@ -13,25 +13,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: "https://leetdaily.masst.dev",
+      url: "https://leetdaily.com",
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: "https://leetdaily.masst.dev/dsa",
+      url: "https://leetdaily.com/dsa",
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: "https://leetdaily.masst.dev/blog",
+      url: "https://leetdaily.com/blog",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
-      url: "https://leetdaily.masst.dev/privacy",
+      url: "https://leetdaily.com/privacy",
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,

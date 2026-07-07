@@ -7,7 +7,7 @@ Track 6 curated DSA sheets, daily challenges, FAANG company tags, dual streaks, 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/kpmmlpoonleloofchbbfnmicchmhehcf?style=flat-square)](https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 
-**[Install](https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf)** · **[Landing Page](https://leetdaily.masst.dev)** · **[DSA Reference](https://leetdaily.masst.dev/dsa)** · **[Blog](https://leetdaily.masst.dev/blog)**
+**[Install](https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf)** · **[Landing Page](https://leetdaily.com)** · **[DSA Reference](https://leetdaily.com/dsa)** · **[Blog](https://leetdaily.com/blog)**
 
 ---
 
@@ -219,7 +219,7 @@ npx wrangler deploy
 - No passwords, personal data, or solve history is transmitted
 - No tracking, no ads, no analytics
 
-See our full [Privacy Policy](https://leetdaily.masst.dev/privacy).
+See our full [Privacy Policy](https://leetdaily.com/privacy).
 
 ---
 

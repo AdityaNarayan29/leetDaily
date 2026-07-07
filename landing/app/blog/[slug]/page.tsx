@@ -37,12 +37,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: post.keywords,
     authors: [{ name: post.author }],
     alternates: {
-      canonical: `https://leetdaily.masst.dev/blog/${slug}`,
+      canonical: `https://leetdaily.com/blog/${slug}`,
     },
     openGraph: {
       title: post.title,
       description: post.description,
-      url: `https://leetdaily.masst.dev/blog/${slug}`,
+      url: `https://leetdaily.com/blog/${slug}`,
       type: "article",
       publishedTime: post.date,
       authors: [post.author],
@@ -109,11 +109,11 @@ export default async function BlogPostPage({ params }: Props) {
     publisher: {
       "@type": "Organization",
       name: "LeetDaily",
-      url: "https://leetdaily.masst.dev",
+      url: "https://leetdaily.com",
     },
-    image: `https://leetdaily.masst.dev/blog/og/${slug}`,
-    url: `https://leetdaily.masst.dev/blog/${slug}`,
-    mainEntityOfPage: `https://leetdaily.masst.dev/blog/${slug}`,
+    image: `https://leetdaily.com/blog/og/${slug}`,
+    url: `https://leetdaily.com/blog/${slug}`,
+    mainEntityOfPage: `https://leetdaily.com/blog/${slug}`,
     keywords: post.keywords.join(", "),
     wordCount: post.content.split(/\s+/).length,
   };

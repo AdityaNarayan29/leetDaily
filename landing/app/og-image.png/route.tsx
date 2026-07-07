@@ -100,7 +100,7 @@ export async function GET() {
             color: "rgba(255,255,255,0.4)",
           }}
         >
-          Free Chrome Extension — leetdaily.masst.dev
+          Free Chrome Extension — leetdaily.com
         </div>
       </div>
     ),

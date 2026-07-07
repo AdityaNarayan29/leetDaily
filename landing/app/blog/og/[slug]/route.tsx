@@ -100,7 +100,7 @@ export async function GET(
             color: "rgba(255,255,255,0.3)",
           }}
         >
-          leetdaily.masst.dev/blog
+          leetdaily.com/blog
         </div>
       </div>
     ),

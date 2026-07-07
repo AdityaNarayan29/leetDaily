@@ -3,7 +3,7 @@ importScripts('list-config.js');
 importScripts('sync.js');
 
 // Set uninstall feedback URL
-chrome.runtime.setUninstallURL('https://leetdaily.masst.dev/uninstall');
+chrome.runtime.setUninstallURL('https://leetdaily.com/uninstall');
 
 // Returns ordered list of LeetCode domains based on saved preference.
 // Preferred domain is tried first; the other is the fallback.

@@ -14,7 +14,7 @@ export default function Home() {
     },
     description:
       "Ace coding interviews with 6 curated DSA sheets (Blind 75, NeetCode 150, Striver SDE, Namaste DSA, Fraz DSA, LeetCode 75), FAANG company tags, 3800+ problems explorer, streaks & smart reminders. Works with LeetCode Global and China (leetcode.cn).",
-    url: "https://leetdaily.masst.dev",
+    url: "https://leetdaily.com",
     installUrl:
       "https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf",
     downloadUrl:

@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://leetdaily.masst.dev/sitemap.xml",
+    sitemap: "https://leetdaily.com/sitemap.xml",
   };
 }

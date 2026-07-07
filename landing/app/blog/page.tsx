@@ -16,13 +16,13 @@ export const metadata: Metadata = {
     "coding interview prep",
   ],
   alternates: {
-    canonical: "https://leetdaily.masst.dev/blog",
+    canonical: "https://leetdaily.com/blog",
   },
   openGraph: {
     title: "Blog — LeetDaily",
     description:
       "Articles about LeetCode Chrome extensions, coding interview strategies, and developer productivity tools.",
-    url: "https://leetdaily.masst.dev/blog",
+    url: "https://leetdaily.com/blog",
     type: "website",
     siteName: "LeetDaily",
   },
