@@ -83,10 +83,14 @@ export default function UninstallFeedback() {
       </div>
 
       <div className="mb-6">
+        <label className="block mb-2 text-sm text-white/70">
+          What&apos;s one thing that would have made you stay?{" "}
+          <span className="text-white/40">(optional, but super helpful 🙏)</span>
+        </label>
         <textarea
           value={otherText}
           onChange={(e) => setOtherText(e.target.value)}
-          placeholder="Anything else you'd like to share? (optional)"
+          placeholder="e.g. a feature you needed, something confusing, what a competitor does better…"
           rows={3}
           className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.02] text-sm text-white/80 placeholder:text-white/30 focus:outline-none focus:border-orange-500/40 resize-none transition-colors"
         />
