@@ -183,55 +183,68 @@ async function notifyIndividualProblemSolved() {
 }
 
 // Always trigger badge update on accepted submission
-// The background script handles checking if it matches focus areas
-async function checkIfDailyAndUpdate() {
+// The background script handles checking if it matches focus areas.
+// delayMs: how long to wait before hitting the API (longer for the raw
+// submit-click fallback, which fires before LeetCode has judged the run).
+async function checkIfDailyAndUpdate(delayMs = 2000) {
   const titleSlug = getProblemSlugFromURL();
   if (!titleSlug) return;
 
-  // Always start loading blink — background will update badge correctly
+  // Always start loading blink — gives immediate "something happened" feedback;
+  // background will resolve the badge to the correct value.
   if (!isLoadingActive) {
     isLoadingActive = true;
     notifyLoading();
   }
   // Small delay to let LeetCode's backend update
-  setTimeout(() => checkAndNotifyCompletion(), 2000);
+  setTimeout(() => checkAndNotifyCompletion(), delayMs);
+}
+
+// Shared trigger guard so the DOM observer and the submit-click fallback don't
+// double-fire for the same submission.
+let solveHandled = false;
+function handleAcceptedSubmission() {
+  if (solveHandled) return;
+  solveHandled = true;
+
+  // Record the problem solve (silent, no badge blink)
+  notifyIndividualProblemSolved();
+  // Check if this is the daily challenge — blink badge + refresh streak
+  checkIfDailyAndUpdate();
+
+  // Reset trigger after 10 seconds to allow for the next submission
+  setTimeout(() => { solveHandled = false; }, 10000);
+}
+
+// Detect an "Accepted" result in a chunk of text. Deliberately loose: LeetCode
+// renders the result panel differently across redesigns and locales, and the
+// "Accepted" label may land in a different DOM node than "Runtime"/"Memory".
+// We match "Accepted" plus ANY nearby result-panel signal, and also accept the
+// localized 通过 used on leetcode.cn.
+function looksAccepted(text) {
+  if (!text) return false;
+  // leetcode.cn localized "Accepted"
+  if (text.includes('通过') && !text.includes('未通过') && !text.includes('不通过')) return true;
+  if (!text.includes('Accepted')) return false;
+  // Guard against "Wrong Answer"/editorial text that merely contains the word:
+  // require a result-panel companion signal somewhere in the same text.
+  return /Runtime|Memory|testcase|test case|ms\b|MB\b|beats|通过/.test(text);
 }
 
 // Listen for submission results by watching for success indicators
 function observeSubmissionResults() {
-  let hasTriggered = false;
-
   // Watch for DOM changes that indicate submission success
   const observer = new MutationObserver((mutations) => {
-    // Prevent multiple triggers from the same submission
-    if (hasTriggered) return;
+    if (solveHandled) return;
 
     for (const mutation of mutations) {
-      // Check for "Accepted" text appearing in the DOM
       if (mutation.type === "childList") {
         for (const node of mutation.addedNodes) {
-          // Only check text nodes and element nodes
           if (node.nodeType !== Node.TEXT_NODE && node.nodeType !== Node.ELEMENT_NODE) {
             continue;
           }
-
-          const text = node.textContent || '';
-
-          // Look for "Accepted" in submission result context
-          // LeetCode shows this in the result panel after submission
-          if (text.includes('Accepted') &&
-              (text.includes('Runtime') || text.includes('Memory') || text.includes('testcase'))) {
-            hasTriggered = true;
-
-            // Record the problem solve (silent, no badge blink)
-            notifyIndividualProblemSolved();
-
-            // Check if this is the daily challenge — only blink badge for daily
-            checkIfDailyAndUpdate();
-
-            // Reset trigger after 10 seconds to allow for next submission
-            setTimeout(() => { hasTriggered = false; }, 10000);
-
+          if (looksAccepted(node.textContent || '')) {
+            handleAcceptedSubmission();
             break;
           }
         }
@@ -239,16 +252,46 @@ function observeSubmissionResults() {
     }
   });
 
-  // Observe the entire document for changes
   observer.observe(document.body, {
     childList: true,
     subtree: true
   });
 }
 
+// FALLBACK: if the DOM text-scrape ever misses (LeetCode redesign, localized
+// panel, result rendered in a way our matcher doesn't catch), a click on the
+// Submit button still kicks off a background re-check. This does NOT assume the
+// submission was accepted — checkAndNotifyCompletion() asks the API for the
+// real streak/completion status, so a wrong answer simply results in no change.
+function watchSubmitButton() {
+  document.addEventListener('click', (e) => {
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+    // LeetCode's submit control: a button whose text is "Submit", or
+    // data-e2e-locator="console-submit-button" across their variants.
+    const btn = target.closest('button, a');
+    if (!btn) return;
+    const label = (btn.textContent || '').trim().toLowerCase();
+    const locator = btn.getAttribute('data-e2e-locator') || '';
+    const isSubmit = locator.includes('submit') ||
+      (label === 'submit' || label === '提交');
+    if (!isSubmit) return;
+
+    // Start the pulsate immediately for feedback, then (after LeetCode has had
+    // time to judge the run) let the API tell us the real streak/completion.
+    // Safe on a wrong answer: checkAndNotifyCompletion reads authoritative
+    // status from the API and changes nothing if the solve didn't count.
+    checkIfDailyAndUpdate(6000);
+  }, true); // capture phase — fires even if LeetCode stops propagation
+}
+
 // Start observing for submission results
 if (document.body) {
   observeSubmissionResults();
+  watchSubmitButton();
 } else {
-  document.addEventListener("DOMContentLoaded", observeSubmissionResults);
+  document.addEventListener("DOMContentLoaded", () => {
+    observeSubmissionResults();
+    watchSubmitButton();
+  });
 }
