@@ -20,9 +20,9 @@ export default function Home() {
     downloadUrl:
       "https://chromewebstore.google.com/detail/leetdaily/kpmmlpoonleloofchbbfnmicchmhehcf",
     browserRequirements: "Requires Chrome 117+",
-    softwareVersion: "3.0.0",
+    softwareVersion: "3.0.1",
     datePublished: "2025-07-04",
-    dateModified: "2026-07-05",
+    dateModified: "2026-07-16",
     featureList: "LeetCode China (leetcode.cn) support, 6 curated DSA sheets, dual streak tracking, 3800+ problems explorer, FAANG company tags, 30-day heatmap, smart reminders, cross-device sync, light/dark theme",
     author: {
       "@type": "Person",
